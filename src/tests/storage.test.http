@@ -1,0 +1,48 @@
+### Guardar JSON en Storage
+POST http://localhost:3000/api/saveJson/mi-archivo.json
+Content-Type: application/json
+
+{
+  "id": 456,
+  "title": "Mi documento JSON",
+  "data": {
+    "usuarios": [
+      {"nombre": "Juan", "edad": 30},
+      {"nombre": "María", "edad": 25}
+    ],
+    "configuracion": {
+      "tema": "oscuro",
+      "idioma": "es"
+    }
+  },
+  "timestamp": "2025-01-15T10:30:00Z",
+  "tags": ["importante", "config", "usuarios"]
+}
+
+### Obtener JSON desde Storage
+GET http://localhost:3000/api/getJson/mi-archivo.json
+
+### Guardar otro archivo
+POST http://localhost:3000/api/saveJson/configuracion-app.json
+Content-Type: application/json
+
+{
+  "version": "1.2.3",
+  "features": {
+    "darkMode": true,
+    "notifications": false,
+    "autoSave": true
+  },
+  "limits": {
+    "maxFiles": 100,
+    "maxSize": "10MB"
+  }
+}
+
+### Prueba de error - sin nombre de archivo
+POST http://localhost:3000/api/saveJson/
+Content-Type: application/json
+
+{
+  "test": "esto debería fallar"
+}
