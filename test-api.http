@@ -1,0 +1,13 @@
+### Prueba de POST a /api/test
+POST http://localhost:3000/api/test
+Content-Type: application/json
+
+{
+  "id": 123,
+  "title": "Hola Next.js",
+  "tags": ["api", "test", "nextjs"],
+  "author": {
+    "name": "Esteban",
+    "role": "dev"
+  }
+}
