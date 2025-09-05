@@ -35,7 +35,7 @@ export default function StorageExplorer() {
   const loadFiles = async () => {
     try {
       setRefreshing(true)
-      const response = await fetch('/api/listFiles')
+      const response = await fetch('/api/current-data')
       const result = await response.json()
 
       if (result.ok) {
@@ -57,7 +57,7 @@ export default function StorageExplorer() {
   const downloadFile = async (filename: string) => {
     try {
       setDownloadingFile(filename)
-      const response = await fetch(`/api/getJson/${filename}`)
+      const response = await fetch(`/api/current-data/${filename}`)
       const result: FileContent = await response.json()
 
       if (result.ok) {
