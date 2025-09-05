@@ -5,43 +5,51 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
-export async function GET() {
+export async function GET(request, { params }) {
   try {
-    console.log('📂 Listando archivos del storage...')
+    const { filename, bucket } = await params;
 
-    // Listar archivos del bucket 'json-files'
-    const { data, error } = await supabaseAdmin.storage
-      .from('json-files')
-      .list('', {
-        limit: 100,
-        offset: 0,
-        sortBy: { column: 'updated_at', order: 'desc' }
-      })
-
-    if (error) {
-      console.error('❌ Error al listar archivos:', error)
+    if (!filename) {
       return new Response(JSON.stringify({
         ok: false,
-        error: error.message
+        error: 'Nombre de archivo requerido'
       }), {
-        status: 500,
+        status: 400,
         headers: { 'Content-Type': 'application/json' }
       })
     }
 
-    // Filtrar solo archivos (no carpetas) y archivos JSON
-    const jsonFiles = data.filter(file =>
-      file.name &&
-      !file.name.endsWith('/') &&
-      (file.name.endsWith('.json') || file.metadata?.mimetype === 'application/json')
-    )
+    console.log(`🪣 Bucket: ${bucket}`);
+    console.log('📖 Leyendo archivo:', filename);
 
-    console.log(`✅ ${jsonFiles.length} archivos JSON encontrados`)
+    // Descargar el archivo desde Supabase Storage
+    const { data, error } = await supabaseAdmin.storage
+      .from(bucket)
+      .download(filename)
+
+    if (error) {
+      console.error('❌ Error al leer archivo:', error)
+      return new Response(JSON.stringify({
+        ok: false,
+        error: error.message
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
+
+    // Convertir el Blob a texto
+    const jsonText = await data.text()
+
+    // Parsear el JSON
+    const jsonData = JSON.parse(jsonText)
+
+    console.log('✅ Archivo leído exitosamente')
 
     return new Response(JSON.stringify({
       ok: true,
-      files: jsonFiles,
-      count: jsonFiles.length,
+      filename: filename,
+      data: jsonData,
       timestamp: new Date().toISOString()
     }), {
       status: 200,

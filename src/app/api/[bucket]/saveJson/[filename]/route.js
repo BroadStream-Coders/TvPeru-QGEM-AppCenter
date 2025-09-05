@@ -7,7 +7,7 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
 export async function POST(request, { params }) {
   try {
-    const { filename } = await params
+    const { filename, bucket } = await params;
 
     if (!filename) {
       return new Response(JSON.stringify({
@@ -22,6 +22,7 @@ export async function POST(request, { params }) {
     // Leer el JSON del body de la request
     const jsonData = await request.json()
 
+    console.log(`🪣 Bucket: ${bucket}`);
     console.log('📁 Guardando archivo:', filename)
     console.log('📄 Datos recibidos:', jsonData)
 
@@ -33,7 +34,7 @@ export async function POST(request, { params }) {
 
     // Subir a Supabase Storage
     const { data, error } = await supabaseAdmin.storage
-      .from('json-files')
+      .from(bucket)
       .upload(filename, fileBlob, {
         contentType: 'application/json',
         upsert: true // Sobrescribir si ya existe

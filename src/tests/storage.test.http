@@ -1,5 +1,9 @@
-### Guardar JSON en Storage
-POST http://localhost:3000/api/saveJson/mi-archivo.json
+### ================================
+### GUARDAR JSON EN STORAGE
+### ================================
+
+### Caso correcto: guardar archivo en bucket `sample-data`
+POST http://localhost:3000/api/sample-data/saveJson/mi-archivo.json
 Content-Type: application/json
 
 {
@@ -19,11 +23,8 @@ Content-Type: application/json
   "tags": ["importante", "config", "usuarios"]
 }
 
-### Obtener JSON desde Storage
-GET http://localhost:3000/api/getJson/mi-archivo.json
-
-### Guardar otro archivo
-POST http://localhost:3000/api/saveJson/configuracion-app.json
+### Caso correcto: guardar archivo en bucket `current-data`
+POST http://localhost:3000/api/current-data/saveJson/configuracion-app.json
 Content-Type: application/json
 
 {
@@ -39,10 +40,47 @@ Content-Type: application/json
   }
 }
 
-### Prueba de error - sin nombre de archivo
-POST http://localhost:3000/api/saveJson/
+### Caso de error: falta nombre de archivo
+POST http://localhost:3000/api/sample-data/saveJson/
 Content-Type: application/json
 
 {
   "test": "esto debería fallar"
 }
+
+
+### ================================
+### OBTENER JSON DESDE STORAGE
+### ================================
+
+### Caso correcto: obtener archivo existente
+GET http://localhost:3000/api/current-data/DeletreoData.json
+
+### Caso correcto: obtener otro archivo
+GET http://localhost:3000/api/sample-data/mi-archivo.json
+
+### Caso de error: archivo no existe
+GET http://localhost:3000/api/current-data/archivo-que-no-existe.json
+
+### Caso de error: bucket inexistente
+GET http://localhost:3000/api/bucket-falso/mi-archivo.json
+
+
+### ================================
+### LISTAR CONTENIDO DE UN BUCKET
+### ================================
+
+### Caso correcto: listar contenido de bucket `current-data`
+GET http://localhost:3000/api/current-data
+
+### Caso correcto: listar contenido de bucket `sample-data`
+GET http://localhost:3000/api/sample-data
+
+### Caso correcto: listar contenido de bucket `json-files`
+GET http://localhost:3000/api/json-files
+
+### Caso con parámetros extra (path, limit, orden)
+GET http://localhost:3000/api/current-data?path=PersonajesData&limit=5&sortBy=updated_at&sortOrder=desc
+
+### Caso de error: bucket inexistente
+GET http://localhost:3000/api/bucket-falso/listContent
