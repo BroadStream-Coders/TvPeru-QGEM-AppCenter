@@ -15,3 +15,10 @@ Content-Type: application/json
 
 ### Prueba de conexión a Supabase
 GET http://localhost:3000/api/test-supabase
+
+
+### Listar archivos dentro de una carpeta
+GET http://localhost:3000/api/current-data/listContent
+
+### Listar contenido de la carpeta "PersonajesData"
+GET http://localhost:3000/api/current-data/listContent?path=PersonajesData

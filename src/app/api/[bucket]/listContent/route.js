@@ -1,0 +1,116 @@
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+
+export async function GET(request, { params }) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const { bucket } = await params
+
+    const path = searchParams.get('path') || ''
+    const limit = parseInt(searchParams.get('limit') || '100')
+    const sortBy = searchParams.get('sortBy') || 'updated_at'
+    const sortOrder = searchParams.get('sortOrder') || 'desc'
+
+    console.log('📂 Listando archivos del storage...')
+    console.log(`🪣 Bucket: ${bucket}`)
+    console.log(`📁 Path: ${path || 'raíz'}`)
+
+    // Listar archivos del bucket especificado
+    const { data, error } = await supabaseAdmin.storage
+      .from(bucket)
+      .list(path, {
+        limit: limit,
+        offset: 0,
+        sortBy: { column: sortBy, order: sortOrder }
+      })
+
+    if (error) {
+      console.error('❌ Error al listar archivos:', error)
+      return new Response(JSON.stringify({
+        ok: false,
+        error: error.message,
+        bucket: bucket,
+        path: path
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
+
+    // Separar archivos y carpetas
+    const folders = []
+    const files = []
+
+    data.forEach(item => {
+      if (!item.name) return // Skip items without name
+
+      if (item.name.endsWith('/') || !item.metadata) {
+        // Es una carpeta
+        folders.push({
+          ...item,
+          type: 'folder',
+          fullPath: path ? `${path}/${item.name}` : item.name
+        })
+      } else {
+        // Es un archivo
+        const fileExtension = item.name.split('.').pop()?.toLowerCase()
+        const fileType = getFileType(fileExtension)
+
+        files.push({
+          ...item,
+          type: 'file',
+          fileType: fileType,
+          extension: fileExtension,
+          fullPath: path ? `${path}/${item.name}` : item.name
+        })
+      }
+    })
+
+    console.log(`✅ ${folders.length} carpetas y ${files.length} archivos encontrados`)
+
+    return new Response(JSON.stringify({
+      ok: true,
+      bucket: bucket,
+      path: path,
+      folders: folders,
+      files: files,
+      totalFolders: folders.length,
+      totalFiles: files.length,
+      timestamp: new Date().toISOString()
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    })
+
+  } catch (error) {
+    console.error('❌ Error inesperado:', error)
+    return new Response(JSON.stringify({
+      ok: false,
+      error: error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+}
+
+// Función helper para determinar el tipo de archivo
+function getFileType(extension) {
+  if (!extension) return 'unknown'
+
+  const imageTypes = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'pngd']
+  const documentTypes = ['json', 'txt', 'pdf', 'doc', 'docx']
+  const videoTypes = ['mp4', 'avi', 'mov', 'mkv', 'webm']
+  const audioTypes = ['mp3', 'wav', 'ogg', 'flac']
+
+  if (imageTypes.includes(extension)) return 'image'
+  if (documentTypes.includes(extension)) return 'document'
+  if (videoTypes.includes(extension)) return 'video'
+  if (audioTypes.includes(extension)) return 'audio'
+
+  return 'other'
+}
