@@ -3,7 +3,7 @@
 ### ================================
 
 ### Caso correcto: guardar archivo en bucket `sample-data`
-POST http://localhost:3000/api/sample-data/saveJson/mi-archivo.json
+POST http://localhost:3000/api/sample-data/mi-archivo.json
 Content-Type: application/json
 
 {
@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ### Caso correcto: guardar archivo en bucket `current-data`
-POST http://localhost:3000/api/current-data/saveJson/configuracion-app.json
+POST http://localhost:3000/api/current-data/configuracion-app.json
 Content-Type: application/json
 
 {
@@ -41,7 +41,7 @@ Content-Type: application/json
 }
 
 ### Caso de error: falta nombre de archivo
-POST http://localhost:3000/api/sample-data/saveJson/
+POST http://localhost:3000/api/sample-data/
 Content-Type: application/json
 
 {
