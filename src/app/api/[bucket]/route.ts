@@ -1,9 +1,8 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
 interface RouteParams {
   params: Promise<{
-    filename: string
     bucket: string
   }>
 }
@@ -21,14 +20,29 @@ interface FileItem {
   name: string
   id?: string
   updated_at?: string
-  metadata?: unknown
+  metadata?: {
+    size?: number
+    mimetype?: string
+    [key: string]: unknown
+  }
   type: 'file'
   fileType: string
   extension?: string
   fullPath: string
 }
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+interface SupabaseStorageItem {
+  name: string
+  id?: string
+  updated_at?: string
+  metadata?: {
+    size?: number
+    mimetype?: string
+    [key: string]: unknown
+  } | null
+}
+
+export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url)
     const { bucket } = await params
@@ -36,7 +50,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const path = searchParams.get('path') || ''
     const limit = parseInt(searchParams.get('limit') || '100')
     const sortBy = searchParams.get('sortBy') || 'updated_at'
-    const sortOrder = searchParams.get('sortOrder') || 'desc'
+    const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc'
 
     console.log('📂 Listando archivos del storage...')
     console.log(`🪣 Bucket: ${bucket}`)
@@ -53,22 +67,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     if (error) {
       console.error('❌ Error al listar archivos:', error)
-      return new Response(JSON.stringify({
+      return NextResponse.json({
         ok: false,
         error: error.message,
         bucket: bucket,
         path: path
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      })
+      }, { status: 500 })
     }
 
     // Separar archivos y carpetas
     const folders: FolderItem[] = []
     const files: FileItem[] = []
 
-    data.forEach(item => {
+    data.forEach((item: SupabaseStorageItem) => {
       if (!item.name) return // Skip items without name
 
       if (item.name.endsWith('/') || !item.metadata) {
@@ -85,6 +96,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
         files.push({
           ...item,
+          metadata: item.metadata,
           type: 'file',
           fileType: fileType,
           extension: fileExtension,
@@ -95,7 +107,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     console.log(`✅ ${folders.length} carpetas y ${files.length} archivos encontrados`)
 
-    return new Response(JSON.stringify({
+    return NextResponse.json({
       ok: true,
       bucket: bucket,
       path: path,
@@ -104,21 +116,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       totalFolders: folders.length,
       totalFiles: files.length,
       timestamp: new Date().toISOString()
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
     })
 
   } catch (error: unknown) {
     const err = error as Error;
     console.error('❌ Error inesperado:', err)
-    return new Response(JSON.stringify({
+    return NextResponse.json({
       ok: false,
       error: err.message
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    })
+    }, { status: 500 })
   }
 }
 
