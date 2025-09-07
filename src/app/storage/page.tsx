@@ -290,24 +290,6 @@ export default function StorageExplorer() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 mt-16">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <p className="text-purple-200 text-sm">Storage Explorer - TV Perú App Center</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-purple-200 text-sm">Sistema de archivos JSON</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm">Conectado</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
-
       {/* Background Elements */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>

@@ -53,7 +53,6 @@ export default function UnityPage() {
       padding: 0,
       border: 0,
       margin: 0,
-      width: '100vw',
       height: '100vh'
     }}>
       <div style={{
@@ -63,6 +62,7 @@ export default function UnityPage() {
         transform: 'translate(-50%, -50%)'
       }}>
         <canvas
+          // El id es muy importante para el canvas
           id="unity-canvas"
           ref={canvasRef}
           width={960}
