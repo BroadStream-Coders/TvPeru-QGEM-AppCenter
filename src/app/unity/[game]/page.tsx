@@ -48,13 +48,7 @@ export default function UnityPage() {
   }, [game])
 
   return (
-    <div style={{
-      textAlign: 'center',
-      padding: 0,
-      border: 0,
-      margin: 0,
-      height: '100vh'
-    }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900">
       <div style={{
         position: 'absolute',
         left: '50%',

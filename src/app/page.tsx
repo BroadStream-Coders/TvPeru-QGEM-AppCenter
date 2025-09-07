@@ -49,6 +49,62 @@ export default function Home() {
 
         {/* Applications Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+
+          {/* Current Data */}
+          <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-1">Datos Actuales</h3>
+                <p className="text-red-200">current-data</p>
+              </div>
+            </div>
+            <p className="text-red-100 mb-6">
+              Herramienta para que los docentes carguen datos directamente al sistema,
+              eliminando la necesidad de dispositivos USB físicos.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="/storage/current-data"
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center group-hover:shadow-lg"
+              >
+                Ver Datos →
+              </a>
+            </div>
+          </div>
+
+
+          {/* Sample Data */}
+          <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-1">Datos de Muestra</h3>
+                <p className="text-red-200">sample-data</p>
+              </div>
+            </div>
+            <p className="text-red-100 mb-6">
+              Herramienta para que los docentes carguen datos directamente al sistema,
+              eliminando la necesidad de dispositivos USB físicos.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="/storage/sample-data"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center group-hover:shadow-lg"
+              >
+                Ver Datos →
+              </a>
+            </div>
+          </div>
+
           {/* Data Collector */}
           <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
             <div className="flex items-center mb-6">
@@ -68,7 +124,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <a
-                href="/unity/data-collector/index.html"
+                href="/unity/data-collector"
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center group-hover:shadow-lg"
               >
                 Abrir Collector →
@@ -175,7 +231,7 @@ export default function Home() {
           </div>
         </div>
       </main>
-      
+
     </div>
   );
 }

@@ -76,11 +76,8 @@ GET http://localhost:3000/api/current-data
 ### Caso correcto: listar contenido de bucket `sample-data`
 GET http://localhost:3000/api/sample-data
 
-### Caso correcto: listar contenido de bucket `json-files`
-GET http://localhost:3000/api/json-files
-
 ### Caso con parámetros extra (path, limit, orden)
 GET http://localhost:3000/api/current-data?path=PersonajesData&limit=5&sortBy=updated_at&sortOrder=desc
 
 ### Caso de error: bucket inexistente
-GET http://localhost:3000/api/bucket-falso/listContent
+GET http://localhost:3000/api/json-files
