@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity Web Player | DataCollector</title>
+</head>
+
+<body style="text-align: center; padding: 0; border: 0; margin: 0;">
+
+  <div id="unity-container" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+    <canvas id="unity-canvas" width=960 height=600 tabindex="-1" style="width: 960px; height: 600px; background: #231F20"></canvas>
+  </div>
+  <script src="Build/data-collector.loader.js"></script>
+  <script>
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      var meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+
+      var canvas = document.querySelector("#unity-canvas");
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.position = "fixed";
+
+      document.body.style.textAlign = "left";
+    }
+
+    createUnityInstance(document.querySelector("#unity-canvas"), {
+      arguments: [],
+      dataUrl: "Build/data-collector.data",
+      frameworkUrl: "Build/data-collector.framework.js",
+      codeUrl: "Build/data-collector.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "BroadStream-Coders",
+      productName: "DataCollector",
+      productVersion: "v0.11.0",
+    }).then((unityInstance) => {
+    }).catch((message) => {
+      alert(message);
+    });
+  </script>
+</body>
+
+</html>
