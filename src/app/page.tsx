@@ -1,3 +1,4 @@
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -68,12 +69,12 @@ export default function Home() {
               eliminando la necesidad de dispositivos USB físicos.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <a
+              <Link
                 href="/storage/current-data"
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center group-hover:shadow-lg"
               >
                 Ver Datos →
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -96,12 +97,12 @@ export default function Home() {
               eliminando la necesidad de dispositivos USB físicos.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <a
+              <Link
                 href="/storage/sample-data"
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center group-hover:shadow-lg"
               >
                 Ver Datos →
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -123,12 +124,12 @@ export default function Home() {
               eliminando la necesidad de dispositivos USB físicos.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <a
+              <Link
                 href="/unity/data-collector"
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center group-hover:shadow-lg"
               >
                 Abrir Collector →
-              </a>
+              </Link>
               <button className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
                 Ver Datos
               </button>
@@ -153,12 +154,12 @@ export default function Home() {
               y versiones completas para transmisión en vivo.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <a
+              <Link
                 href="/unity/interactive-games/index.html"
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center group-hover:shadow-lg"
               >
                 Jugar Ahora →
-              </a>
+              </Link>
               <button className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
                 Ver Demos
               </button>
