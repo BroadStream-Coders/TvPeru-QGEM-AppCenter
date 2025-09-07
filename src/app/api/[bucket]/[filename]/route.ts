@@ -1,11 +1,14 @@
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+interface RouteParams {
+  params: Promise<{
+    filename: string
+    bucket: string
+  }>
+}
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
-
-export async function GET(request, { params }) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { filename, bucket } = await params;
 
@@ -56,11 +59,12 @@ export async function GET(request, { params }) {
       headers: { 'Content-Type': 'application/json' }
     })
 
-  } catch (error) {
-    console.error('❌ Error inesperado:', error)
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ Error inesperado:', err)
     return new Response(JSON.stringify({
       ok: false,
-      error: error.message
+      error: err.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
@@ -68,7 +72,7 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function POST(request, { params }) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { filename, bucket } = await params;
 
@@ -135,11 +139,12 @@ export async function POST(request, { params }) {
       headers: { 'Content-Type': 'application/json' }
     })
 
-  } catch (error) {
-    console.error('❌ Error inesperado:', error)
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ Error inesperado:', err)
     return new Response(JSON.stringify({
       ok: false,
-      error: error.message
+      error: err.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

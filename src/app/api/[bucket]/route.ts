@@ -1,11 +1,34 @@
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+interface RouteParams {
+  params: Promise<{
+    filename: string
+    bucket: string
+  }>
+}
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+interface FolderItem {
+  name: string
+  id?: string
+  updated_at?: string
+  metadata?: unknown
+  type: 'folder'
+  fullPath: string
+}
 
-export async function GET(request, { params }) {
+interface FileItem {
+  name: string
+  id?: string
+  updated_at?: string
+  metadata?: unknown
+  type: 'file'
+  fileType: string
+  extension?: string
+  fullPath: string
+}
+
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { searchParams } = new URL(request.url)
     const { bucket } = await params
@@ -42,8 +65,8 @@ export async function GET(request, { params }) {
     }
 
     // Separar archivos y carpetas
-    const folders = []
-    const files = []
+    const folders: FolderItem[] = []
+    const files: FileItem[] = []
 
     data.forEach(item => {
       if (!item.name) return // Skip items without name
@@ -86,11 +109,12 @@ export async function GET(request, { params }) {
       headers: { 'Content-Type': 'application/json' }
     })
 
-  } catch (error) {
-    console.error('❌ Error inesperado:', error)
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ Error inesperado:', err)
     return new Response(JSON.stringify({
       ok: false,
-      error: error.message
+      error: err.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
@@ -99,7 +123,7 @@ export async function GET(request, { params }) {
 }
 
 // Función helper para determinar el tipo de archivo
-function getFileType(extension) {
+function getFileType(extension: string | undefined): string {
   if (!extension) return 'unknown'
 
   const imageTypes = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'pngd']
