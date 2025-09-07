@@ -1,5 +1,7 @@
 'use client'
 
+import { FolderOpen, File, Image } from 'lucide-react';
+
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 
@@ -162,24 +164,20 @@ export default function StorageBucketExplorer() {
 
   // Obtener icono según tipo de archivo
   const getFileIcon = (fileType: string) => {
+    console.log(fileType);
+    
     switch (fileType) {
       case 'document':
         return (
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <File className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
         )
       case 'image':
         return (
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+          <Image className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
         )
       default:
         return (
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <File className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
         )
     }
   }
@@ -192,53 +190,6 @@ export default function StorageBucketExplorer() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900 text-white">
-      {/* Header */}
-      <header className="relative z-10 p-6 border-b border-white/10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold">Bucket: {bucket}</h1>
-                  <p className="text-purple-200 text-sm">
-                    {currentPath ? `Carpeta: ${currentPath}` : 'Raíz del bucket'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              {currentPath && (
-                <button
-                  onClick={navigateBack}
-                  className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  <span>Atrás</span>
-                </button>
-              )}
-
-              <button
-                onClick={() => loadBucketContent(currentPath)}
-                disabled={refreshing}
-                className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
-              >
-                <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span>{refreshing ? 'Actualizando...' : 'Actualizar'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Estado de carga inicial */}
@@ -272,47 +223,76 @@ export default function StorageBucketExplorer() {
             {/* Stats */}
             <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 mb-8">
               <div className="flex items-center justify-between">
+
+                <div className="flex items-center space-x-3">
+
+                  <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <FolderOpen className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">Bucket: {bucket}</h2>
+
+                    <div className="flex items-center space-x-2 text-sm">
+                      <FolderOpen className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
+                      <span className="text-purple-300">/{bucket}</span>
+                      {currentPath && (
+                        <>
+                          {currentPath.split('/').map((folder, index, array) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <span className={index === array.length - 1 ? "text-white font-medium" : "text-gray-300"}>
+                                /{folder}
+                              </span>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div>
-                  <h2 className="text-xl font-bold mb-1">Contenido del Bucket</h2>
                   <p className="text-purple-200">
                     {storageData.totalFolders} carpeta{storageData.totalFolders !== 1 ? 's' : ''} • {' '}
                     {storageData.totalFiles} archivo{storageData.totalFiles !== 1 ? 's' : ''}
                   </p>
                 </div>
-                <div className="flex items-center space-x-2">
+
+                <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                  <span className="text-sm text-green-300">Bucket Conectado</span>
+                  <span className="text-sm text-green-300">Conectado</span>
+
+                  {currentPath && (
+                    <button
+                      onClick={navigateBack}
+                      className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                      </svg>
+                      <span>Atrás</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => loadBucketContent(currentPath)}
+                    disabled={refreshing}
+                    className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                  >
+                    <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>{refreshing ? 'Actualizando...' : 'Actualizar'}</span>
+                  </button>
                 </div>
+
               </div>
             </div>
-
-            {/* Navegación de path */}
-            {currentPath && (
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 mb-6">
-                <div className="flex items-center space-x-2 text-sm">
-                  <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
-                  </svg>
-                  <span className="text-purple-300">/{bucket}</span>
-                  {currentPath.split('/').map((folder, index, array) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <span className="text-gray-400">/</span>
-                      <span className={index === array.length - 1 ? "text-white font-medium" : "text-gray-300"}>
-                        {folder}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Lista de contenido */}
             {storageData.totalFolders === 0 && storageData.totalFiles === 0 ? (
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-12 border border-white/10 text-center">
                 <div className="w-16 h-16 bg-gray-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
-                  </svg>
+                  <FolderOpen className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Carpeta vacía</h3>
                 <p className="text-gray-400">No hay contenido en esta ubicación del bucket {bucket}</p>
@@ -337,9 +317,7 @@ export default function StorageBucketExplorer() {
                           <td className="py-4 px-6">
                             <div className="flex items-center space-x-3">
                               <div className="w-8 h-8 bg-yellow-500 rounded flex items-center justify-center">
-                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
-                                </svg>
+                                <FolderOpen className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
                               </div>
                               <div>
                                 <p className="font-medium">{folder.name.replace('/', '')}</p>
