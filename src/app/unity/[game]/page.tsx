@@ -49,24 +49,14 @@ export default function UnityPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900">
-      <div style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)'
-      }}>
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <canvas
-          // El id es muy importante para el canvas
           id="unity-canvas"
           ref={canvasRef}
           width={960}
           height={600}
           tabIndex={-1}
-          style={{
-            width: '960px',
-            height: '600px',
-            background: '#231F20'
-          }}
+          className="w-[960px] h-[600px]"
         />
       </div>
     </div>
