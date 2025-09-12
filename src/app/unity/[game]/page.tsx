@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { FolderOpen, File, Image, Check } from 'lucide-react'
+import { FolderOpen, File, Image, Check, Maximize, Send } from 'lucide-react'
 
 declare global {
   interface Window {
@@ -55,6 +55,10 @@ export default function UnityPage() {
   const params = useParams()
   const game = params.game as string
 
+  // Estado para Unity Instance
+  const [unityInstance, setUnityInstance] = useState<any>(null)
+  const [unityLoaded, setUnityLoaded] = useState(false)
+
   // Estados para el selector de recursos
   const [sampleDataFiles, setSampleDataFiles] = useState<StorageResponse | null>(null)
   const [currentDataFiles, setCurrentDataFiles] = useState<StorageResponse | null>(null)
@@ -83,7 +87,10 @@ export default function UnityPage() {
         }
 
         try {
-          await window.createUnityInstance(canvasRef.current!, config)
+          const instance = await window.createUnityInstance(canvasRef.current!, config)
+          setUnityInstance(instance)
+          setUnityLoaded(true)
+          console.log('✅ Unity instance cargada correctamente')
         } catch (message) {
           alert(message)
         }
@@ -121,19 +128,59 @@ export default function UnityPage() {
     loadBucketResources()
   }, [])
 
+  // Función para activar fullscreen
+  const handleFullscreen = () => {
+    if (unityInstance) {
+      unityInstance.SetFullscreen(1)
+      console.log('🔄 Activando fullscreen en Unity')
+    } else {
+      console.warn('⚠️ Unity instance no está disponible')
+    }
+  }
+
+  // Función para enviar recursos seleccionados a Unity
+  const sendResourcesToUnity = () => {
+    if (!unityInstance) {
+      console.warn('⚠️ Unity instance no está disponible')
+      return
+    }
+
+    if (selectedResources.length === 0) {
+      console.warn('⚠️ No hay recursos seleccionados')
+      return
+    }
+
+    // Crear JSON con los recursos seleccionados
+    const resourcesConfig = {
+      games: selectedResources.map(resource => ({
+        name: resource.name,
+        type: resource.type,
+        bucket: resource.bucket,
+        jsonUrl: `https://qtxtgtqffqvcoowlakoo.supabase.co/storage/v1/object/public/${resource.bucket}/${resource.fullPath}`
+      }))
+    }
+
+    const jsonString = JSON.stringify(resourcesConfig, null, 2)
+
+    console.log('📡 Enviando recursos a Unity:', jsonString)
+
+    // Enviar a Unity (ajusta el GameObject y método según tu implementación)
+    unityInstance.SendMessage("GameLoader", "LoadGamesFromConfig", jsonString)
+  }
+
   // Función para manejar selección de recursos
   const toggleResourceSelection = (resource: SelectedResource) => {
     setSelectedResources(prev => {
-      const exists = prev.find(r => 
-        r.name === resource.name && 
-        r.bucket === resource.bucket && 
+      const exists = prev.find(r =>
+        r.name === resource.name &&
+        r.bucket === resource.bucket &&
         r.type === resource.type
       )
-      
+
       if (exists) {
         return prev.filter(r => !(
-          r.name === resource.name && 
-          r.bucket === resource.bucket && 
+          r.name === resource.name &&
+          r.bucket === resource.bucket &&
           r.type === resource.type
         ))
       } else {
@@ -144,9 +191,9 @@ export default function UnityPage() {
 
   // Función para verificar si un recurso está seleccionado
   const isResourceSelected = (resource: SelectedResource) => {
-    return selectedResources.some(r => 
-      r.name === resource.name && 
-      r.bucket === resource.bucket && 
+    return selectedResources.some(r =>
+      r.name === resource.name &&
+      r.bucket === resource.bucket &&
       r.type === resource.type
     )
   }
@@ -156,7 +203,7 @@ export default function UnityPage() {
     if (item.type === 'folder') {
       return <FolderOpen className="w-4 h-4 text-yellow-400" />
     }
-    
+
     const fileItem = item as FileItem
     switch (fileItem.fileType) {
       case 'document':
@@ -172,7 +219,7 @@ export default function UnityPage() {
   const logSelectedResources = () => {
     console.log('🎯 Recursos seleccionados:')
     console.table(selectedResources)
-    
+
     // Log más detallado
     selectedResources.forEach((resource, index) => {
       console.log(`📄 Recurso ${index + 1}:`, {
@@ -187,7 +234,10 @@ export default function UnityPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900">
+
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+
+        {/* Canvas de Unity - Posición central */}
         <canvas
           id="unity-canvas"
           ref={canvasRef}
@@ -196,6 +246,25 @@ export default function UnityPage() {
           tabIndex={-1}
           className="w-[960px] h-[600px]"
         />
+
+        {/* Controles de Unity - Posición superior derecha */}
+        <div className="flex justify-end items-center py-[10px] space-x-2">
+
+          <button
+            onClick={handleFullscreen}
+            disabled={!unityLoaded}
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+            title="Activar Fullscreen"
+          >
+            {unityLoaded ? (
+              <>
+                <Maximize className="w-4 h-4" />
+                <span>Fullscreen</span>
+              </>
+            ) : '⏳ Loading...'}
+          </button>
+
+        </div>
       </div>
 
       {/* Panel de Selección de Recursos */}
@@ -226,25 +295,36 @@ export default function UnityPage() {
         {/* Panel del selector */}
         {showResourceSelector && (
           <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-6">
-            
+
             {/* Header con botones de acción */}
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-white">Selector de Recursos</h3>
               <div className="flex items-center space-x-3">
+
                 <span className="text-purple-200 text-sm">
                   {selectedResources.length} seleccionado{selectedResources.length !== 1 ? 's' : ''}
                 </span>
+
                 <button
+                  // onClick={sendResourcesToUnity}
                   onClick={logSelectedResources}
-                  disabled={selectedResources.length === 0}
-                  className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-sm"
+                  disabled={!unityLoaded || selectedResources.length === 0}
+                  className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                  title="Enviar recursos seleccionados a Unity"
                 >
-                  🔍 Log Selection
+                  <Send className="w-4 h-4" />
+                  <span>Enviar a Unity</span>
+                  {selectedResources.length > 0 && (
+                    <span className="bg-white/20 text-xs px-2 py-1 rounded-full">
+                      {selectedResources.length}
+                    </span>
+                  )}
                 </button>
+
                 <button
                   onClick={() => setSelectedResources([])}
                   disabled={selectedResources.length === 0}
-                  className="bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-sm"
+                  className="bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
                 >
                   🗑️ Limpiar
                 </button>
@@ -258,7 +338,7 @@ export default function UnityPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
+
                 {/* Bucket: sample-data */}
                 <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                   <div className="flex items-center space-x-3 mb-4">
@@ -270,7 +350,7 @@ export default function UnityPage() {
                       {sampleDataFiles ? `${sampleDataFiles.totalFolders + sampleDataFiles.totalFiles} items` : '0 items'}
                     </span>
                   </div>
-                  
+
                   <div className="max-h-64 overflow-y-auto space-y-2">
                     {sampleDataFiles?.folders.map((folder) => {
                       const resource: SelectedResource = {
@@ -280,16 +360,15 @@ export default function UnityPage() {
                         fullPath: folder.fullPath
                       }
                       const isSelected = isResourceSelected(resource)
-                      
+
                       return (
                         <div
                           key={folder.name}
                           onClick={() => toggleResourceSelection(resource)}
-                          className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all ${
-                            isSelected 
-                              ? 'bg-green-500/20 border border-green-500/40' 
-                              : 'bg-white/5 hover:bg-white/10 border border-transparent'
-                          }`}
+                          className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all ${isSelected
+                            ? 'bg-green-500/20 border border-green-500/40'
+                            : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                            }`}
                         >
                           {getResourceIcon(folder)}
                           <span className="text-white flex-1">{resource.name}</span>
@@ -297,7 +376,7 @@ export default function UnityPage() {
                         </div>
                       )
                     })}
-                    
+
                     {sampleDataFiles?.files.map((file) => {
                       const resource: SelectedResource = {
                         name: file.name,
@@ -306,16 +385,15 @@ export default function UnityPage() {
                         fullPath: file.fullPath
                       }
                       const isSelected = isResourceSelected(resource)
-                      
+
                       return (
                         <div
                           key={file.name}
                           onClick={() => toggleResourceSelection(resource)}
-                          className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all ${
-                            isSelected 
-                              ? 'bg-green-500/20 border border-green-500/40' 
-                              : 'bg-white/5 hover:bg-white/10 border border-transparent'
-                          }`}
+                          className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all ${isSelected
+                            ? 'bg-green-500/20 border border-green-500/40'
+                            : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                            }`}
                         >
                           {getResourceIcon(file)}
                           <div className="flex-1">
@@ -340,7 +418,7 @@ export default function UnityPage() {
                       {currentDataFiles ? `${currentDataFiles.totalFolders + currentDataFiles.totalFiles} items` : '0 items'}
                     </span>
                   </div>
-                  
+
                   <div className="max-h-64 overflow-y-auto space-y-2">
                     {currentDataFiles?.folders.map((folder) => {
                       const resource: SelectedResource = {
@@ -350,16 +428,15 @@ export default function UnityPage() {
                         fullPath: folder.fullPath
                       }
                       const isSelected = isResourceSelected(resource)
-                      
+
                       return (
                         <div
                           key={folder.name}
                           onClick={() => toggleResourceSelection(resource)}
-                          className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all ${
-                            isSelected 
-                              ? 'bg-green-500/20 border border-green-500/40' 
-                              : 'bg-white/5 hover:bg-white/10 border border-transparent'
-                          }`}
+                          className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all ${isSelected
+                            ? 'bg-green-500/20 border border-green-500/40'
+                            : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                            }`}
                         >
                           {getResourceIcon(folder)}
                           <span className="text-white flex-1">{resource.name}</span>
@@ -367,7 +444,7 @@ export default function UnityPage() {
                         </div>
                       )
                     })}
-                    
+
                     {currentDataFiles?.files.map((file) => {
                       const resource: SelectedResource = {
                         name: file.name,
@@ -376,16 +453,15 @@ export default function UnityPage() {
                         fullPath: file.fullPath
                       }
                       const isSelected = isResourceSelected(resource)
-                      
+
                       return (
                         <div
                           key={file.name}
                           onClick={() => toggleResourceSelection(resource)}
-                          className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all ${
-                            isSelected 
-                              ? 'bg-green-500/20 border border-green-500/40' 
-                              : 'bg-white/5 hover:bg-white/10 border border-transparent'
-                          }`}
+                          className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all ${isSelected
+                            ? 'bg-green-500/20 border border-green-500/40'
+                            : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                            }`}
                         >
                           {getResourceIcon(file)}
                           <div className="flex-1">
