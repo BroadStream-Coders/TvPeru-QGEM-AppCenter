@@ -130,13 +130,10 @@ export default function Home() {
               >
                 Abrir Collector →
               </Link>
-              <button className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                Ver Datos
-              </button>
             </div>
           </div>
 
-          {/* Interactive Games */}
+          {/* Managed Games */}
           <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
             <div className="flex items-center mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4">
@@ -145,8 +142,8 @@ export default function Home() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-2xl font-bold mb-1">Interactive Games</h3>
-                <p className="text-red-200">Demos y juegos interactivos</p>
+                <h3 className="text-2xl font-bold mb-1">Managed Games</h3>
+                <p className="text-red-200">Juegos interactivos y datos de prueba</p>
               </div>
             </div>
             <p className="text-red-100 mb-6">
@@ -155,14 +152,11 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href="/unity/interactive-games/index.html"
+                href="/unity/managed-games"
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center group-hover:shadow-lg"
               >
                 Jugar Ahora →
               </Link>
-              <button className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                Ver Demos
-              </button>
             </div>
           </div>
         </div>
