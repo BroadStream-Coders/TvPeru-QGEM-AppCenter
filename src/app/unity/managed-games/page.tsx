@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
 import { FolderOpen, File, Image, Check, Maximize, Send } from 'lucide-react'
 
 declare global {
@@ -52,8 +51,6 @@ interface SelectedResource {
 
 export default function UnityPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const params = useParams()
-  const game = params.game as string
 
   // Estado para Unity Instance
   const [unityInstance, setUnityInstance] = useState<any>(null)
@@ -72,17 +69,17 @@ export default function UnityPage() {
 
     const loadUnity = async () => {
       const script = document.createElement('script')
-      script.src = `/unity/${game}/Build/${game}.loader.js`
+      script.src = `/unity/managed-games/Build/managed-games.loader.js`
 
       script.onload = async () => {
         const config = {
           arguments: [],
-          dataUrl: `/unity/${game}/Build/${game}.data`,
-          frameworkUrl: `/unity/${game}/Build/${game}.framework.js`,
-          codeUrl: `/unity/${game}/Build/${game}.wasm`,
-          streamingAssetsUrl: `/unity/${game}/StreamingAssets`,
+          dataUrl: `/unity/managed-games/Build/managed-games.data`,
+          frameworkUrl: `/unity/managed-games/Build/managed-games.framework.js`,
+          codeUrl: `/unity/managed-games/Build/managed-games.wasm`,
+          streamingAssetsUrl: `/unity/managed-games/StreamingAssets`,
           companyName: "BroadStream-Coders",
-          productName: game,
+          productName: "managed-games",
           productVersion: "v1.0.0"
         }
 
@@ -100,7 +97,7 @@ export default function UnityPage() {
     }
 
     loadUnity()
-  }, [game])
+  }, [])
 
   // Cargar recursos de ambos buckets
   useEffect(() => {
@@ -233,9 +230,10 @@ export default function UnityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900">
+    // No me gusta tener que usar el h-[867px], el div, deberia de expandice en height al tamaño de su padre
+    <div className="h-[867px] flex flex-col bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900">
 
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div className="flex flex-col items-center justify-center flex-1">
 
         {/* Canvas de Unity - Posición central */}
         <canvas
@@ -248,7 +246,7 @@ export default function UnityPage() {
         />
 
         {/* Controles de Unity - Posición superior derecha */}
-        <div className="flex justify-end items-center py-[10px] space-x-2">
+        <div className="w-[960px] flex justify-end items-center py-[10px] space-x-2">
 
           <button
             onClick={handleFullscreen}
@@ -270,7 +268,7 @@ export default function UnityPage() {
       {/* Panel de Selección de Recursos */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
+        bottom: '70px',
         left: '50%',
         transform: 'translateX(-50%)',
         width: '90%',
