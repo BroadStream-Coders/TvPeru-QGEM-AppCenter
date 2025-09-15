@@ -30,9 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900 text-white`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} flex flex-col antialiased min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900 text-white`}>
         <AppHeader />
-        <main className="min-h-screen">
+        <main className="flex-1">
           {children}
         </main>
         <AppFooter />

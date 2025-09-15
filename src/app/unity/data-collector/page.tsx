@@ -63,9 +63,11 @@ export default function UnityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900">
 
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+    // No me gusta tener que usar el h-[867px], el div, deberia de expandice en height al tamaño de su padre
+    <div className="h-[867px] flex flex-col bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900">
+
+      <div className="flex flex-col items-center justify-center flex-1">
 
         {/* Canvas de Unity - Posición central */}
         <canvas
@@ -78,7 +80,7 @@ export default function UnityPage() {
         />
 
         {/* Controles de Unity - Posición superior derecha */}
-        <div className="flex justify-end items-center py-[10px] space-x-2">
+        <div className="w-[960px] flex justify-end items-center py-[10px] space-x-2">
 
           <button
             onClick={handleFullscreen}
