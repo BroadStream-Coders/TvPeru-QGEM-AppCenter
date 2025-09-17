@@ -231,7 +231,7 @@ export default function UnityPage() {
 
   return (
     // No me gusta tener que usar el h-[867px], el div, deberia de expandice en height al tamaño de su padre
-    <div className="h-[867px] flex flex-col bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900">
+    <div className="h-[867px] flex flex-col">
 
       <div className="flex flex-col items-center justify-center flex-1">
 
