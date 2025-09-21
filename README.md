@@ -1,140 +1,261 @@
 # TV Perú - Que Gane El Mejor - App Center
 
-**App Center** es una plataforma web desarrollada con **Next.js 13 (App Router)** y **TailwindCSS**, destinada a centralizar la gestión de juegos y herramientas interactivas utilizadas en el programa de televisión *"Que Gane El Mejor"* de TV Perú.
+**App Center** es una plataforma web desarrollada con **Next.js 15** y **TailwindCSS**, diseñada como sistema centralizado para la gestión de juegos educativos del programa de televisión *"Que Gane El Mejor"* de TV Perú.
 
 ## 📺 Descripción del Proyecto
 
-El sistema funciona como un **centro de control unificado**, ofreciendo acceso a distintos módulos y aplicaciones construidas en Unity (exportadas en WebGL), así como a utilidades internas para la producción en tiempo real. De esta manera, los operadores y el equipo de producción cuentan con una sola interfaz desde la cual pueden administrar juegos, verificar el estado de los servicios y acceder a herramientas de soporte.
+El sistema funciona como **centro de control unificado** para la producción del programa, proporcionando herramientas especializadas para la gestión de datos de concurso y aplicaciones Unity WebGL que se ejecutan durante las transmisiones en vivo. Permite a los analistas de datos y al equipo de producción manejar contenido educativo de manera eficiente y sin dependencias de dispositivos físicos.
+
+## 🎯 Contexto del Programa
+
+*"Que Gane El Mejor"* es un programa de concursos educativos donde **dos colegios compiten** en juegos de conocimientos. El App Center centraliza toda la gestión tecnológica necesaria para:
+
+- Procesamiento de datos de concurso proporcionados por docentes
+- Gestión de contenido educativo (preguntas, imágenes, configuraciones)
+- Ejecución de juegos interactivos durante la transmisión en vivo
+- Administración de datos de muestra para ensayos con concursantes
+
+## 🔄 Flujo de Trabajo del Sistema
+
+```mermaid
+graph TD
+    A[Docentes cargan datos en Google Sheets] --> B[Analista filtra y selecciona contenido]
+    B --> C[Data Collector procesa y genera JSONs]
+    C --> D[Managed Games ejecuta juegos en transmisión]
+    E[Sample Data] --> F[Ensayos con concursantes]
+    G[Config Data] --> D
+```
+
+1. **Docentes** cargan datos educativos en Google Sheets
+2. **Analista de datos** filtra y selecciona preguntas/temas para el día
+3. **Data Collector** procesa la información y genera archivos JSON (uno por juego)
+4. **Managed Games** utiliza estos datos durante la transmisión en vivo
 
 ## ✨ Características Principales
 
-- **🎮 Despliegue de builds Unity WebGL** directamente en la plataforma, facilitando su acceso desde cualquier dispositivo con navegador
-- **🔌 Consumo de APIs para servicios backend**, evitando dependencias en tiempo real mediante sockets. La comunicación con la nube se realiza únicamente a través de peticiones HTTP hacia el servidor principal
-- **📊 Panel de estado del sistema**, con indicadores sobre la disponibilidad del backend y del servicio en la nube
-- **🎨 Diseño enfocado en usabilidad y claridad**, usando TailwindCSS con estilos modernos (fondos translúcidos, gradientes, layouts responsivos)
-- **🚀 Arquitectura escalable con Next.js**, que permite organizar las aplicaciones como rutas independientes, simplificando el mantenimiento y la extensión futura del sistema
+### 🎮 Aplicaciones Unity WebGL
+
+- **Data Collector**: Herramienta de procesamiento de datos educativos
+- **Managed Games**: Sistema principal para ejecutar juegos durante transmisiones
+
+### 📊 Sistema de Storage Inteligente
+
+- **Eliminación total de dispositivos USB físicos**
+- **3 buckets especializados** en Supabase Storage:
+  - `current-data`: Datos para el programa del día actual
+  - `sample-data`: Datos de ejemplo para ensayos y pruebas
+  - `config-data`: Configuraciones de tiempo y parámetros de juego
+
+### 🔌 API REST Integrada
+
+- **Endpoints especializados** para gestión de archivos JSON
+- **Consumo dual**: Sistema interno y Google Apps Script
+- **Operaciones CRUD** completas para todos los buckets
+
+### 🗂️ Explorador de Storage
+
+- **Navegación visual** del contenido almacenado
+- **Descarga directa** de archivos JSON
+- **Metadatos detallados** (fecha de modificación, tamaño, tipo)
+- **Navegación por carpetas** dentro de cada bucket
+
+## 🎨 Diseño y Experiencia de Usuario
+
+### Sistema de Diseño
+
+- **Estilo Visual**: Glassmorphism con elementos translúcidos y efectos de profundidad
+- **Justificación**: Interfaz moderna que reduce la fatiga visual durante transmisiones largas
+- **Paleta**: Gradientes oscuros con acentos en rojo (branding TV Perú)
+- **Componentes**: Biblioteca UI centralizada en `/src/components/ui/`
+
+### Consideraciones UX
+
+- **Contraste optimizado** para uso en estudios con iluminación variable
+- **Elementos translúcidos** que permiten ver contenido subyacente sin obstaculizar
+- **Jerarquía visual clara** para operación rápida durante transmisiones en vivo
 
 ## 🏗️ Arquitectura del Sistema
 
-El proyecto está concebido bajo una **arquitectura dividida** en dos servicios:
+### Frontend (tvperu-qgem-appcenter)
 
-### 1. Frontend (tvperu-qgem-appcenter)
+- **Despliegue**: Vercel (servicio estático)
+- **Función**: Interfaz gráfica y hosting de aplicaciones Unity WebGL
+- **Disponibilidad**: Constante durante emisiones
+- **Independencia**: Funciona sin dependencias del backend
 
-- **Despliegue**: Servicio estático en **Vercel**
-- **Función**: Servir la interfaz gráfica y los builds Unity WebGL
-- **Disponibilidad**: Constante durante la emisión del programa
-- **Independencia**: **No depende directamente del backend** para seguir funcionando
+### Backend (Supabase Storage)
 
-### 2. Backend (tvperu-qgem-MainServer)
-
-- **Despliegue**: **Render** (capa gratuita)
-- **Función**: Manejar la base de datos, almacenamiento en la nube y futuras integraciones
-- **Limitaciones**: Límites de uso que pueden causar paradas temporales
-
-## ⚡ Estrategia de Continuidad de Servicio
-
-La división entre frontend y backend responde a la necesidad de garantizar **alta disponibilidad** del App Center durante las transmisiones en vivo:
-
-- **Frontend (App Center)**: Fundamental e **indispensable**, debe estar siempre operativo
-- **Backend**: Agrega funciones de valor añadido. Si se deshabilita, la aplicación sigue funcionando en modo **"tradicional"**
-- **Modo de contingencia**: Los datos pueden descargarse manualmente (USB) para su posterior manejo si el backend está inactivo
-
-> ⚠️ **Importante**: Si el backend cae, únicamente se pierde el servicio de la nube, pero **el colector y el resto de la plataforma siguen funcionando normalmente**.
+- **Servicio**: Supabase Storage como backend
+- **Función**: Almacenamiento seguro y gestión de archivos JSON
+- **Escalabilidad**: Preparado para futuras integraciones (Auth, Database, Monitoring)
 
 ## 🚀 Comenzar a Desarrollar
+
+### Prerrequisitos
+
+```bash
+Node.js 18+ y npm/yarn/pnpm
+```
 
 ### Instalación
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/tvperu-qgem-appcenter.git
+git clone https://github.com/BroadStream-Coders/TvPeru-QGEM-AppCenter.git
 cd tvperu-qgem-appcenter
 
 # Instalar dependencias
 npm install
-# o
-yarn install
-# o
-pnpm install
+
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con las credenciales de Supabase
+```
+
+### Variables de Entorno
+
+```bash
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
+SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
 ```
 
 ### Desarrollo
 
 ```bash
-npm run dev
-# o
-yarn dev
-# o
-pnpm dev
-# o
-bun dev
-```
-
-Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación.
-
-### Scripts Disponibles
-
-```bash
-npm run dev          # Inicia el servidor de desarrollo con Turbopack
-npm run build        # Construye la aplicación para producción
-npm run start        # Inicia el servidor de producción
-npm run lint         # Ejecuta ESLint para verificar el código
+npm run dev          # Servidor de desarrollo con Turbopack
+npm run build        # Build para producción
+npm run start        # Servidor de producción
+npm run lint         # Verificación de código
 ```
 
 ## 📁 Estructura del Proyecto
 
-``` cmd
+```cmd
 tvperu-qgem-appcenter/
 ├── public/
-│   └── unity/                 # Builds Unity WebGL
-│       ├── data-collector/    # Herramienta de recolección de datos
-│       └── interactive-games/ # Juegos interactivos
+│   └── unity/                    # Builds Unity WebGL
+│       ├── data-collector/       # Herramienta de procesamiento
+│       └── managed-games/        # Sistema de juegos principal
 ├── src/
-│   └── app/
-│       ├── globals.css        # Estilos globales con Tailwind
-│       ├── layout.tsx         # Layout principal
-│       └── page.tsx           # Página de inicio (App Center)
+│   ├── app/
+│   │   ├── api/                  # API Routes para Storage
+│   │   │   └── [bucket]/         # Endpoints dinámicos por bucket
+│   │   ├── storage/              # Explorador de buckets
+│   │   └── unity/                # Interfaces para apps Unity
+│   ├── components/               # Componentes React reutilizables
+│   └── lib/                      # Configuraciones (Supabase)
 └── ...
 ```
 
-## 🛠️ Tecnologías Utilizadas
+## 🎮 Aplicaciones Disponibles
 
-- **[Next.js 15](https://nextjs.org/)** - Framework de React con App Router
-- **[React 19](https://react.dev/)** - Biblioteca de interfaz de usuario
-- **[TailwindCSS 4](https://tailwindcss.com/)** - Framework de CSS utilitario
-- **[TypeScript](https://www.typescriptlang.org/)** - Superset de JavaScript con tipado estático
-- **[Unity WebGL](https://unity.com/)** - Motor de juegos para aplicaciones web
+### Data Collector (`/unity/data-collector`)
 
-## 🌐 Despliegue
+- **Propósito**: Procesamiento de datos educativos
+- **Input**: Datos filtrados por analistas
+- **Output**: Archivos JSON estructurados por juego
+- **Estado futuro**: Migración completa a Google Sheets
 
-### Producción (Vercel)
+### Managed Games (`/unity/managed-games`)
 
-La forma más fácil de desplegar tu aplicación Next.js es usar la [Plataforma Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
+- **Propósito**: Ejecución de juegos durante transmisiones
+- **Funcionalidad**: Selector de recursos y configuración dinámica
+- **Input**: JSONs del Data Collector + configuraciones
+- **Uso**: Transmisión en vivo del programa
 
-### Variables de Entorno
+## 🗂️ Sistema de Storage
 
-Asegúrate de configurar las siguientes variables de entorno:
+### Buckets Especializados
+
+| Bucket | Propósito | Uso Principal | Actualización |
+|--------|-----------|---------------|---------------|
+| `current-data` | Datos del programa actual | Transmisión en vivo | Diaria (día del programa) |
+| `sample-data` | Datos de ejemplo | Ensayos con concursantes | Esporádica |
+| `config-data` | Configuraciones | Parámetros de juego | Según necesidad |
+
+### API Endpoints
 
 ```bash
-NEXT_PUBLIC_BACKEND_URL=https://tu-backend.render.com
-NEXT_PUBLIC_APP_VERSION=1.0.0
+# Listar contenido de bucket
+GET /api/{bucket}
+
+# Obtener archivo específico
+GET /api/{bucket}/{filename}
+
+# Subir/actualizar archivo
+POST /api/{bucket}/{filename}
 ```
 
-## 🤝 Contribuciones
+## 🌐 Integraciones Externas
 
-Este es un proyecto privado desarrollado como servicio independiente para TV Perú y el programa "Que Gane El Mejor". Las contribuciones no están abiertas al público.
+### Google Apps Script
+
+- **Conexión**: Consume API REST del App Center
+- **Propósito**: Sincronización con Google Sheets
+- **Flujo**: Sheets → Apps Script → App Center API
+
+### TV Perú - Producción
+
+- **Acceso**: Interfaz web directa
+- **Usuarios**: Analistas de datos y equipo de producción
+- **Dispositivos**: Cualquier navegador web moderno
+
+## 📈 Estado del Proyecto
+
+- **Versión actual**: v1.0.0
+- **Estado**: Pre-producción (listo para despliegue)
+- **Inicio en producción**: 3 semanas aproximadamente
+- **Mantenimiento**: Desarrollo independiente
+
+## 🛠️ Tecnologías Utilizadas
+
+| Tecnología | Versión | Propósito |
+|------------|---------|-----------|
+| **Next.js** | 15.5.2 | Framework principal con App Router |
+| **React** | 19.1.0 | Biblioteca de UI |
+| **TailwindCSS** | 4.0 | Framework de estilos |
+| **TypeScript** | 5+ | Tipado estático |
+| **Supabase** | 2.57.0 | Backend como servicio |
+| **Unity WebGL** | 2023.3+ | Motor de juegos web |
+
+## 🚀 Despliegue
+
+### Producción
+
+- **Plataforma**: Vercel
+- **URL**: `https://tv-peru-qgem-app-center.vercel.app/`
+- **Configuración**: Automática desde GitHub
+
+### Consideraciones
+
+- **Alta disponibilidad**: Frontend independiente del backend
+- **Tolerancia a fallos**: Funcionamiento garantizado durante transmisiones
+- **Escalabilidad**: Preparado para crecimiento de usuarios y contenido
+
+## 🤝 Desarrollo y Mantenimiento
+
+Este proyecto ha sido desarrollado como **servicio independiente** para TV Perú bajo la modalidad de desarrollo freelance. El sistema está diseñado para ser **autosuficiente** y requerir **mínimo mantenimiento** durante las operaciones del programa.
+
+### Características de Mantenimiento
+
+- **Actualizaciones automáticas** vía Vercel
+- **Backups automáticos** en Supabase
+- **Monitoreo integrado** del estado del sistema
+- **Arquitectura resiliente** ante fallos parciales
 
 ## 📄 Licencia
 
 **Todos los derechos reservados.** Copyright (c) 2025 Esteban Abanto Garcia.
 
-Este proyecto es propiedad intelectual exclusiva del desarrollador. El software fue desarrollado bajo contrato de servicios independientes para TV Perú, pero la propiedad del código fuente y la arquitectura pertenecen al autor.
+Este software fue desarrollado bajo contrato de servicios independientes para TV Perú - Instituto Nacional de Radio y Televisión del Perú, para el programa "Que Gane El Mejor". La propiedad intelectual del código fuente y arquitectura pertenece al desarrollador.
 
-**Contacto:** <esteban.abanto.2709@gmail.com>
+**Contacto para soporte técnico:** <esteban.abanto.2709@gmail.com>
 
 ---
 
-**Desarrollado para:** TV Perú - Instituto Nacional de Radio y Televisión del Perú  
+**Cliente:** TV Perú - Instituto Nacional de Radio y Televisión del Perú  
 **Programa:** "Que Gane El Mejor"  
-**Versión del Sistema:** v1.0.0  
-**Modalidad:** Servicio de desarrollo independiente
+**Modalidad:** Desarrollo independiente (Freelance)  
+**Versión del Sistema:** v1.0.0
