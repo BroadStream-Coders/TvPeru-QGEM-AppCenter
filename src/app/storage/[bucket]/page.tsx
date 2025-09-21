@@ -1,9 +1,19 @@
 'use client'
 
-import { FolderOpen, File, Image } from 'lucide-react';
-
+import {
+  FolderOpen,
+  File,
+  Image,
+  AlertCircle,
+  ArrowLeft,
+  RotateCcw,
+  Download,
+  ChevronRight,
+  Loader2
+} from 'lucide-react';
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import IconBox from '@/components/ui/IconBox'
 
 interface FileItem {
   name: string
@@ -163,22 +173,14 @@ export default function StorageBucketExplorer() {
   }
 
   // Obtener icono según tipo de archivo
-  const getFileIcon = (fileType: string) => {
-    console.log(fileType);
-
+  const getFileIconComponent = (fileType: string) => {
     switch (fileType) {
       case 'document':
-        return (
-          <File className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
-        )
+        return File
       case 'image':
-        return (
-          <Image className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
-        )
+        return Image
       default:
-        return (
-          <File className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
-        )
+        return File
     }
   }
 
@@ -194,19 +196,17 @@ export default function StorageBucketExplorer() {
       {loading && !refreshing && (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-purple-200">Cargando bucket {bucket}...</p>
+            <IconBox icon={Loader2} size="lg" className="mx-auto mb-4 animate-spin" />
+            <p className="text-white/70">Cargando bucket {bucket}...</p>
           </div>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="bg-red-900/50 border border-red-500/50 rounded-xl p-6 mb-6">
+        <div className="bg-red-500/10 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 mb-6">
           <div className="flex items-center space-x-3">
-            <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <IconBox icon={AlertCircle} size="md" />
             <div>
               <h3 className="font-semibold text-red-100">Error</h3>
               <p className="text-red-200">{error}</p>
@@ -218,26 +218,22 @@ export default function StorageBucketExplorer() {
       {/* Contenido del bucket */}
       {!loading && !error && storageData && (
         <>
-          {/* Stats */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 mb-8">
+          {/* Header del bucket */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 mb-8">
             <div className="flex items-center justify-between">
 
               <div className="flex items-center space-x-3">
-
-                <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
-                  <FolderOpen className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
-                </div>
+                <IconBox icon={FolderOpen} size="md" />
                 <div>
-                  <h2 className="text-xl font-bold">Bucket: {bucket}</h2>
-
+                  <h2 className="text-xl font-bold text-white">Bucket: {bucket}</h2>
                   <div className="flex items-center space-x-2 text-sm">
-                    <FolderOpen className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
-                    <span className="text-purple-300">/{bucket}</span>
+                    <FolderOpen className="w-4 h-4 text-white/60" />
+                    <span className="text-white/70">/{bucket}</span>
                     {currentPath && (
                       <>
                         {currentPath.split('/').map((folder, index, array) => (
                           <div key={index} className="flex items-center space-x-2">
-                            <span className={index === array.length - 1 ? "text-white font-medium" : "text-gray-300"}>
+                            <span className={index === array.length - 1 ? "text-white font-medium" : "text-white/70"}>
                               /{folder}
                             </span>
                           </div>
@@ -249,24 +245,19 @@ export default function StorageBucketExplorer() {
               </div>
 
               <div>
-                <p className="text-purple-200">
+                <p className="text-white/70">
                   {storageData.totalFolders} carpeta{storageData.totalFolders !== 1 ? 's' : ''} • {' '}
                   {storageData.totalFiles} archivo{storageData.totalFiles !== 1 ? 's' : ''}
                 </p>
               </div>
 
               <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-sm text-green-300">Conectado</span>
-
                 {currentPath && (
                   <button
                     onClick={navigateBack}
-                    className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center space-x-2"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <ArrowLeft className="w-4 h-4" />
                     <span>Atrás</span>
                   </button>
                 )}
@@ -274,11 +265,9 @@ export default function StorageBucketExplorer() {
                 <button
                   onClick={() => loadBucketContent(currentPath)}
                   disabled={refreshing}
-                  className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                  className="bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center space-x-2"
                 >
-                  <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
+                  <RotateCcw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                   <span>{refreshing ? 'Actualizando...' : 'Actualizar'}</span>
                 </button>
               </div>
@@ -289,23 +278,21 @@ export default function StorageBucketExplorer() {
           {/* Lista de contenido */}
           {storageData.totalFolders === 0 && storageData.totalFiles === 0 ? (
             <div className="bg-white/5 backdrop-blur-sm rounded-xl p-12 border border-white/10 text-center">
-              <div className="w-16 h-16 bg-gray-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <FolderOpen className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Carpeta vacía</h3>
-              <p className="text-gray-400">No hay contenido en esta ubicación del bucket {bucket}</p>
+              <IconBox icon={FolderOpen} size="xl" className="mx-auto mb-4 opacity-50" />
+              <h3 className="text-xl font-semibold mb-2 text-white">Carpeta vacía</h3>
+              <p className="text-white/60">No hay contenido en esta ubicación del bucket {bucket}</p>
             </div>
           ) : (
             <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-white/5 border-b border-white/10">
+                  <thead className="bg-white/10 border-b border-white/20">
                     <tr>
-                      <th className="text-left py-4 px-6 font-semibold">Nombre</th>
-                      <th className="text-left py-4 px-6 font-semibold">Tipo</th>
-                      <th className="text-left py-4 px-6 font-semibold">Tamaño</th>
-                      <th className="text-left py-4 px-6 font-semibold">Modificado</th>
-                      <th className="text-center py-4 px-6 font-semibold">Acciones</th>
+                      <th className="text-left py-4 px-6 font-semibold text-white">Nombre</th>
+                      <th className="text-left py-4 px-6 font-semibold text-white">Tipo</th>
+                      <th className="text-left py-4 px-6 font-semibold text-white">Tamaño</th>
+                      <th className="text-left py-4 px-6 font-semibold text-white">Modificado</th>
+                      <th className="text-center py-4 px-6 font-semibold text-white">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/10">
@@ -314,33 +301,29 @@ export default function StorageBucketExplorer() {
                       <tr key={folder.name} className="hover:bg-white/5 transition-colors">
                         <td className="py-4 px-6">
                           <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-yellow-500 rounded flex items-center justify-center">
-                              <FolderOpen className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" />
-                            </div>
+                            <IconBox icon={FolderOpen} size="sm" />
                             <div>
-                              <p className="font-medium">{folder.name.replace('/', '')}</p>
-                              <p className="text-sm text-gray-400">Carpeta</p>
+                              <p className="font-medium text-white">{folder.name.replace('/', '')}</p>
+                              <p className="text-sm text-white/60">Carpeta</p>
                             </div>
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <span className="bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded text-xs font-medium">
+                          <span className="bg-white/10 backdrop-blur-sm text-white/80 px-3 py-1 rounded-full text-xs font-medium border border-white/20">
                             Carpeta
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-gray-300">—</td>
-                        <td className="py-4 px-6 text-gray-300">
+                        <td className="py-4 px-6 text-white/60">—</td>
+                        <td className="py-4 px-6 text-white/60">
                           {formatDate(folder.updated_at)}
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center justify-center">
                             <button
                               onClick={() => navigateToFolder(folder.name)}
-                              className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200 flex items-center space-x-1"
+                              className="bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 text-white px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1"
                             >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                              </svg>
+                              <ChevronRight className="w-3 h-3" />
                               <span>Abrir</span>
                             </button>
                           </div>
@@ -349,63 +332,57 @@ export default function StorageBucketExplorer() {
                     ))}
 
                     {/* Archivos después */}
-                    {storageData.files.map((file) => (
-                      <tr key={file.name} className="hover:bg-white/5 transition-colors">
-                        <td className="py-4 px-6">
-                          <div className="flex items-center space-x-3">
-                            <div className={`w-8 h-8 rounded flex items-center justify-center ${file.fileType === 'document' ? 'bg-blue-500' :
-                              file.fileType === 'image' ? 'bg-green-500' :
-                                'bg-gray-500'
-                              }`}>
-                              {getFileIcon(file.fileType)}
+                    {storageData.files.map((file) => {
+                      const FileIcon = getFileIconComponent(file.fileType)
+
+                      return (
+                        <tr key={file.name} className="hover:bg-white/5 transition-colors">
+                          <td className="py-4 px-6">
+                            <div className="flex items-center space-x-3">
+                              <IconBox icon={FileIcon} size="sm" />
+                              <div>
+                                <p className="font-medium text-white">{file.name}</p>
+                                <p className="text-sm text-white/60">
+                                  {file.metadata?.mimetype || `Archivo .${file.extension}`}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium">{file.name}</p>
-                              <p className="text-sm text-gray-400">
-                                {file.metadata?.mimetype || `Archivo .${file.extension}`}
-                              </p>
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="bg-white/10 backdrop-blur-sm text-white/80 px-3 py-1 rounded-full text-xs font-medium border border-white/20">
+                              {file.extension?.toUpperCase() || 'Archivo'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-white/60">
+                            {formatFileSize(file.metadata?.size)}
+                          </td>
+                          <td className="py-4 px-6 text-white/60">
+                            {formatDate(file.updated_at)}
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center justify-center">
+                              <button
+                                onClick={() => downloadFile(file.name)}
+                                disabled={downloadingFile === file.name}
+                                className="bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1"
+                              >
+                                {downloadingFile === file.name ? (
+                                  <>
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                    <span>Descargando...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Download className="w-3 h-3" />
+                                    <span>Descargar</span>
+                                  </>
+                                )}
+                              </button>
                             </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${file.fileType === 'document' ? 'bg-blue-500/20 text-blue-300' :
-                            file.fileType === 'image' ? 'bg-green-500/20 text-green-300' :
-                              'bg-gray-500/20 text-gray-300'
-                            }`}>
-                            {file.extension?.toUpperCase() || 'Archivo'}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-gray-300">
-                          {formatFileSize(file.metadata?.size)}
-                        </td>
-                        <td className="py-4 px-6 text-gray-300">
-                          {formatDate(file.updated_at)}
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center justify-center">
-                            <button
-                              onClick={() => downloadFile(file.name)}
-                              disabled={downloadingFile === file.name}
-                              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200 flex items-center space-x-1"
-                            >
-                              {downloadingFile === file.name ? (
-                                <>
-                                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                  <span>Descargando...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                  <span>Descargar</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
