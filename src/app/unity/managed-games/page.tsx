@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { FolderOpen, File, Image, Check, Maximize, Send } from 'lucide-react'
+import { FolderOpen, File, Image, Check, Maximize, Send, X, BrushCleaning } from 'lucide-react'
+import Button from '@/components/ui/Button'
 
 declare global {
   interface Window {
@@ -246,21 +247,20 @@ export default function UnityPage() {
         />
 
         {/* Controles de Unity - Posición superior derecha */}
-        <div className="w-[960px] flex justify-end items-center py-[10px] space-x-2">
+        <div className="w-[960px] flex justify-between items-center py-[10px] space-x-2">
 
-          <button
+          <Button onClick={() => setShowResourceSelector(true)} icon={FolderOpen}>
+            Seleccionar Recursos
+          </Button>
+
+          <Button
             onClick={handleFullscreen}
             disabled={!unityLoaded}
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+            icon={Maximize}
             title="Activar Fullscreen"
           >
-            {unityLoaded ? (
-              <>
-                <Maximize className="w-4 h-4" />
-                <span>Fullscreen</span>
-              </>
-            ) : '⏳ Loading...'}
-          </button>
+            {unityLoaded ? 'Fullscreen' : 'Loading...'}
+          </Button>
 
         </div>
       </div>
@@ -274,21 +274,6 @@ export default function UnityPage() {
         width: '90%',
         maxWidth: '1200px'
       }}>
-        {/* Botón para mostrar/ocultar selector */}
-        <div className="text-center mb-4">
-          <button
-            onClick={() => setShowResourceSelector(!showResourceSelector)}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-auto"
-          >
-            <FolderOpen className="w-5 h-5" />
-            <span>{showResourceSelector ? 'Ocultar' : 'Mostrar'} Selector de Recursos</span>
-            {selectedResources.length > 0 && (
-              <span className="bg-white/20 text-xs px-2 py-1 rounded-full">
-                {selectedResources.length}
-              </span>
-            )}
-          </button>
-        </div>
 
         {/* Panel del selector */}
         {showResourceSelector && (
@@ -303,29 +288,24 @@ export default function UnityPage() {
                   {selectedResources.length} seleccionado{selectedResources.length !== 1 ? 's' : ''}
                 </span>
 
-                <button
-                  // onClick={sendResourcesToUnity}
+                <Button
                   onClick={logSelectedResources}
                   disabled={!unityLoaded || selectedResources.length === 0}
-                  className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
-                  title="Enviar recursos seleccionados a Unity"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>Enviar a Unity</span>
-                  {selectedResources.length > 0 && (
-                    <span className="bg-white/20 text-xs px-2 py-1 rounded-full">
-                      {selectedResources.length}
-                    </span>
-                  )}
-                </button>
+                  icon={Send}>
+                  Enviar a Unity
+                </Button>
 
-                <button
+                <Button
                   onClick={() => setSelectedResources([])}
                   disabled={selectedResources.length === 0}
-                  className="bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2"
-                >
-                  🗑️ Limpiar
-                </button>
+                  icon={BrushCleaning}>
+                  Limpiar
+                </Button>
+
+                <Button onClick={() => setShowResourceSelector(false)} icon={X}>
+                  Cerrar
+                </Button>
+
               </div>
             </div>
 

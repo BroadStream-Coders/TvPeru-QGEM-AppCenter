@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { 
-  Check, 
-  Database, 
+import {
+  Check,
+  Database,
   Zap,
   FolderOpen,
   FileText,
@@ -13,6 +12,7 @@ import {
 } from 'lucide-react'
 
 import IconBox from '@/components/ui/IconBox'
+import ButtonLink from "@/components/ui/ButtonLink";
 
 export default function Home() {
   return (
@@ -60,16 +60,13 @@ export default function Home() {
             </div>
           </div>
           <p className="text-red-100 mb-6">
-            Datos del programa del día actual. Información de concursos que será utilizada 
+            Datos del programa del día actual. Información de concursos que será utilizada
             durante la transmisión en vivo entre los dos colegios competidores.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/storage/current-data"
-              className="flex-1 bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 text-center"
-            >
+            <ButtonLink href="/storage/current-data" className="flex-1">
               Explorar Storage →
-            </Link>
+            </ButtonLink>
           </div>
         </div>
 
@@ -83,16 +80,13 @@ export default function Home() {
             </div>
           </div>
           <p className="text-red-100 mb-6">
-            Datos de ejemplo para ensayos y pruebas. Permite a la producción practicar 
+            Datos de ejemplo para ensayos y pruebas. Permite a la producción practicar
             la dinámica de los juegos con los concursantes usando datos placeholder.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/storage/sample-data"
-              className="flex-1 bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 text-center"
-            >
+            <ButtonLink href="/storage/sample-data" className="flex-1">
               Explorar Storage →
-            </Link>
+            </ButtonLink>
           </div>
         </div>
 
@@ -106,16 +100,13 @@ export default function Home() {
             </div>
           </div>
           <p className="text-red-100 mb-6">
-            Herramienta Unity para procesar datos educativos filtrados por analistas. 
+            Herramienta Unity para procesar datos educativos filtrados por analistas.
             Genera archivos JSON estructurados (uno por juego) listos para transmisión.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/unity/data-collector"
-              className="flex-1 bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 text-center"
-            >
+            <ButtonLink href="/unity/data-collector" className="flex-1">
               Abrir Aplicación →
-            </Link>
+            </ButtonLink>
           </div>
         </div>
 
@@ -129,16 +120,14 @@ export default function Home() {
             </div>
           </div>
           <p className="text-red-100 mb-6">
-            Sistema principal para ejecutar juegos educativos durante transmisiones en vivo. 
+            Sistema principal para ejecutar juegos educativos durante transmisiones en vivo.
             Selector de recursos inteligente y configuración dinámica para concursos.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/unity/managed-games"
-              className="flex-1 bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 text-center"
-            >
+
+            <ButtonLink href="/unity/managed-games" className="flex-1">
               Abrir Aplicación →
-            </Link>
+            </ButtonLink>
           </div>
         </div>
       </div>
@@ -179,7 +168,7 @@ export default function Home() {
           <IconBox icon={Zap} size="xl" className="mx-auto mb-6" />
           <h3 className="text-3xl font-bold mb-4">Sistema de Storage Especializado</h3>
           <p className="text-red-100 mb-6 max-w-2xl mx-auto">
-            API REST integrada con Supabase Storage. Gestión inteligente de 3 buckets especializados: 
+            API REST integrada con Supabase Storage. Gestión inteligente de 3 buckets especializados:
             current-data (programa actual), sample-data (ensayos), config-data (configuraciones).
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
