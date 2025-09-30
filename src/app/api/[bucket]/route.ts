@@ -1,35 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
+import { FileItem, FolderItem } from '@/types'
+
 interface RouteParams {
   params: Promise<{
     bucket: string
   }>
-}
-
-interface FolderItem {
-  name: string
-  id?: string
-  updated_at?: string
-  metadata?: unknown
-  type: 'folder'
-  fullPath: string
-}
-
-interface FileItem {
-  name: string
-  id?: string
-  updated_at?: string
-  metadata?: {
-    size?: number
-    mimetype?: string
-    [key: string]: unknown
-  }
-  type: 'file'
-  fileType: string
-  extension?: string
-  fullPath: string
-  url: string
 }
 
 interface SupabaseStorageItem {
@@ -54,8 +31,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc'
 
     console.log('📂 Listando archivos del storage...')
-    console.log(`🪣 Bucket: ${bucket}`)
-    console.log(`📁 Path: ${path || 'raíz'}`)
+    console.log(`📁 Path: ${bucket} ${path || '/'}`)
 
     // Listar archivos del bucket especificado
     const { data, error } = await supabaseAdmin.storage

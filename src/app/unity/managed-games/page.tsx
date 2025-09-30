@@ -1,58 +1,19 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { FolderOpen, File, Image, Check, Maximize, Send, X, BrushCleaning } from 'lucide-react'
+import { FolderOpen, File, Check, Maximize, Send, X, BrushCleaning } from 'lucide-react'
 
 import Button from '@/components/ui/Button'
 import IconBox from '@/components/ui/IconBox'
 
 import { getInfo } from "@/utils/storage";
 
+import { FileItem, FolderItem, StorageResponse, SelectedResource } from '@/types'
+
 declare global {
   interface Window {
     createUnityInstance: (canvas: HTMLCanvasElement, config: unknown) => Promise<unknown>
   }
-}
-
-interface FileItem {
-  name: string
-  id?: string
-  updated_at?: string
-  metadata?: {
-    size?: number
-    mimetype?: string
-  }
-  type: 'file'
-  fileType: string
-  extension?: string
-  fullPath: string
-  url: string
-}
-
-interface FolderItem {
-  name: string
-  id?: string
-  updated_at?: string
-  type: 'folder'
-  fullPath: string
-}
-
-interface StorageResponse {
-  ok: boolean
-  bucket: string
-  path: string
-  folders: FolderItem[]
-  files: FileItem[]
-  totalFolders: number
-  totalFiles: number
-  error?: string
-}
-
-interface SelectedResource {
-  name: string
-  bucket: string
-  type: 'file' | 'folder'
-  fullPath: string
 }
 
 export default function UnityPage() {
@@ -109,21 +70,19 @@ export default function UnityPage() {
     const loadBucketResources = async () => {
       try {
 
-        //Testing
-        const configData = await getInfo('config-data', '')
+        // Cargar config-data
+        const configData = await getInfo('config-data')
         setConfigDataBucket(configData)
 
-        setLoadingResources(true)
-
         // Cargar sample-data
-        const sampleResponse = await fetch('/api/sample-data')
-        const sampleData: StorageResponse = await sampleResponse.json()
+        const sampleData = await getInfo('sample-data')
         setSampleDataBucket(sampleData)
 
         // Cargar current-data
-        const currentResponse = await fetch('/api/current-data')
-        const currentData: StorageResponse = await currentResponse.json()
+        const currentData = await getInfo('current-data')
         setCurrentDataBucket(currentData)
+
+        setLoadingResources(true)
 
       } catch (error) {
         console.error('Error loading bucket resources:', error)
@@ -224,18 +183,10 @@ export default function UnityPage() {
   // Función para obtener icono según tipo
   const getResourceIcon = (item: FileItem | FolderItem) => {
     if (item.type === 'folder') {
-      return <FolderOpen className="w-4 h-4 text-yellow-400" />
+      return <FolderOpen className="w-4 h-4 text-gray-400" />
     }
 
-    const fileItem = item as FileItem
-    switch (fileItem.fileType) {
-      case 'document':
-        return <File className="w-4 h-4 text-blue-400" />
-      case 'image':
-        return <Image className="w-4 h-4 text-green-400" />
-      default:
-        return <File className="w-4 h-4 text-gray-400" />
-    }
+    return <File className="w-4 h-4 text-gray-400" />
   }
 
   return (

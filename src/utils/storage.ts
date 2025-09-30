@@ -1,42 +1,9 @@
-export interface FileItem {
-  name: string
-  id?: string
-  updated_at?: string
-  metadata?: {
-    size?: number
-    mimetype?: string
-  }
-  type: 'file'
-  fileType: string
-  extension?: string
-  fullPath: string
-  url: string
-}
-
-export interface FolderItem {
-  name: string
-  id?: string
-  updated_at?: string
-  type: 'folder'
-  fullPath: string
-}
-
-export interface StorageResponse {
-  ok: boolean
-  bucket: string
-  path: string
-  folders: FolderItem[]
-  files: FileItem[]
-  totalFolders: number
-  totalFiles: number
-  error?: string
-}
+import { StorageResponse } from '@/types'
 
 export async function getInfo(bucket: string, path: string = ''): Promise<StorageResponse> {
   try {
-    const url = `/api/${bucket}${path ? `?path=${encodeURIComponent(path)}` : ''}`
-
-    console.log(url);
+    const query = path ? `?path=${encodeURIComponent(path)}` : ''
+    const url = `/api/${bucket}${query}`
 
     const res = await fetch(url, {
       method: 'GET',
