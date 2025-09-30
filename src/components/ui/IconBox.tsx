@@ -9,6 +9,13 @@ interface IconBoxProps {
   disabled?: boolean
 }
 
+const roundedSize = {
+  sm: 'rounded-sm',
+  md: 'rounded-md',
+  lg: 'rounded-lg',
+  xl: 'rounded-xl'
+}
+
 const sizeMap = {
   sm: 'w-8 h-8',
   md: 'w-12 h-12',
@@ -35,11 +42,11 @@ export default function IconBox({
       className={cn(
         // Base glassmorphism styles
         'bg-white/10 backdrop-blur-sm border border-white/20',
-        'rounded-xl flex items-center justify-center',
-        'shadow-lg shadow-black/25',
+        'flex items-center justify-center',
 
         // Size
         sizeMap[size],
+        roundedSize[size],
 
         // Interactive states
         onClick && !disabled && 'cursor-pointer hover:bg-white/15 hover:border-white/30 transition-all duration-200',

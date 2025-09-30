@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { FolderOpen, File, Image, Check, Maximize, Send, X, BrushCleaning } from 'lucide-react'
+
 import Button from '@/components/ui/Button'
+import IconBox from '@/components/ui/IconBox'
+
+import { getInfo } from "@/utils/storage";
 
 declare global {
   interface Window {
@@ -22,6 +26,7 @@ interface FileItem {
   fileType: string
   extension?: string
   fullPath: string
+  url: string
 }
 
 interface FolderItem {
@@ -55,11 +60,12 @@ export default function UnityPage() {
 
   // Estado para Unity Instance
   const [unityInstance, setUnityInstance] = useState<any>(null)
-  const [unityLoaded, setUnityLoaded] = useState(false)
 
   // Estados para el selector de recursos
-  const [sampleDataFiles, setSampleDataFiles] = useState<StorageResponse | null>(null)
-  const [currentDataFiles, setCurrentDataFiles] = useState<StorageResponse | null>(null)
+  const [configDataBucket, setConfigDataBucket] = useState<StorageResponse | null>(null)
+  const [sampleDataBucket, setSampleDataBucket] = useState<StorageResponse | null>(null)
+  const [currentDataBucket, setCurrentDataBucket] = useState<StorageResponse | null>(null)
+
   const [selectedResources, setSelectedResources] = useState<SelectedResource[]>([])
   const [loadingResources, setLoadingResources] = useState(true)
   const [showResourceSelector, setShowResourceSelector] = useState(false)
@@ -87,8 +93,6 @@ export default function UnityPage() {
         try {
           const instance = await window.createUnityInstance(canvasRef.current!, config)
           setUnityInstance(instance)
-          setUnityLoaded(true)
-          console.log('✅ Unity instance cargada correctamente')
         } catch (message) {
           alert(message)
         }
@@ -104,17 +108,22 @@ export default function UnityPage() {
   useEffect(() => {
     const loadBucketResources = async () => {
       try {
+
+        //Testing
+        const configData = await getInfo('config-data', '')
+        setConfigDataBucket(configData)
+
         setLoadingResources(true)
 
         // Cargar sample-data
         const sampleResponse = await fetch('/api/sample-data')
         const sampleData: StorageResponse = await sampleResponse.json()
-        setSampleDataFiles(sampleData)
+        setSampleDataBucket(sampleData)
 
         // Cargar current-data
         const currentResponse = await fetch('/api/current-data')
         const currentData: StorageResponse = await currentResponse.json()
-        setCurrentDataFiles(currentData)
+        setCurrentDataBucket(currentData)
 
       } catch (error) {
         console.error('Error loading bucket resources:', error)
@@ -125,6 +134,22 @@ export default function UnityPage() {
 
     loadBucketResources()
   }, [])
+
+  useEffect(() => {
+
+    if (!unityInstance || !configDataBucket) return
+
+    const resourcesConfig = {
+      configs: configDataBucket.files.map(resource => ({
+        name: resource.name.split('.')[0],
+        url: resource.url
+      }))
+    }
+
+    const jsonString = JSON.stringify(resourcesConfig, null, 2)
+    unityInstance.SendMessage("ConfigLoader", "UpdateJsonStructure", jsonString);
+
+  }, [unityInstance, configDataBucket])
 
   // Función para activar fullscreen
   const handleFullscreen = () => {
@@ -151,19 +176,19 @@ export default function UnityPage() {
     // Crear JSON con los recursos seleccionados
     const resourcesConfig = {
       games: selectedResources.map(resource => ({
-        name: resource.name,
-        type: resource.type,
-        bucket: resource.bucket,
-        jsonUrl: `https://qtxtgtqffqvcoowlakoo.supabase.co/storage/v1/object/public/${resource.bucket}/${resource.fullPath}`
+        name: resource.name.split('.')[0],
+        url: `https://qtxtgtqffqvcoowlakoo.supabase.co/storage/v1/object/public/${resource.bucket}/${resource.fullPath}`
       }))
     }
 
-    const jsonString = JSON.stringify(resourcesConfig, null, 2)
+    console.log(resourcesConfig)
 
+    const jsonString = JSON.stringify(resourcesConfig, null, 2)
     console.log('📡 Enviando recursos a Unity:', jsonString)
 
     // Enviar a Unity (ajusta el GameObject y método según tu implementación)
-    unityInstance.SendMessage("GameLoader", "LoadGamesFromConfig", jsonString)
+    unityInstance.SendMessage("GameLoader", "UpdateJsonStructure", jsonString)
+    setShowResourceSelector(false)
   }
 
   // Función para manejar selección de recursos
@@ -213,23 +238,6 @@ export default function UnityPage() {
     }
   }
 
-  // Función para hacer log de recursos seleccionados
-  const logSelectedResources = () => {
-    console.log('🎯 Recursos seleccionados:')
-    console.table(selectedResources)
-
-    // Log más detallado
-    selectedResources.forEach((resource, index) => {
-      console.log(`📄 Recurso ${index + 1}:`, {
-        nombre: resource.name,
-        bucket: resource.bucket,
-        tipo: resource.type,
-        rutaCompleta: resource.fullPath,
-        urlPotencial: `https://qtxtgtqffqvcoowlakoo.supabase.co/storage/v1/object/public/${resource.bucket}/${resource.fullPath}`
-      })
-    })
-  }
-
   return (
     // No me gusta tener que usar el h-[867px], el div, deberia de expandice en height al tamaño de su padre
     <div className="h-[867px] flex flex-col">
@@ -241,9 +249,9 @@ export default function UnityPage() {
           id="unity-canvas"
           ref={canvasRef}
           width={960}
-          height={600}
+          height={540}
           tabIndex={-1}
-          className="w-[960px] h-[600px]"
+          className="w-[960px] h-[540px]"
         />
 
         {/* Controles de Unity - Posición superior derecha */}
@@ -255,11 +263,11 @@ export default function UnityPage() {
 
           <Button
             onClick={handleFullscreen}
-            disabled={!unityLoaded}
+            disabled={unityInstance == null}
             icon={Maximize}
             title="Activar Fullscreen"
           >
-            {unityLoaded ? 'Fullscreen' : 'Loading...'}
+            {unityInstance != null ? 'Fullscreen' : 'Loading...'}
           </Button>
 
         </div>
@@ -289,8 +297,8 @@ export default function UnityPage() {
                 </span>
 
                 <Button
-                  onClick={logSelectedResources}
-                  disabled={!unityLoaded || selectedResources.length === 0}
+                  onClick={sendResourcesToUnity}
+                  disabled={unityInstance == null || selectedResources.length === 0}
                   icon={Send}>
                   Enviar a Unity
                 </Button>
@@ -320,17 +328,15 @@ export default function UnityPage() {
                 {/* Bucket: sample-data */}
                 <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
-                      <FolderOpen className="w-4 h-4 text-white" />
-                    </div>
+                    <IconBox icon={FolderOpen} size="sm" />
                     <h4 className="font-semibold text-white">sample-data</h4>
                     <span className="text-blue-200 text-sm">
-                      {sampleDataFiles ? `${sampleDataFiles.totalFolders + sampleDataFiles.totalFiles} items` : '0 items'}
+                      {sampleDataBucket ? `${sampleDataBucket.totalFolders + sampleDataBucket.totalFiles} items` : '0 items'}
                     </span>
                   </div>
 
                   <div className="max-h-64 overflow-y-auto space-y-2">
-                    {sampleDataFiles?.folders.map((folder) => {
+                    {sampleDataBucket?.folders.map((folder) => {
                       const resource: SelectedResource = {
                         name: folder.name.replace('/', ''),
                         bucket: 'sample-data',
@@ -355,7 +361,7 @@ export default function UnityPage() {
                       )
                     })}
 
-                    {sampleDataFiles?.files.map((file) => {
+                    {sampleDataBucket?.files.map((file) => {
                       const resource: SelectedResource = {
                         name: file.name,
                         bucket: 'sample-data',
@@ -388,17 +394,15 @@ export default function UnityPage() {
                 {/* Bucket: current-data */}
                 <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-8 h-8 bg-green-500 rounded flex items-center justify-center">
-                      <FolderOpen className="w-4 h-4 text-white" />
-                    </div>
+                    <IconBox icon={FolderOpen} size="sm" />
                     <h4 className="font-semibold text-white">current-data</h4>
                     <span className="text-green-200 text-sm">
-                      {currentDataFiles ? `${currentDataFiles.totalFolders + currentDataFiles.totalFiles} items` : '0 items'}
+                      {currentDataBucket ? `${currentDataBucket.totalFolders + currentDataBucket.totalFiles} items` : '0 items'}
                     </span>
                   </div>
 
                   <div className="max-h-64 overflow-y-auto space-y-2">
-                    {currentDataFiles?.folders.map((folder) => {
+                    {currentDataBucket?.folders.map((folder) => {
                       const resource: SelectedResource = {
                         name: folder.name.replace('/', ''),
                         bucket: 'current-data',
@@ -423,7 +427,7 @@ export default function UnityPage() {
                       )
                     })}
 
-                    {currentDataFiles?.files.map((file) => {
+                    {currentDataBucket?.files.map((file) => {
                       const resource: SelectedResource = {
                         name: file.name,
                         bucket: 'current-data',

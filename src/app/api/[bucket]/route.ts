@@ -29,6 +29,7 @@ interface FileItem {
   fileType: string
   extension?: string
   fullPath: string
+  url: string
 }
 
 interface SupabaseStorageItem {
@@ -100,7 +101,8 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
           type: 'file',
           fileType: fileType,
           extension: fileExtension,
-          fullPath: path ? `${path}/${item.name}` : item.name
+          fullPath: path ? `${path}/${item.name}` : item.name,
+          url: `https://qtxtgtqffqvcoowlakoo.supabase.co/storage/v1/object/public/${bucket}/${path ? `${path}/` : ''}${item.name}`
         })
       }
     })
