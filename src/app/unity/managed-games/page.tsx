@@ -140,13 +140,9 @@ export default function UnityPage() {
       }))
     }
 
-    console.log(resourcesConfig)
-
     const jsonString = JSON.stringify(resourcesConfig, null, 2)
-    console.log('📡 Enviando recursos a Unity:', jsonString)
-
-    // Enviar a Unity (ajusta el GameObject y método según tu implementación)
     unityInstance.SendMessage("GameLoader", "UpdateJsonStructure", jsonString)
+
     setShowResourceSelector(false)
   }
 
