@@ -121,7 +121,7 @@ export default function UnityPage() {
   }
 
   // Función para enviar recursos seleccionados a Unity
-  const sendResourcesToUnity = () => {
+  const sendResourcesToUnity = async () => {
     if (!unityInstance) {
       console.warn('⚠️ Unity instance no está disponible')
       return
@@ -132,12 +132,46 @@ export default function UnityPage() {
       return
     }
 
-    // Crear JSON con los recursos seleccionados
     const resourcesConfig = {
-      games: selectedResources.map(resource => ({
-        name: resource.name.split('.')[0],
-        url: `https://qtxtgtqffqvcoowlakoo.supabase.co/storage/v1/object/public/${resource.bucket}/${resource.fullPath}`
-      }))
+      games: [] as { name: string; url: string; images?: { name: string; url: string }[] }[]
+    };
+
+    for (const resource of selectedResources) {
+
+      if (resource.type === 'file') {
+        resourcesConfig.games.push({
+          name: resource.name.replace(/\.[^/.]+$/, ""),
+          url: `https://qtxtgtqffqvcoowlakoo.supabase.co/storage/v1/object/public/${resource.bucket}/${resource.fullPath}`
+        })
+      }
+
+      if (resource.type === 'folder') {
+        const configData = await getInfo(resource.bucket, resource.name)
+
+        // Buscar el archivo data.json dentro de la carpeta
+        const dataFile = configData.files.find(
+          (file: FileItem) => file.name.toLowerCase() === "data.json"
+        );
+
+        // Filtrar las imágenes y mapear a { name, url }
+        const imageFiles = configData.files
+          .filter((file: FileItem) => file.fileType === "image")
+          .map((file: FileItem) => ({
+            name: file.name,
+            url: file.url
+          }));
+
+        // Solo si hay data.json, agregar al listado
+        if (dataFile) {
+          resourcesConfig.games.push({
+            name: resource.name, // el nombre de la carpeta
+            url: dataFile.url,
+            images: imageFiles
+          });
+        } else {
+          console.warn(`No se encontró data.json en la carpeta ${resource.name}`);
+        }
+      }
     }
 
     const jsonString = JSON.stringify(resourcesConfig, null, 2)
