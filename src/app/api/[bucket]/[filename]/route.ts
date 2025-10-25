@@ -45,7 +45,8 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     } catch (parseError) {
       return NextResponse.json({
         ok: false,
-        error: 'Error al parsear JSON'
+        error: 'Error al parsear JSON',
+        details: parseError
       }, { status: 400 })
     }
 
@@ -86,7 +87,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     } catch (parseError) {
       return NextResponse.json({
         ok: false,
-        error: 'JSON inválido en el body'
+        error: 'JSON inválido en el body',
+        details: parseError
       }, { status: 400 })
     }
 
