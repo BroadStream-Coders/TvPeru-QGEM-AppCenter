@@ -54,7 +54,7 @@ Content-Type: application/json
 ### ================================
 
 ### Caso correcto: obtener archivo existente
-GET http://localhost:3000/api/current-data/DeletreoData.json
+GET http://localhost:3000/api/current-data/Deletreo.json
 
 ### Caso correcto: obtener otro archivo
 GET http://localhost:3000/api/sample-data/mi-archivo.json

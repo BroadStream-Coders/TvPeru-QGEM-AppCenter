@@ -7,11 +7,22 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export async function GET() {
 
-  const accessLocked = process.env.ACCESS_LOCKED === 'true';
+  const envValue = process.env.ACCESS_ISSUE_ENABLED;
 
-  if (!accessLocked) {
+  // Si no está configurada la variable → error explícito
+  if (envValue === undefined) {
     return NextResponse.json(
-      { error: 'Access key issuing is currently locked by administrator.' },
+      { error: 'Server misconfiguration: ACCESS_ISSUE_ENABLED is not defined.' },
+      { status: 500 }
+    );
+  }
+
+  const issueEnabled = envValue === 'true';
+
+  // Si no está habilitada, bloqueamos emisión
+  if (!issueEnabled) {
+    return NextResponse.json(
+      { error: 'Access key issuing is currently disabled by administrator.' },
       { status: 403 }
     );
   }

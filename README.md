@@ -116,9 +116,14 @@ cp .env.example .env
 
 ```bash
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
-SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+# Server secret
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Key Access
+ACCESS_ISSUE_ENABLED=
 ```
 
 ### Desarrollo
