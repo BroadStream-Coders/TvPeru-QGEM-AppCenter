@@ -4,7 +4,6 @@ import {
   Zap,
   FolderOpen,
   FileText,
-  Gamepad2,
   Lock,
   Filter,
   RotateCcw,
@@ -110,26 +109,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Managed Games */}
-        <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
-          <div className="flex items-center mb-6">
-            <IconBox icon={Gamepad2} size="lg" className="mr-4" />
-            <div>
-              <h3 className="text-2xl font-bold mb-1">Managed Games</h3>
-              <p className="text-red-200">Sistema principal Unity WebGL</p>
-            </div>
-          </div>
-          <p className="text-red-100 mb-6">
-            Sistema principal para ejecutar juegos educativos durante transmisiones en vivo.
-            Selector de recursos inteligente y configuración dinámica para concursos.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-
-            <ButtonLink href="/unity/managed-games" className="flex-1">
-              Abrir Aplicación →
-            </ButtonLink>
-          </div>
-        </div>
       </div>
 
       {/* Features Section */}
