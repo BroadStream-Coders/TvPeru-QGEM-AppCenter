@@ -2,12 +2,7 @@ import {
   Check,
   Database,
   Zap,
-  FolderOpen,
   FileText,
-  Lock,
-  Filter,
-  RotateCcw,
-  CloudDownload
 } from 'lucide-react'
 
 import IconBox from '@/components/ui/IconBox'
@@ -46,30 +41,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Applications Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
-        {/* Current Data */}
-        <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
-          <div className="flex items-center mb-6">
-            <IconBox icon={FolderOpen} size="lg" className="mr-4" />
-            <div>
-              <h3 className="text-2xl font-bold mb-1">Datos Actuales</h3>
-              <p className="text-red-200">current-data bucket</p>
-            </div>
-          </div>
-          <p className="text-red-100 mb-6">
-            Datos del programa del día actual. Información de concursos que será utilizada
-            durante la transmisión en vivo entre los dos colegios competidores.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <ButtonLink href="/storage/current-data" className="flex-1">
-              Explorar Storage →
-            </ButtonLink>
-          </div>
-        </div>
-
-        {/* Data Collector */}
         <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
           <div className="flex items-center mb-6">
             <IconBox icon={FileText} size="lg" className="mr-4" />
@@ -86,37 +59,6 @@ export default function Home() {
             <ButtonLink href="/unity/data-collector" className="flex-1">
               Abrir Aplicación →
             </ButtonLink>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Features Section */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 mb-16">
-        <h3 className="text-3xl font-bold text-center mb-8">Características Principales</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="text-center">
-            <IconBox icon={Lock} size="md" className="mx-auto mb-4" />
-            <h4 className="font-semibold mb-2">Sin USB Físicos</h4>
-            <p className="text-red-200 text-sm">Eliminación total de dispositivos físicos</p>
-          </div>
-
-          <div className="text-center">
-            <IconBox icon={Filter} size="md" className="mx-auto mb-4" />
-            <h4 className="font-semibold mb-2">Gestión Centralizada</h4>
-            <p className="text-red-200 text-sm">3 buckets especializados en Supabase</p>
-          </div>
-
-          <div className="text-center">
-            <IconBox icon={RotateCcw} size="md" className="mx-auto mb-4" />
-            <h4 className="font-semibold mb-2">API REST Integrada</h4>
-            <p className="text-red-200 text-sm">Consumo interno y Google Apps Script</p>
-          </div>
-
-          <div className="text-center">
-            <IconBox icon={CloudDownload} size="md" className="mx-auto mb-4" />
-            <h4 className="font-semibold mb-2">Backup Automático</h4>
-            <p className="text-red-200 text-sm">Protección de datos en Supabase Storage</p>
           </div>
         </div>
       </div>
