@@ -1,3 +1,0 @@
-
-### Solicitar llave de acceso
-GET http://localhost:3000/api/access.key

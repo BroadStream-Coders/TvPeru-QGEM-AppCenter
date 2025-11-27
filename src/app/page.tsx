@@ -69,26 +69,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Sample Data */}
-        <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
-          <div className="flex items-center mb-6">
-            <IconBox icon={FolderOpen} size="lg" className="mr-4" />
-            <div>
-              <h3 className="text-2xl font-bold mb-1">Datos de Muestra</h3>
-              <p className="text-red-200">sample-data bucket</p>
-            </div>
-          </div>
-          <p className="text-red-100 mb-6">
-            Datos de ejemplo para ensayos y pruebas. Permite a la producción practicar
-            la dinámica de los juegos con los concursantes usando datos placeholder.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <ButtonLink href="/storage/sample-data" className="flex-1">
-              Explorar Storage →
-            </ButtonLink>
-          </div>
-        </div>
-
         {/* Data Collector */}
         <div className="group bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105">
           <div className="flex items-center mb-6">
@@ -140,27 +120,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {/* API Section */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-        <div className="text-center">
-          <IconBox icon={Zap} size="xl" className="mx-auto mb-6" />
-          <h3 className="text-3xl font-bold mb-4">Sistema de Storage Especializado</h3>
-          <p className="text-red-100 mb-6 max-w-2xl mx-auto">
-            API REST integrada con Supabase Storage. Gestión inteligente de 3 buckets especializados:
-            current-data (programa actual), sample-data (ensayos), config-data (configuraciones).
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200">
-              Ver Documentación API
-            </button>
-            <button className="bg-white/10 backdrop-blur-sm hover:bg-white/15 border border-white/20 hover:border-white/30 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200">
-              Estado del Sistema
-            </button>
-          </div>
-        </div>
-      </div>
-
     </div>
   );
 }
