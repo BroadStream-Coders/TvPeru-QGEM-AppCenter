@@ -11,7 +11,7 @@ export default function Home() {
           <p className="text-xl text-zinc-600 dark:text-zinc-400">
             Programa{" "}
             <span className="font-semibold text-red-600 dark:text-red-500">
-              "Que Gane el Mejor"
+              &quot;Que Gane el Mejor&quot;
             </span>{" "}
             - Tv Peru
           </p>
@@ -25,12 +25,12 @@ export default function Home() {
             Deletreo
           </Link>
 
-          <button
-            disabled
-            className="flex h-24 cursor-not-allowed items-center justify-center rounded-2xl border border-zinc-200 bg-white/50 p-6 text-xl font-medium text-zinc-400 opacity-50 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-600"
+          <Link
+            href="/personajes"
+            className="flex h-24 items-center justify-center rounded-2xl border border-zinc-200 bg-white p-6 text-xl font-medium transition-all hover:border-red-500 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-red-500 dark:hover:bg-zinc-800"
           >
-            Próximamente...
-          </button>
+            Personajes
+          </Link>
         </div>
 
         <footer className="mt-8 text-sm text-zinc-500">
