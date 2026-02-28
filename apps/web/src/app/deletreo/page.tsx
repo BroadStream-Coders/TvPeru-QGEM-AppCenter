@@ -4,24 +4,62 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Plus, Download, Upload, ArrowLeft } from "lucide-react";
+import { DeletreoColumn } from "./components/DeletreoColumn";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 // Configuración de nombre de archivo por defecto
 const DEFAULT_FILENAME = "DeletreoData.json";
 
+interface DeletreoGroup {
+  words: string[];
+}
+
+interface DeletreoData {
+  groups: DeletreoGroup[];
+}
+
 export default function DeletreoPage() {
-  const [inputs, setInputs] = useState<string[]>(Array(6).fill(""));
+  const [groups, setGroups] = useState<DeletreoGroup[]>([
+    { words: ["", "", ""] }, // Grupo inicial por defecto
+  ]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = (index: number, value: string) => {
-    const newInputs = [...inputs];
-    newInputs[index] = value;
-    setInputs(newInputs);
+  // --- Handlers de Estado ---
+
+  const addGroup = () => {
+    setGroups([...groups, { words: ["", "", ""] }]);
   };
 
+  const removeGroup = (groupIndex: number) => {
+    setGroups(groups.filter((_, i) => i !== groupIndex));
+  };
+
+  const addWordToGroup = (groupIndex: number) => {
+    const newGroups = [...groups];
+    newGroups[groupIndex].words = [...newGroups[groupIndex].words, ""];
+    setGroups(newGroups);
+  };
+
+  const updateWord = (groupIndex: number, wordIndex: number, value: string) => {
+    const newGroups = [...groups];
+    newGroups[groupIndex].words[wordIndex] = value;
+    setGroups(newGroups);
+  };
+
+  const removeWord = (groupIndex: number, wordIndex: number) => {
+    const newGroups = [...groups];
+    newGroups[groupIndex].words = newGroups[groupIndex].words.filter(
+      (_, i) => i !== wordIndex,
+    );
+    setGroups(newGroups);
+  };
+
+  // --- Persistencia ---
+
   const handleSave = () => {
-    saveAsJson(DEFAULT_FILENAME, inputs);
+    const data: DeletreoData = { groups };
+    saveAsJson(DEFAULT_FILENAME, data);
   };
 
   const handleLoad = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,21 +67,28 @@ export default function DeletreoPage() {
     if (!file) return;
 
     try {
-      // Definimos una validación para asegurar que el JSON es un arreglo de strings
-      const isValidDeletreo = (data: unknown): data is string[] => {
+      const isValidDeletreo = (data: unknown): data is DeletreoData => {
+        if (typeof data !== "object" || data === null || !("groups" in data)) {
+          return false;
+        }
+        const groups = (data as DeletreoData).groups;
         return (
-          Array.isArray(data) && data.every((item) => typeof item === "string")
+          Array.isArray(groups) &&
+          groups.every(
+            (g) =>
+              typeof g === "object" &&
+              g !== null &&
+              "words" in g &&
+              Array.isArray(g.words),
+          )
         );
       };
 
-      const data = await loadJsonFile<string[]>(file, isValidDeletreo);
+      const data = await loadJsonFile<DeletreoData>(file, isValidDeletreo);
 
-      // Si llegamos aquí, data es válido según nuestro validador
-      const newInputs = Array(6).fill("");
-      data.slice(0, 6).forEach((val, i) => {
-        newInputs[i] = val;
-      });
-      setInputs(newInputs);
+      if (data && data.groups) {
+        setGroups(data.groups);
+      }
     } catch (error) {
       console.error("Error al cargar el archivo JSON:", error);
       alert(
@@ -52,8 +97,6 @@ export default function DeletreoPage() {
           : "Error al cargar el archivo JSON.",
       );
     }
-
-    // Reset file input so same file can be loaded again if needed
     if (event.target) event.target.value = "";
   };
 
@@ -62,68 +105,39 @@ export default function DeletreoPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-12 font-sans dark:bg-black text-zinc-900 dark:text-zinc-100">
-      <header className="mb-12 w-full max-w-2xl flex justify-between items-center">
-        <Link
-          href="/"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
-        >
-          &larr; Volver al Inicio
-        </Link>
-        <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest">
-          Módulo Deletreo
-        </span>
-      </header>
-
-      <main className="flex w-full max-w-lg flex-col gap-8">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Colector de Deletreo
-          </h1>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            Ingresa los datos del programa a continuación.
-          </p>
+    <div className="flex h-screen flex-col bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 overflow-hidden font-sans">
+      {/* Header Fijo */}
+      <header className="flex h-16 items-center justify-between border-b bg-white px-6 dark:bg-zinc-900 dark:border-zinc-800 shadow-sm z-10 shrink-0">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Volver</span>
+          </Link>
+          <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800" />
+          <h1 className="text-lg font-bold tracking-tight">Deletreo</h1>
         </div>
 
-        <section className="flex flex-col gap-6">
-          {inputs.map((value, index) => (
-            <div key={index} className="grid w-full items-center gap-1.5">
-              <Label
-                htmlFor={`input-${index}`}
-                className="text-xs font-semibold text-zinc-400 uppercase ml-1"
-              >
-                Dato {index + 1}
-              </Label>
-              <Input
-                type="text"
-                id={`input-${index}`}
-                value={value}
-                onChange={(e) => handleInputChange(index, e.target.value)}
-                placeholder={`Escribe algo para el dato ${index + 1}...`}
-                className="h-12 rounded-xl border-zinc-200 bg-white shadow-sm focus-visible:ring-red-500 dark:border-zinc-800 dark:bg-zinc-900"
-              />
-            </div>
-          ))}
-        </section>
-
-        <section className="flex flex-col gap-3 sm:flex-row mt-4">
+        <div className="flex items-center gap-2">
           <Button
-            onClick={handleSave}
-            size="lg"
-            className="flex-1 h-14 rounded-2xl bg-red-600 text-lg font-semibold text-white hover:bg-red-700 active:scale-[0.98] shadow-lg shadow-red-900/20"
-          >
-            Save Data
-          </Button>
-
-          <Button
-            onClick={triggerLoad}
             variant="outline"
-            size="lg"
-            className="flex-1 h-14 rounded-2xl border-2 border-zinc-200 bg-transparent text-lg font-semibold text-zinc-900 hover:bg-zinc-100 active:scale-[0.98] dark:border-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-900 shadow-sm"
+            size="sm"
+            onClick={triggerLoad}
+            className="flex gap-2"
           >
-            Load Data
+            <Upload className="h-4 w-4" />
+            <span className="hidden sm:inline">Cargar Archivo</span>
           </Button>
-
+          <Button
+            size="sm"
+            onClick={handleSave}
+            className="bg-red-600 hover:bg-red-700 text-white flex gap-2"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Guardar Archivo</span>
+          </Button>
           <input
             type="file"
             ref={fileInputRef}
@@ -131,12 +145,50 @@ export default function DeletreoPage() {
             accept=".json"
             className="hidden"
           />
-        </section>
+        </div>
+      </header>
 
-        <footer className="mt-12 text-center text-sm text-zinc-400">
-          BroadStream Coders &copy; {new Date().getFullYear()}
-        </footer>
+      {/* Área de Trabajo */}
+      <main className="flex-1 overflow-hidden relative flex flex-col justify-evenly items-center">
+        <div className="w-full flex justify-center">
+          <ScrollArea className="w-full">
+            <div className="flex px-12 gap-8 items-start justify-center min-w-max py-4">
+              {groups.map((group, groupIndex) => (
+                <DeletreoColumn
+                  key={groupIndex}
+                  index={groupIndex + 1}
+                  words={group.words}
+                  onWordChange={(wordIdx, val) =>
+                    updateWord(groupIndex, wordIdx, val)
+                  }
+                  onAddWord={() => addWordToGroup(groupIndex)}
+                  onRemoveWord={(wordIdx) => removeWord(groupIndex, wordIdx)}
+                  onRemoveColumn={() => removeGroup(groupIndex)}
+                />
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" className="h-3" />
+          </ScrollArea>
+        </div>
+
+        {/* Botón para añadir Ronda */}
+        <div className="flex shrink-0 items-center justify-center pb-16 pt-8 z-20">
+          <Button
+            onClick={addGroup}
+            size="lg"
+            className="bg-red-600 hover:bg-red-700 text-white font-bold h-14 px-10 rounded-2xl shadow-xl shadow-red-900/20 active:scale-95 transition-all flex gap-3"
+          >
+            <Plus className="h-6 w-6" />
+            Agregar Ronda
+          </Button>
+        </div>
       </main>
+
+      {/* Footer Fijo */}
+      <footer className="flex h-10 items-center justify-center border-t bg-white px-6 text-[10px] text-zinc-400 dark:bg-zinc-900 dark:border-zinc-800 shrink-0">
+        BroadStream Coders &copy; {new Date().getFullYear()} - TV PERÚ QGEM APP
+        CENTER
+      </footer>
     </div>
   );
 }
