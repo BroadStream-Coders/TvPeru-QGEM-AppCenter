@@ -41,13 +41,13 @@ export function DeletreoColumn({
       {/* Header — altura fija */}
       <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3 shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-[10px] font-bold text-muted-foreground font-mono">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-2xs font-bold text-muted-foreground font-mono">
             {index}
           </div>
           <span className="text-sm font-semibold text-foreground">
             Ronda {index}
           </span>
-          <span className="rounded border border-border px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+          <span className="rounded border border-border px-1.5 py-0.5 text-2xs font-mono text-muted-foreground">
             {words.length}
           </span>
         </div>
@@ -55,7 +55,7 @@ export function DeletreoColumn({
           variant="ghost"
           size="icon"
           onClick={onRemoveColumn}
-          className="h-7 w-7 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+          className="h-7 w-7 text-muted-foreground hover:text-brand hover:bg-brand/10"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
@@ -88,7 +88,7 @@ export function DeletreoColumn({
           <Button
             onClick={onAddWord}
             variant="outline"
-            className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-red-600/50 hover:bg-red-600/5 text-xs"
+            className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 text-xs"
           >
             <Plus className="h-3.5 w-3.5" />
             Agregar Palabra

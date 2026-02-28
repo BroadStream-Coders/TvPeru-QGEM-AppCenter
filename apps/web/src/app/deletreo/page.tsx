@@ -106,12 +106,12 @@ export default function DeletreoPage() {
           </Link>
           <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center rounded bg-red-600/20 text-red-500 text-[10px] font-bold">
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold">
               D
             </div>
             <span className="text-sm font-semibold">Deletreo</span>
           </div>
-          <span className="rounded border border-border px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+          <span className="rounded border border-border px-1.5 py-0.5 text-2xs font-mono text-muted-foreground">
             {groups.length} ronda{groups.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -129,7 +129,7 @@ export default function DeletreoPage() {
           <Button
             size="sm"
             onClick={handleSave}
-            className="h-7 gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs"
+            className="h-7 gap-1.5 bg-brand hover:bg-brand/90 text-brand-foreground text-xs"
           >
             <Download className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Guardar</span>
@@ -187,9 +187,9 @@ export default function DeletreoPage() {
             <div className="h-full w-[180px] shrink-0">
               <button
                 onClick={addGroup}
-                className="group flex h-full w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border text-muted-foreground transition-all hover:border-red-600/50 hover:text-foreground"
+                className="group flex h-full w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border text-muted-foreground transition-all hover:border-brand/50 hover:text-foreground"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-dashed border-current transition-colors group-hover:border-red-600/50 group-hover:text-red-500">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-dashed border-current transition-colors group-hover:border-brand/50 group-hover:text-brand">
                   <Plus className="h-4 w-4" />
                 </div>
                 <span className="text-xs font-medium">Agregar ronda</span>
@@ -202,13 +202,13 @@ export default function DeletreoPage() {
 
       {/* Footer — h-9 = 36px */}
       <footer className="flex h-9 shrink-0 items-center justify-between border-t border-border px-6">
-        <span className="text-[10px] text-muted-foreground font-mono">
+        <span className="text-2xs text-muted-foreground font-mono">
           BroadStream Coders © {new Date().getFullYear()} — TV PERÚ QGEM APP
           CENTER
         </span>
         <div className="flex items-center gap-1.5">
-          <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-          <span className="text-[10px] text-muted-foreground">Activo</span>
+          <div className="h-1.5 w-1.5 rounded-full bg-success" />
+          <span className="text-2xs text-muted-foreground">Activo</span>
         </div>
       </footer>
     </div>

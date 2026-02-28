@@ -7,8 +7,8 @@ export default function Home() {
       {/* Top bar */}
       <header className="flex h-12 items-center border-b border-border px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-5 w-5 items-center justify-center rounded bg-red-600">
-            <span className="text-[9px] font-black text-white leading-none">
+          <div className="flex h-5 w-5 items-center justify-center rounded bg-brand">
+            <span className="text-3xs font-black text-brand-foreground leading-none">
               Q
             </span>
           </div>
@@ -17,7 +17,7 @@ export default function Home() {
           </span>
         </div>
         <div className="ml-auto">
-          <span className="rounded-full border border-border px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground uppercase tracking-widest">
+          <span className="rounded-full border border-border px-2.5 py-0.5 text-2xs font-medium text-muted-foreground uppercase tracking-widest">
             TV Perú
           </span>
         </div>
@@ -28,7 +28,7 @@ export default function Home() {
         <div className="w-full max-w-lg space-y-10">
           {/* Hero */}
           <div className="space-y-2">
-            <p className="text-[11px] font-mono font-medium text-muted-foreground uppercase tracking-[0.2em]">
+            <p className="text-caption font-mono font-medium text-muted-foreground uppercase tracking-header">
               Colector de datos
             </p>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
@@ -43,7 +43,7 @@ export default function Home() {
           <div className="grid gap-3 sm:grid-cols-2">
             <Link
               href="/deletreo"
-              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-red-600/50 hover:bg-card/80"
+              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/50 hover:bg-card/80"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <FileText className="h-4 w-4" />
@@ -63,7 +63,7 @@ export default function Home() {
 
             <Link
               href="/personajes"
-              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-red-600/50 hover:bg-card/80"
+              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/50 hover:bg-card/80"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <Users className="h-4 w-4" />
@@ -84,12 +84,12 @@ export default function Home() {
 
           {/* Divider */}
           <div className="border-t border-border pt-6 flex items-center justify-between">
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-caption text-muted-foreground">
               BroadStream Coders © {new Date().getFullYear()}
             </p>
             <div className="flex items-center gap-1.5">
-              <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-              <span className="text-[11px] text-muted-foreground">
+              <div className="h-1.5 w-1.5 rounded-full bg-success" />
+              <span className="text-caption text-muted-foreground">
                 Sistema activo
               </span>
             </div>
