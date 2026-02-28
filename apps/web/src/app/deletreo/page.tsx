@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 
 // Configuración de nombre de archivo por defecto
 const DEFAULT_FILENAME = "DeletreoData.json";
@@ -17,43 +18,38 @@ export default function DeletreoPage() {
   };
 
   const handleSave = () => {
-    const dataStr = JSON.stringify(inputs, null, 2);
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = DEFAULT_FILENAME;
-
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
+    saveAsJson(DEFAULT_FILENAME, inputs);
   };
 
-  const handleLoad = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLoad = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const data = JSON.parse(content);
-        if (Array.isArray(data)) {
-          // Aseguramos que solo cargamos hasta 6 o rellenamos si hay menos
-          const newInputs = Array(6).fill("");
-          data.slice(0, 6).forEach((val, i) => {
-            newInputs[i] = String(val);
-          });
-          setInputs(newInputs);
-        }
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-        alert(
-          "Error al cargar el archivo JSON. Asegúrate de que sea un formato válido.",
+    try {
+      // Definimos una validación para asegurar que el JSON es un arreglo de strings
+      const isValidDeletreo = (data: unknown): data is string[] => {
+        return (
+          Array.isArray(data) && data.every((item) => typeof item === "string")
         );
-      }
-    };
-    reader.readAsText(file);
+      };
+
+      const data = await loadJsonFile<string[]>(file, isValidDeletreo);
+
+      // Si llegamos aquí, data es válido según nuestro validador
+      const newInputs = Array(6).fill("");
+      data.slice(0, 6).forEach((val, i) => {
+        newInputs[i] = val;
+      });
+      setInputs(newInputs);
+    } catch (error) {
+      console.error("Error al cargar el archivo JSON:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Error al cargar el archivo JSON.",
+      );
+    }
+
     // Reset file input so same file can be loaded again if needed
     if (event.target) event.target.value = "";
   };
