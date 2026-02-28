@@ -3,6 +3,9 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // Configuración de nombre de archivo por defecto
 const DEFAULT_FILENAME = "DeletreoData.json";
@@ -59,7 +62,7 @@ export default function DeletreoPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-12 font-sans dark:bg-black">
+    <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-12 font-sans dark:bg-black text-zinc-900 dark:text-zinc-100">
       <header className="mb-12 w-full max-w-2xl flex justify-between items-center">
         <Link
           href="/"
@@ -82,37 +85,44 @@ export default function DeletreoPage() {
           </p>
         </div>
 
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-6">
           {inputs.map((value, index) => (
-            <div key={index} className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-zinc-400 uppercase ml-1">
+            <div key={index} className="grid w-full items-center gap-1.5">
+              <Label
+                htmlFor={`input-${index}`}
+                className="text-xs font-semibold text-zinc-400 uppercase ml-1"
+              >
                 Dato {index + 1}
-              </label>
-              <input
+              </Label>
+              <Input
                 type="text"
+                id={`input-${index}`}
                 value={value}
                 onChange={(e) => handleInputChange(index, e.target.value)}
                 placeholder={`Escribe algo para el dato ${index + 1}...`}
-                className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-zinc-900 transition-all focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                className="h-12 rounded-xl border-zinc-200 bg-white shadow-sm focus-visible:ring-red-500 dark:border-zinc-800 dark:bg-zinc-900"
               />
             </div>
           ))}
         </section>
 
         <section className="flex flex-col gap-3 sm:flex-row mt-4">
-          <button
+          <Button
             onClick={handleSave}
-            className="flex-1 flex h-14 items-center justify-center rounded-2xl bg-red-600 text-lg font-semibold text-white transition-all hover:bg-red-700 active:scale-[0.98]"
+            size="lg"
+            className="flex-1 h-14 rounded-2xl bg-red-600 text-lg font-semibold text-white hover:bg-red-700 active:scale-[0.98] shadow-lg shadow-red-900/20"
           >
             Save Data
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={triggerLoad}
-            className="flex-1 flex h-14 items-center justify-center rounded-2xl border-2 border-zinc-200 bg-transparent text-lg font-semibold text-zinc-900 transition-all hover:bg-zinc-100 active:scale-[0.98] dark:border-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-900"
+            variant="outline"
+            size="lg"
+            className="flex-1 h-14 rounded-2xl border-2 border-zinc-200 bg-transparent text-lg font-semibold text-zinc-900 hover:bg-zinc-100 active:scale-[0.98] dark:border-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-900 shadow-sm"
           >
             Load Data
-          </button>
+          </Button>
 
           <input
             type="file"

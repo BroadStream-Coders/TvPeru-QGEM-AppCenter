@@ -4,6 +4,10 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Configuración de nombre de archivo por defecto
 const DEFAULT_FILENAME = "PersonajesBundle.zip";
@@ -154,7 +158,7 @@ export default function PersonajesPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-12 font-sans dark:bg-black">
+    <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-12 font-sans dark:bg-black text-zinc-900 dark:text-zinc-100">
       <header className="mb-12 w-full max-w-4xl flex justify-between items-center">
         <Link
           href="/"
@@ -179,68 +183,77 @@ export default function PersonajesPage() {
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {personajes.map((personaje, index) => (
-            <div
+            <Card
               key={index}
-              className="flex gap-4 p-4 rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 items-center shadow-sm"
+              className="overflow-hidden border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 shadow-sm transition-all hover:shadow-md"
             >
-              <button
-                onClick={() => triggerImageUpload(index)}
-                className="relative h-20 w-20 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center border-2 border-dashed border-zinc-200 dark:border-zinc-700 hover:border-red-500 transition-colors group"
-              >
-                {personaje.imagenPreview ? (
-                  <Image // Changed to Next.js Image component
-                    src={personaje.imagenPreview}
-                    alt={`Preview ${index + 1}`}
-                    fill // Use fill to make it cover the parent
-                    unoptimized
-                    style={{ objectFit: "cover" }} // Equivalent to object-cover
+              <CardContent className="p-4 flex gap-4 items-center">
+                <button
+                  onClick={() => triggerImageUpload(index)}
+                  className="relative h-20 w-20 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center border-2 border-dashed border-zinc-200 dark:border-zinc-700 hover:border-red-500 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                >
+                  {personaje.imagenPreview ? (
+                    <Image
+                      src={personaje.imagenPreview}
+                      alt={`Preview ${index + 1}`}
+                      fill
+                      unoptimized
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <span className="text-[10px] text-zinc-400 font-bold group-hover:text-red-500">
+                      UPLOAD
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={(el) => {
+                      itemFileInputRefs.current[index] = el;
+                    }}
+                    onChange={(e) => handleImageChange(index, e)}
                   />
-                ) : (
-                  <span className="text-[10px] text-zinc-400 font-bold group-hover:text-red-500">
-                    UPLOAD
-                  </span>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  ref={(el) => {
-                    itemFileInputRefs.current[index] = el;
-                  }}
-                  onChange={(e) => handleImageChange(index, e)}
-                />
-              </button>
+                </button>
 
-              <div className="flex-1 flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">
-                  Personaje {index + 1}
-                </label>
-                <input
-                  type="text"
-                  value={personaje.nombre}
-                  onChange={(e) => handleNameChange(index, e.target.value)}
-                  placeholder="Nombre del personaje..."
-                  className="h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 transition-all focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
-                />
-              </div>
-            </div>
+                <div className="flex-1 flex flex-col gap-1.5">
+                  <Label
+                    htmlFor={`personaje-${index}`}
+                    className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter ml-1"
+                  >
+                    Personaje {index + 1}
+                  </Label>
+                  <Input
+                    id={`personaje-${index}`}
+                    type="text"
+                    value={personaje.nombre}
+                    onChange={(e) => handleNameChange(index, e.target.value)}
+                    placeholder="Nombre del personaje..."
+                    className="h-10 rounded-lg border-zinc-200 bg-white focus-visible:ring-red-500 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm"
+                  />
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </section>
 
         <section className="flex flex-col gap-3 sm:flex-row mt-8 max-w-md mx-auto w-full">
-          <button
+          <Button
             onClick={handleSave}
-            className="flex-1 flex h-14 items-center justify-center rounded-2xl bg-red-600 text-lg font-semibold text-white transition-all hover:bg-red-700 active:scale-[0.98]"
+            size="lg"
+            className="flex-1 h-14 rounded-2xl bg-red-600 text-lg font-semibold text-white hover:bg-red-700 active:scale-[0.98] shadow-lg shadow-red-900/20"
           >
             Save Data
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={triggerZipLoad}
-            className="flex-1 flex h-14 items-center justify-center rounded-2xl border-2 border-zinc-200 bg-transparent text-lg font-semibold text-zinc-900 transition-all hover:bg-zinc-100 active:scale-[0.98] dark:border-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-900"
+            variant="outline"
+            size="lg"
+            className="flex-1 h-14 rounded-2xl border-2 border-zinc-200 bg-transparent text-lg font-semibold text-zinc-900 hover:bg-zinc-100 active:scale-[0.98] dark:border-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-900 shadow-sm"
           >
             Load Data
-          </button>
+          </Button>
 
           <input
             type="file"
