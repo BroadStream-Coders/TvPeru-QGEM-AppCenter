@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Download, Upload, ImageIcon } from "lucide-react";
 
-// Configuración de nombre de archivo por defecto
 const DEFAULT_FILENAME = "PersonajesBundle.zip";
 
 interface PersonajeData {
@@ -37,11 +37,8 @@ export default function PersonajesPage() {
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
-    if (personajes[index].imagenPreview) {
+    if (personajes[index].imagenPreview)
       URL.revokeObjectURL(personajes[index].imagenPreview!);
-    }
-
     const previewUrl = URL.createObjectURL(file);
     const newPersonajes = [...personajes];
     newPersonajes[index] = {
@@ -57,7 +54,6 @@ export default function PersonajesPage() {
   };
 
   const handleSave = async () => {
-    // 1. Preparamos el JSON de metadatos
     const metadata = personajes.map((p, i) => ({
       slot: i + 1,
       nombre: p.nombre,
@@ -67,21 +63,16 @@ export default function PersonajesPage() {
         : null,
     }));
 
-    // 2. Preparamos la lista de archivos para el ZIP
     const filesToInclude = personajes
       .map((p, i) => {
         if (p.imagenFile) {
           const ext = p.imagenFile.name.split(".").pop();
-          return {
-            name: `personaje_${i + 1}.${ext}`,
-            file: p.imagenFile,
-          };
+          return { name: `personaje_${i + 1}.${ext}`, file: p.imagenFile };
         }
         return null;
       })
       .filter((item): item is { name: string; file: File } => item !== null);
 
-    // 3. Usamos el helper para guardar
     await saveAsZip(DEFAULT_FILENAME, metadata, filesToInclude);
   };
 
@@ -90,10 +81,8 @@ export default function PersonajesPage() {
     if (!file) return;
 
     try {
-      // Usamos el helper para cargar el ZIP
       const zip = await loadZipFile(file);
       const dataFile = zip.file("data.json");
-
       if (!dataFile) {
         alert("El ZIP no contiene un archivo data.json válido.");
         return;
@@ -115,9 +104,7 @@ export default function PersonajesPage() {
             .map(async (_, i) => {
               const item = metadata.find(
                 (m: MetadataItem) => m.slot === i + 1,
-              ) || {
-                nombre: "",
-              };
+              ) || { nombre: "" };
               const nombre = item.nombre || "";
               let imagenFile = null;
               let imagenPreview = null;
@@ -126,135 +113,74 @@ export default function PersonajesPage() {
                 const imgFileInZip = zip.file(item.archivoImagen);
                 if (imgFileInZip) {
                   const blob = await imgFileInZip.async("blob");
-                  // Creamos un File real a partir del blob
                   imagenFile = new File([blob], item.archivoImagen, {
                     type: blob.type,
                   });
                   imagenPreview = URL.createObjectURL(blob);
                 }
               }
-
               return { nombre, imagenFile, imagenPreview };
             }),
         );
 
-        // Limpiar previews viejos para evitar fugas de memoria
         personajes.forEach((p) => {
           if (p.imagenPreview) URL.revokeObjectURL(p.imagenPreview);
         });
-
         setPersonajes(newPersonajes);
       }
     } catch (error) {
       console.error("Error cargando ZIP:", error);
       alert("Error al procesar el archivo ZIP.");
     }
-
     if (event.target) event.target.value = "";
   };
 
-  const triggerZipLoad = () => {
-    fileInputRef.current?.click();
-  };
+  const triggerZipLoad = () => fileInputRef.current?.click();
+
+  const filledCount = personajes.filter((p) => p.nombre || p.imagenFile).length;
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-12 font-sans dark:bg-black text-zinc-900 dark:text-zinc-100">
-      <header className="mb-12 w-full max-w-4xl flex justify-between items-center">
-        <Link
-          href="/"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
-        >
-          &larr; Volver al Inicio
-        </Link>
-        <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest">
-          Módulo Personajes
-        </span>
-      </header>
-
-      <main className="flex w-full max-w-4xl flex-col gap-8">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Colector de Personajes
-          </h1>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            Selecciona una imagen y asigna un nombre a cada personaje.
-          </p>
+    <div className="flex h-screen flex-col bg-background text-foreground font-sans overflow-hidden">
+      {/* Header */}
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Volver
+          </Link>
+          <div className="h-4 w-px bg-border" />
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-red-600/20 text-red-500 text-[10px] font-bold">
+              P
+            </div>
+            <span className="text-sm font-semibold">Personajes</span>
+          </div>
+          <span className="rounded border border-border px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+            {filledCount}/6 cargados
+          </span>
         </div>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {personajes.map((personaje, index) => (
-            <Card
-              key={index}
-              className="overflow-hidden border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 shadow-sm transition-all hover:shadow-md"
-            >
-              <CardContent className="p-4 flex gap-4 items-center">
-                <button
-                  onClick={() => triggerImageUpload(index)}
-                  className="relative h-20 w-20 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center border-2 border-dashed border-zinc-200 dark:border-zinc-700 hover:border-red-500 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                >
-                  {personaje.imagenPreview ? (
-                    <Image
-                      src={personaje.imagenPreview}
-                      alt={`Preview ${index + 1}`}
-                      fill
-                      unoptimized
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <span className="text-[10px] text-zinc-400 font-bold group-hover:text-red-500">
-                      UPLOAD
-                    </span>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    ref={(el) => {
-                      itemFileInputRefs.current[index] = el;
-                    }}
-                    onChange={(e) => handleImageChange(index, e)}
-                  />
-                </button>
-
-                <div className="flex-1 flex flex-col gap-1.5">
-                  <Label
-                    htmlFor={`personaje-${index}`}
-                    className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter ml-1"
-                  >
-                    Personaje {index + 1}
-                  </Label>
-                  <Input
-                    id={`personaje-${index}`}
-                    type="text"
-                    value={personaje.nombre}
-                    onChange={(e) => handleNameChange(index, e.target.value)}
-                    placeholder="Nombre del personaje..."
-                    className="h-10 rounded-lg border-zinc-200 bg-white focus-visible:ring-red-500 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </section>
-
-        <section className="flex flex-col gap-3 sm:flex-row mt-8 max-w-md mx-auto w-full">
+        <div className="flex items-center gap-2">
           <Button
-            onClick={handleSave}
-            size="lg"
-            className="flex-1 h-14 rounded-2xl bg-red-600 text-lg font-semibold text-white hover:bg-red-700 active:scale-[0.98] shadow-lg shadow-red-900/20"
-          >
-            Save Data
-          </Button>
-
-          <Button
+            variant="ghost"
+            size="sm"
             onClick={triggerZipLoad}
-            variant="outline"
-            size="lg"
-            className="flex-1 h-14 rounded-2xl border-2 border-zinc-200 bg-transparent text-lg font-semibold text-zinc-900 hover:bg-zinc-100 active:scale-[0.98] dark:border-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-900 shadow-sm"
+            className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
           >
-            Load Data
+            <Upload className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Cargar</span>
           </Button>
-
+          <Button
+            size="sm"
+            onClick={handleSave}
+            className="h-7 gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Guardar</span>
+          </Button>
           <input
             type="file"
             ref={fileInputRef}
@@ -262,12 +188,95 @@ export default function PersonajesPage() {
             accept=".json,.zip"
             className="hidden"
           />
-        </section>
+        </div>
+      </header>
 
-        <footer className="mt-12 text-center text-sm text-zinc-400">
-          BroadStream Coders &copy; {new Date().getFullYear()}
-        </footer>
+      {/* Main */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-3xl px-6 py-6">
+          {/* Section header */}
+          <div className="mb-6">
+            <p className="text-[11px] font-mono text-muted-foreground uppercase tracking-widest mb-1">
+              Módulo Personajes
+            </p>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              Colector de Personajes
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Asigna una imagen y nombre a cada personaje del segmento.
+            </p>
+          </div>
+
+          {/* Cards grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {personajes.map((personaje, index) => (
+              <Card
+                key={index}
+                className="border border-border bg-card shadow-none rounded-xl py-0 gap-0 overflow-hidden transition-all hover:border-border/80"
+              >
+                <CardContent className="p-4 flex gap-3 items-center">
+                  {/* Image upload area */}
+                  <button
+                    onClick={() => triggerImageUpload(index)}
+                    className="relative h-16 w-16 shrink-0 overflow-hidden bg-muted rounded-lg flex items-center justify-center border border-dashed border-border hover:border-red-600/50 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {personaje.imagenPreview ? (
+                      <Image
+                        src={personaje.imagenPreview}
+                        alt={`Preview ${index + 1}`}
+                        fill
+                        unoptimized
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <ImageIcon className="h-4 w-4 text-muted-foreground/40 group-hover:text-red-500/60 transition-colors" />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      ref={(el) => {
+                        itemFileInputRefs.current[index] = el;
+                      }}
+                      onChange={(e) => handleImageChange(index, e)}
+                    />
+                  </button>
+
+                  {/* Name input */}
+                  <div className="flex-1 flex flex-col gap-1.5">
+                    <Label
+                      htmlFor={`personaje-${index}`}
+                      className="text-[10px] font-mono font-medium text-muted-foreground uppercase tracking-wider"
+                    >
+                      Personaje {index + 1}
+                    </Label>
+                    <Input
+                      id={`personaje-${index}`}
+                      type="text"
+                      value={personaje.nombre}
+                      onChange={(e) => handleNameChange(index, e.target.value)}
+                      placeholder="Nombre del personaje..."
+                      className="h-9 rounded-lg bg-background border-border text-sm placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-ring/30"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </main>
+
+      {/* Footer */}
+      <footer className="flex h-9 shrink-0 items-center justify-between border-t border-border px-6">
+        <span className="text-[10px] text-muted-foreground font-mono">
+          BroadStream Coders © {new Date().getFullYear()} — TV PERÚ QGEM APP
+          CENTER
+        </span>
+        <div className="flex items-center gap-1.5">
+          <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+          <span className="text-[10px] text-muted-foreground">Activo</span>
+        </div>
+      </footer>
     </div>
   );
 }

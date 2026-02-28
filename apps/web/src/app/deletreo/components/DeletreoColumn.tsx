@@ -10,6 +10,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface DeletreoColumnProps {
   index: number;
@@ -31,30 +32,44 @@ export function DeletreoColumn({
   onQuickLoad,
 }: DeletreoColumnProps) {
   return (
-    <Card className="flex flex-col h-[750px] w-[340px] shrink-0 bg-white border-zinc-200 shadow-lg dark:bg-zinc-900 dark:border-zinc-800 transition-all">
-      <CardHeader className="py-1.5 px-3 flex flex-row items-center justify-between border-b bg-zinc-50/50 dark:bg-zinc-950/20 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded bg-zinc-200 dark:bg-zinc-800 text-[10px] font-bold text-zinc-600">
+    /*
+      h-full: la columna ocupa toda la altura del contenedor padre,
+      que ya tiene altura fija via calc() en la página.
+      Así la columna nunca crece ni encoge por el contenido interno.
+    */
+    <Card className="flex flex-col h-full w-[320px] shrink-0 rounded-xl border border-border bg-card shadow-none gap-0 py-0 overflow-hidden">
+      {/* Header — altura fija */}
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-[10px] font-bold text-muted-foreground font-mono">
             {index}
           </div>
-          <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+          <span className="text-sm font-semibold text-foreground">
             Ronda {index}
+          </span>
+          <span className="rounded border border-border px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+            {words.length}
           </span>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={onRemoveColumn}
-          className="h-8 w-8 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+          className="h-7 w-7 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </CardHeader>
 
-      <CardContent className="flex-1 px-3 py-0 flex flex-col min-h-0 overflow-hidden">
-        {/* Lista de palabras con scroll propio */}
-        <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800">
-          <div className="flex flex-col gap-3 pb-2">
+      {/*
+        CardContent: flex-1 + min-h-0 para que pueda encoger.
+        El ScrollArea aquí hace el scroll VERTICAL de los rows
+        usando el mismo componente de shadcn que el scroll horizontal,
+        por lo tanto visualmente idéntico.
+      */}
+      <CardContent className="flex flex-1 flex-col min-h-0 px-4 py-0">
+        <ScrollArea className="flex-1 min-h-0 py-3">
+          <div className="flex flex-col gap-2 pr-2">
             {words.map((word, wordIndex) => (
               <DeletreoRow
                 key={wordIndex}
@@ -65,19 +80,24 @@ export function DeletreoColumn({
               />
             ))}
           </div>
-        </div>
+          {/* Scrollbar vertical — mismo componente y estilo que el horizontal de la página */}
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
 
-        <div className="shrink-0 pt-2">
+        <div className="shrink-0 pb-3">
           <Button
             onClick={onAddWord}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold h-11 rounded-xl shadow-md active:scale-[0.98] transition-all flex gap-3"
+            variant="outline"
+            className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-red-600/50 hover:bg-red-600/5 text-xs"
           >
-            <Plus className="h-5 w-5" /> Agregar Palabra
+            <Plus className="h-3.5 w-3.5" />
+            Agregar Palabra
           </Button>
         </div>
       </CardContent>
 
-      <CardFooter className="px-3 py-2 pt-0 shrink-0">
+      {/* Footer — altura fija */}
+      <CardFooter className="border-t border-border px-4 py-3 shrink-0">
         <QuickLoad onLoad={onQuickLoad} />
       </CardFooter>
     </Card>

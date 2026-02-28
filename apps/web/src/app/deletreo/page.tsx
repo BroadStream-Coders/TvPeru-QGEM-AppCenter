@@ -9,7 +9,6 @@ import { Plus, Download, Upload, ArrowLeft } from "lucide-react";
 import { DeletreoColumn } from "./components/DeletreoColumn";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
-// Configuración de nombre de archivo por defecto
 const DEFAULT_FILENAME = "DeletreoData.json";
 
 interface DeletreoGroup {
@@ -22,19 +21,14 @@ interface DeletreoData {
 
 export default function DeletreoPage() {
   const [groups, setGroups] = useState<DeletreoGroup[]>([
-    { words: ["", "", ""] }, // Grupo inicial por defecto
+    { words: ["", "", ""] },
   ]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- Handlers de Estado ---
+  const addGroup = () => setGroups([...groups, { words: ["", "", ""] }]);
 
-  const addGroup = () => {
-    setGroups([...groups, { words: ["", "", ""] }]);
-  };
-
-  const removeGroup = (groupIndex: number) => {
+  const removeGroup = (groupIndex: number) =>
     setGroups(groups.filter((_, i) => i !== groupIndex));
-  };
 
   const addWordToGroup = (groupIndex: number) => {
     const newGroups = [...groups];
@@ -58,47 +52,34 @@ export default function DeletreoPage() {
 
   const handleQuickLoad = (groupIndex: number, matrix: string[][]) => {
     const newGroups = [...groups];
-    // Extraemos la primera columna de la matriz y reemplazamos la existente
     newGroups[groupIndex].words = getColumnData(matrix, 0);
     setGroups(newGroups);
   };
 
-  // --- Persistencia ---
-
-  const handleSave = () => {
-    const data: DeletreoData = { groups };
-    saveAsJson(DEFAULT_FILENAME, data);
-  };
+  const handleSave = () => saveAsJson(DEFAULT_FILENAME, { groups });
 
   const handleLoad = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     try {
-      const isValidDeletreo = (data: unknown): data is DeletreoData => {
-        if (typeof data !== "object" || data === null || !("groups" in data)) {
+      const isValid = (data: unknown): data is DeletreoData => {
+        if (typeof data !== "object" || data === null || !("groups" in data))
           return false;
-        }
-        const groups = (data as DeletreoData).groups;
+        const g = (data as DeletreoData).groups;
         return (
-          Array.isArray(groups) &&
-          groups.every(
-            (g) =>
-              typeof g === "object" &&
-              g !== null &&
-              "words" in g &&
-              Array.isArray(g.words),
+          Array.isArray(g) &&
+          g.every(
+            (r) =>
+              typeof r === "object" &&
+              r !== null &&
+              "words" in r &&
+              Array.isArray(r.words),
           )
         );
       };
-
-      const data = await loadJsonFile<DeletreoData>(file, isValidDeletreo);
-
-      if (data && data.groups) {
-        setGroups(data.groups);
-      }
+      const data = await loadJsonFile<DeletreoData>(file, isValid);
+      if (data?.groups) setGroups(data.groups);
     } catch (error) {
-      console.error("Error al cargar el archivo JSON:", error);
       alert(
         error instanceof Error
           ? error.message
@@ -108,43 +89,50 @@ export default function DeletreoPage() {
     if (event.target) event.target.value = "";
   };
 
-  const triggerLoad = () => {
-    fileInputRef.current?.click();
-  };
+  const triggerLoad = () => fileInputRef.current?.click();
 
   return (
-    <div className="flex h-screen flex-col bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 overflow-hidden font-sans">
-      {/* Header Fijo */}
-      <header className="flex h-16 items-center justify-between border-b bg-white px-6 dark:bg-zinc-900 dark:border-zinc-800 shadow-sm z-10 shrink-0">
-        <div className="flex items-center gap-4">
+    // overflow-hidden en todo: la página nunca hace scroll en Y
+    <div className="flex h-screen flex-col bg-background text-foreground overflow-hidden font-sans">
+      {/* Header — h-12 = 48px */}
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10">
+        <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Volver</span>
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Volver
           </Link>
-          <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800" />
-          <h1 className="text-lg font-bold tracking-tight">Deletreo</h1>
+          <div className="h-4 w-px bg-border" />
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-red-600/20 text-red-500 text-[10px] font-bold">
+              D
+            </div>
+            <span className="text-sm font-semibold">Deletreo</span>
+          </div>
+          <span className="rounded border border-border px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+            {groups.length} ronda{groups.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={triggerLoad}
-            className="flex gap-2"
+            className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
           >
-            <Upload className="h-4 w-4" />
-            <span className="hidden sm:inline">Cargar Archivo</span>
+            <Upload className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Cargar</span>
           </Button>
           <Button
             size="sm"
             onClick={handleSave}
-            className="bg-red-600 hover:bg-red-700 text-white flex gap-2"
+            className="h-7 gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs"
           >
-            <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">Guardar Archivo</span>
+            <Download className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Guardar</span>
           </Button>
           <input
             type="file"
@@ -156,49 +144,72 @@ export default function DeletreoPage() {
         </div>
       </header>
 
-      {/* Área de Trabajo */}
-      <main className="flex-1 overflow-hidden relative flex flex-col justify-evenly items-center">
-        <div className="w-full flex justify-center">
-          <ScrollArea className="w-full">
-            <div className="flex px-12 gap-8 items-start justify-center min-w-max py-4">
-              {groups.map((group, groupIndex) => (
-                <DeletreoColumn
-                  key={groupIndex}
-                  index={groupIndex + 1}
-                  words={group.words}
-                  onWordChange={(wordIdx, val) =>
-                    updateWord(groupIndex, wordIdx, val)
-                  }
-                  onAddWord={() => addWordToGroup(groupIndex)}
-                  onRemoveWord={(wordIdx) => removeWord(groupIndex, wordIdx)}
-                  onRemoveColumn={() => removeGroup(groupIndex)}
-                  onQuickLoad={(newWords) =>
-                    handleQuickLoad(groupIndex, newWords)
-                  }
-                />
-              ))}
-            </div>
-            <ScrollBar orientation="horizontal" className="h-3" />
-          </ScrollArea>
-        </div>
+      {/*
+        Workspace — flex-1 toma el espacio restante entre header (48px) y footer (36px).
+        overflow-hidden: nunca scroll Y en la página.
+        El ScrollArea aquí es SOLO horizontal.
+      */}
+      <main className="flex flex-1 overflow-hidden">
+        <ScrollArea className="w-full">
+          {/*
+            py-6 (24px) = padding simétrico arriba y abajo.
+            Las columnas tienen altura fija via CSS var calculada:
+              100vh - header(48px) - footer(36px) - padding vertical(48px) = restante
+            Se pasa como prop a DeletreoColumn vía clase en el wrapper,
+            pero es más limpio dejar que DeletreoColumn use h-full
+            dentro de un contenedor con altura explícita.
 
-        {/* Botón para añadir Ronda */}
-        <div className="flex shrink-0 items-center justify-center pb-16 pt-8 z-20">
-          <Button
-            onClick={addGroup}
-            size="lg"
-            className="bg-red-600 hover:bg-red-700 text-white font-bold h-14 px-10 rounded-2xl shadow-xl shadow-red-900/20 active:scale-95 transition-all flex gap-3"
+            Usamos: calc(100vh - 48px - 36px - 48px) = calc(100vh - 132px)
+            como altura del contenedor de filas para que las columnas sean fijas.
+          */}
+          <div
+            className="flex min-w-max gap-4 px-6 py-6"
+            style={{ height: "calc(100vh - 48px - 36px)" }}
           >
-            <Plus className="h-6 w-6" />
-            Agregar Ronda
-          </Button>
-        </div>
+            {groups.map((group, groupIndex) => (
+              <DeletreoColumn
+                key={groupIndex}
+                index={groupIndex + 1}
+                words={group.words}
+                onWordChange={(wordIdx, val) =>
+                  updateWord(groupIndex, wordIdx, val)
+                }
+                onAddWord={() => addWordToGroup(groupIndex)}
+                onRemoveWord={(wordIdx) => removeWord(groupIndex, wordIdx)}
+                onRemoveColumn={() => removeGroup(groupIndex)}
+                onQuickLoad={(newWords) =>
+                  handleQuickLoad(groupIndex, newWords)
+                }
+              />
+            ))}
+
+            {/* Add round — misma altura que las columnas vía h-full */}
+            <div className="h-full w-[180px] shrink-0">
+              <button
+                onClick={addGroup}
+                className="group flex h-full w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border text-muted-foreground transition-all hover:border-red-600/50 hover:text-foreground"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-dashed border-current transition-colors group-hover:border-red-600/50 group-hover:text-red-500">
+                  <Plus className="h-4 w-4" />
+                </div>
+                <span className="text-xs font-medium">Agregar ronda</span>
+              </button>
+            </div>
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </main>
 
-      {/* Footer Fijo */}
-      <footer className="flex h-10 items-center justify-center border-t bg-white px-6 text-[10px] text-zinc-400 dark:bg-zinc-900 dark:border-zinc-800 shrink-0">
-        BroadStream Coders &copy; {new Date().getFullYear()} - TV PERÚ QGEM APP
-        CENTER
+      {/* Footer — h-9 = 36px */}
+      <footer className="flex h-9 shrink-0 items-center justify-between border-t border-border px-6">
+        <span className="text-[10px] text-muted-foreground font-mono">
+          BroadStream Coders © {new Date().getFullYear()} — TV PERÚ QGEM APP
+          CENTER
+        </span>
+        <div className="flex items-center gap-1.5">
+          <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+          <span className="text-[10px] text-muted-foreground">Activo</span>
+        </div>
       </footer>
     </div>
   );
