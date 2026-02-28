@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
+import { getColumnData } from "@/helpers/data-processing";
 import { Button } from "@/components/ui/button";
 import { Plus, Download, Upload, ArrowLeft } from "lucide-react";
 import { DeletreoColumn } from "./components/DeletreoColumn";
@@ -52,6 +53,13 @@ export default function DeletreoPage() {
     newGroups[groupIndex].words = newGroups[groupIndex].words.filter(
       (_, i) => i !== wordIndex,
     );
+    setGroups(newGroups);
+  };
+
+  const handleQuickLoad = (groupIndex: number, matrix: string[][]) => {
+    const newGroups = [...groups];
+    // Extraemos la primera columna de la matriz y reemplazamos la existente
+    newGroups[groupIndex].words = getColumnData(matrix, 0);
     setGroups(newGroups);
   };
 
@@ -164,6 +172,9 @@ export default function DeletreoPage() {
                   onAddWord={() => addWordToGroup(groupIndex)}
                   onRemoveWord={(wordIdx) => removeWord(groupIndex, wordIdx)}
                   onRemoveColumn={() => removeGroup(groupIndex)}
+                  onQuickLoad={(newWords) =>
+                    handleQuickLoad(groupIndex, newWords)
+                  }
                 />
               ))}
             </div>

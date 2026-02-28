@@ -1,7 +1,7 @@
 "use client";
 
 import { DeletreoRow } from "./DeletreoRow";
-import { QuickLoad } from "./QuickLoad";
+import { QuickLoad } from "@/components/shared/QuickLoad";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus } from "lucide-react";
 import {
@@ -18,6 +18,7 @@ interface DeletreoColumnProps {
   onAddWord: () => void;
   onRemoveWord: (wordIndex: number) => void;
   onRemoveColumn: () => void;
+  onQuickLoad: (data: string[][]) => void;
 }
 
 export function DeletreoColumn({
@@ -27,6 +28,7 @@ export function DeletreoColumn({
   onAddWord,
   onRemoveWord,
   onRemoveColumn,
+  onQuickLoad,
 }: DeletreoColumnProps) {
   return (
     <Card className="flex flex-col h-[750px] w-[340px] shrink-0 bg-white border-zinc-200 shadow-lg dark:bg-zinc-900 dark:border-zinc-800 transition-all">
@@ -76,7 +78,7 @@ export function DeletreoColumn({
       </CardContent>
 
       <CardFooter className="px-3 py-2 pt-0 shrink-0">
-        <QuickLoad />
+        <QuickLoad onLoad={onQuickLoad} />
       </CardFooter>
     </Card>
   );
