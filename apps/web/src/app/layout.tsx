@@ -13,7 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QGEM App Center — TV Perú",
+  title: {
+    template: "%s | QGEM App Center",
+    default: "QGEM App Center — TV Perú",
+  },
   description: "Colector de datos para el programa Que Gane el Mejor — TV Perú",
 };
 
