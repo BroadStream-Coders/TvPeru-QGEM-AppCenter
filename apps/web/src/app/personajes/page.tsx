@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import JSZip from "jszip";
+import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 
 // Configuración de nombre de archivo por defecto
 const DEFAULT_FILENAME = "PersonajesBundle.zip";
@@ -21,7 +21,6 @@ export default function PersonajesPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const itemFileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Corrección: En el paso anterior usé setInputs por error en la lógica, lo corrijo a setPersonajes
   const handleNameChange = (index: number, value: string) => {
     const newPersonajes = [...personajes];
     newPersonajes[index] = { ...newPersonajes[index], nombre: value };
@@ -54,8 +53,6 @@ export default function PersonajesPage() {
   };
 
   const handleSave = async () => {
-    const zip = new JSZip();
-
     // 1. Preparamos el JSON de metadatos
     const metadata = personajes.map((p, i) => ({
       slot: i + 1,
@@ -66,22 +63,22 @@ export default function PersonajesPage() {
         : null,
     }));
 
-    zip.file("data.json", JSON.stringify(metadata, null, 2));
+    // 2. Preparamos la lista de archivos para el ZIP
+    const filesToInclude = personajes
+      .map((p, i) => {
+        if (p.imagenFile) {
+          const ext = p.imagenFile.name.split(".").pop();
+          return {
+            name: `personaje_${i + 1}.${ext}`,
+            file: p.imagenFile,
+          };
+        }
+        return null;
+      })
+      .filter((item): item is { name: string; file: File } => item !== null);
 
-    // 2. Añadimos las imágenes al ZIP
-    personajes.forEach((p, i) => {
-      if (p.imagenFile) {
-        const ext = p.imagenFile.name.split(".").pop();
-        zip.file(`personaje_${i + 1}.${ext}`, p.imagenFile);
-      }
-    });
-
-    // 3. Generamos y descargamos el ZIP
-    const content = await zip.generateAsync({ type: "blob" });
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", URL.createObjectURL(content));
-    linkElement.setAttribute("download", DEFAULT_FILENAME);
-    linkElement.click();
+    // 3. Usamos el helper para guardar
+    await saveAsZip(DEFAULT_FILENAME, metadata, filesToInclude);
   };
 
   const handleLoad = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +86,8 @@ export default function PersonajesPage() {
     if (!file) return;
 
     try {
-      const zip = await JSZip.loadAsync(file);
+      // Usamos el helper para cargar el ZIP
+      const zip = await loadZipFile(file);
       const dataFile = zip.file("data.json");
 
       if (!dataFile) {
@@ -101,11 +99,19 @@ export default function PersonajesPage() {
       const metadata = JSON.parse(content);
 
       if (Array.isArray(metadata)) {
+        interface MetadataItem {
+          slot: number;
+          nombre: string;
+          archivoImagen: string | null;
+        }
+
         const newPersonajes = await Promise.all(
           Array(6)
             .fill(null)
             .map(async (_, i) => {
-              const item = metadata.find((m) => m.slot === i + 1) || {
+              const item = metadata.find(
+                (m: MetadataItem) => m.slot === i + 1,
+              ) || {
                 nombre: "",
               };
               const nombre = item.nombre || "";
