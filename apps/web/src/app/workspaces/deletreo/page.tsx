@@ -92,26 +92,27 @@ export default function DeletreoPage() {
   const triggerLoad = () => fileInputRef.current?.click();
 
   return (
-    // overflow-hidden en todo: la página nunca hace scroll en Y
-    <div className="flex h-screen flex-col bg-background text-foreground overflow-hidden font-sans">
+    <>
       {/* Header — h-12 = 48px */}
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10">
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10 transition-colors duration-200">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-95"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Volver
           </Link>
           <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold">
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold ring-1 ring-brand/10">
               D
             </div>
-            <span className="text-sm font-semibold">Deletreo</span>
+            <span className="text-sm font-semibold tracking-tight">
+              Deletreo
+            </span>
           </div>
-          <span className="rounded border border-border px-1.5 py-0.5 text-2xs font-mono text-muted-foreground">
+          <span className="rounded border border-border bg-muted/30 px-1.5 py-0.5 text-2xs font-mono text-muted-foreground">
             {groups.length} ronda{groups.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -129,7 +130,7 @@ export default function DeletreoPage() {
           <Button
             size="sm"
             onClick={handleSave}
-            className="h-7 gap-1.5 bg-brand hover:bg-brand/90 text-brand-foreground text-xs"
+            className="h-7 gap-1.5 bg-brand hover:brightness-110 active:scale-[0.98] text-brand-foreground text-xs shadow-sm transition-all"
           >
             <Download className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Guardar</span>
@@ -145,23 +146,11 @@ export default function DeletreoPage() {
       </header>
 
       {/*
-        Workspace — flex-1 toma el espacio restante entre header (48px) y footer (36px).
-        overflow-hidden: nunca scroll Y en la página.
+        Workspace — No necesitamos wrapper de altura aquí, el layout ya maneja flex-1.
         El ScrollArea aquí es SOLO horizontal.
       */}
-      <main className="flex flex-1 overflow-hidden">
-        <ScrollArea className="w-full">
-          {/*
-            py-6 (24px) = padding simétrico arriba y abajo.
-            Las columnas tienen altura fija via CSS var calculada:
-              100vh - header(48px) - footer(36px) - padding vertical(48px) = restante
-            Se pasa como prop a DeletreoColumn vía clase en el wrapper,
-            pero es más limpio dejar que DeletreoColumn use h-full
-            dentro de un contenedor con altura explícita.
-
-            Usamos: calc(100vh - 48px - 36px - 48px) = calc(100vh - 132px)
-            como altura del contenedor de filas para que las columnas sean fijas.
-          */}
+      <main className="flex-1 overflow-hidden">
+        <ScrollArea className="w-full h-full">
           <div
             className="flex min-w-max gap-4 px-6 py-6"
             style={{ height: "calc(100vh - 48px - 36px)" }}
@@ -187,7 +176,7 @@ export default function DeletreoPage() {
             <div className="h-full w-[180px] shrink-0">
               <button
                 onClick={addGroup}
-                className="group flex h-full w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border text-muted-foreground transition-all hover:border-brand/50 hover:text-foreground"
+                className="group flex h-full w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-dashed border-current transition-colors group-hover:border-brand/50 group-hover:text-brand">
                   <Plus className="h-4 w-4" />
@@ -199,18 +188,6 @@ export default function DeletreoPage() {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </main>
-
-      {/* Footer — h-9 = 36px */}
-      <footer className="flex h-9 shrink-0 items-center justify-between border-t border-border px-6">
-        <span className="text-2xs text-muted-foreground font-mono">
-          BroadStream Coders © {new Date().getFullYear()} — TV PERÚ QGEM APP
-          CENTER
-        </span>
-        <div className="flex items-center gap-1.5">
-          <div className="h-1.5 w-1.5 rounded-full bg-success" />
-          <span className="text-2xs text-muted-foreground">Activo</span>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }

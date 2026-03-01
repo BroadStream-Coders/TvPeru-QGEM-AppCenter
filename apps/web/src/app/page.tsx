@@ -29,20 +29,20 @@ export default function Home() {
           {/* Hero */}
           <div className="space-y-2">
             <p className="text-caption font-mono font-medium text-muted-foreground uppercase tracking-header">
-              Colector de datos
+              Workspaces de datos
             </p>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
               Que Gane el Mejor
             </h1>
             <p className="text-sm text-muted-foreground">
-              Selecciona el módulo de recolección para comenzar.
+              Selecciona un área de trabajo para comenzar la producción.
             </p>
           </div>
 
           {/* Module cards */}
           <div className="grid gap-3 sm:grid-cols-2">
             <Link
-              href="/deletreo"
+              href="/workspaces/deletreo"
               className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/50 hover:bg-card/80"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -62,7 +62,7 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/personajes"
+              href="/workspaces/personajes"
               className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/50 hover:bg-card/80"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">

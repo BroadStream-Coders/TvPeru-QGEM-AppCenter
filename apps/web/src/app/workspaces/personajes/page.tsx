@@ -140,25 +140,27 @@ export default function PersonajesPage() {
   const filledCount = personajes.filter((p) => p.nombre || p.imagenFile).length;
 
   return (
-    <div className="flex h-screen flex-col bg-background text-foreground font-sans overflow-hidden">
+    <>
       {/* Header */}
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10">
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10 transition-colors duration-200">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-95"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Volver
           </Link>
           <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold">
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold ring-1 ring-brand/10">
               P
             </div>
-            <span className="text-sm font-semibold">Personajes</span>
+            <span className="text-sm font-semibold tracking-tight">
+              Personajes
+            </span>
           </div>
-          <span className="rounded border border-border px-1.5 py-0.5 text-2xs font-mono text-muted-foreground">
+          <span className="rounded border border-border bg-muted/30 px-1.5 py-0.5 text-2xs font-mono text-muted-foreground">
             {filledCount}/6 cargados
           </span>
         </div>
@@ -176,7 +178,7 @@ export default function PersonajesPage() {
           <Button
             size="sm"
             onClick={handleSave}
-            className="h-7 gap-1.5 bg-brand hover:bg-brand/90 text-brand-foreground text-xs"
+            className="h-7 gap-1.5 bg-brand hover:brightness-110 active:scale-[0.98] text-brand-foreground text-xs shadow-sm transition-all"
           >
             <Download className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Guardar</span>
@@ -196,11 +198,11 @@ export default function PersonajesPage() {
         <div className="mx-auto max-w-3xl px-6 py-6">
           {/* Section header */}
           <div className="mb-6">
-            <p className="text-caption font-mono text-muted-foreground uppercase tracking-widest mb-1">
+            <p className="text-caption font-mono font-medium text-muted-foreground uppercase tracking-widest mb-1">
               Módulo Personajes
             </p>
             <h1 className="text-xl font-bold tracking-tight text-foreground">
-              Colector de Personajes
+              Workspace de Personajes
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">
               Asigna una imagen y nombre a cada personaje del segmento.
@@ -208,11 +210,11 @@ export default function PersonajesPage() {
           </div>
 
           {/* Cards grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
             {personajes.map((personaje, index) => (
               <Card
                 key={index}
-                className="border border-border bg-card shadow-none rounded-xl py-0 gap-0 overflow-hidden transition-all hover:border-border/80"
+                className="border border-border bg-card shadow-none rounded-xl py-0 gap-0 overflow-hidden transition-all hover:border-brand/30 hover:shadow-sm"
               >
                 <CardContent className="p-4 flex gap-3 items-center">
                   {/* Image upload area */}
@@ -248,7 +250,7 @@ export default function PersonajesPage() {
                       htmlFor={`personaje-${index}`}
                       className="text-2xs font-mono font-medium text-muted-foreground uppercase tracking-wider"
                     >
-                      Personaje {index + 1}
+                      Slot {index + 1}
                     </Label>
                     <Input
                       id={`personaje-${index}`}
@@ -265,18 +267,6 @@ export default function PersonajesPage() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="flex h-9 shrink-0 items-center justify-between border-t border-border px-6">
-        <span className="text-2xs text-muted-foreground font-mono">
-          BroadStream Coders © {new Date().getFullYear()} — TV PERÚ QGEM APP
-          CENTER
-        </span>
-        <div className="flex items-center gap-1.5">
-          <div className="h-1.5 w-1.5 rounded-full bg-success" />
-          <span className="text-2xs text-muted-foreground">Activo</span>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }
