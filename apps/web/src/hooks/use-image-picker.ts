@@ -14,6 +14,7 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
   );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const ownedUrls = useRef<Set<string>>(new Set());
 
   const triggerUpload = useCallback(() => {
     fileInputRef.current?.click();
@@ -24,12 +25,17 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // Revoke previous URL to avoid memory leaks
-      if (previewUrl && previewUrl.startsWith("blob:")) {
+      // Revoke previous URL only if we own it
+      if (previewUrl && ownedUrls.current.has(previewUrl)) {
+        console.log(`[useImagePicker] Revoking owned URL: ${previewUrl}`);
         URL.revokeObjectURL(previewUrl);
+        ownedUrls.current.delete(previewUrl);
       }
 
       const url = URL.createObjectURL(file);
+      ownedUrls.current.add(url);
+      console.log(`[useImagePicker] Created new owned URL: ${url}`);
+
       setPreviewUrl(url);
       setSelectedFile(file);
       onImageSelect?.(file, url);
@@ -41,8 +47,12 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
   );
 
   const clearImage = useCallback(() => {
-    if (previewUrl && previewUrl.startsWith("blob:")) {
+    if (previewUrl && ownedUrls.current.has(previewUrl)) {
+      console.log(
+        `[useImagePicker] Clearing & Revoking owned URL: ${previewUrl}`,
+      );
       URL.revokeObjectURL(previewUrl);
+      ownedUrls.current.delete(previewUrl);
     }
     setPreviewUrl(null);
     setSelectedFile(null);
@@ -50,12 +60,15 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
 
   // Cleanup on unmount
   useEffect(() => {
+    const urlsToCleanup = ownedUrls.current;
     return () => {
-      if (previewUrl && previewUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      urlsToCleanup.forEach((url) => {
+        console.log(`[useImagePicker] Unmount Cleanup: Revoking ${url}`);
+        URL.revokeObjectURL(url);
+      });
+      urlsToCleanup.clear();
     };
-  }, [previewUrl]);
+  }, []);
 
   return {
     previewUrl,

@@ -58,25 +58,28 @@ export const loadJsonFile = <T>(
 };
 
 /**
- * Crea un paquete ZIP con un archivo data.json y múltiples archivos adicionales (imágenes).
- * @param filename Nombre del ZIP (ej: "Bundle.zip")
- * @param jsonData Datos para el archivo data.json
+ * Crea un paquete ZIP con un archivo JSON y múltiples archivos adicionales (imágenes).
+ * @param zipFilename Nombre del ZIP (ej: "Bundle.zip")
+ * @param jsonData Datos para el archivo JSON
  * @param files Lista de archivos para incluir en el ZIP
+ * @param jsonFilename Nombre opcional del archivo JSON interno (default: "sessionData.json")
  */
 export const saveAsZip = async (
-  filename: string,
+  zipFilename: string,
   jsonData: unknown,
   files: { name: string; file: File }[],
+  jsonFilename: string = "data.json",
 ) => {
   const zip = new JSZip();
 
   // 1. Añadir el JSON
-  zip.file("data.json", JSON.stringify(jsonData, null, 2));
+  zip.file(jsonFilename, JSON.stringify(jsonData, null, 2));
 
-  // 2. Añadir cada archivo
-  files.forEach((item) => {
-    zip.file(item.name, item.file);
-  });
+  // 2. Añadir cada archivo de forma secuencial asegurando carga a memoria
+  for (const item of files) {
+    const data = await item.file.arrayBuffer();
+    zip.file(item.name, data);
+  }
 
   // 3. Generar y descargar
   const content = await zip.generateAsync({ type: "blob" });
@@ -84,7 +87,7 @@ export const saveAsZip = async (
 
   const linkElement = document.createElement("a");
   linkElement.setAttribute("href", url);
-  linkElement.setAttribute("download", filename);
+  linkElement.setAttribute("download", zipFilename);
   linkElement.click();
 
   setTimeout(() => URL.revokeObjectURL(url), 100);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, Users } from "lucide-react";
+import { FileText, Users, Sparkles } from "lucide-react";
 
 export default function Home() {
   return (
@@ -75,6 +75,26 @@ export default function Home() {
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   Nombres e imágenes de personajes
+                </p>
+              </div>
+              <div className="absolute right-4 top-4 text-muted-foreground/30 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 text-sm font-bold">
+                →
+              </div>
+            </Link>
+
+            <Link
+              href="/workspaces/impostor"
+              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5 sm:col-span-2"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
+                <Sparkles className="h-4 w-4 shadow-[0_0_10px_rgba(var(--brand-rgb),0.3)]" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  Impostor
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Colector de fotos y selección de impostores por rondas
                 </p>
               </div>
               <div className="absolute right-4 top-4 text-muted-foreground/30 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 text-sm font-bold">
