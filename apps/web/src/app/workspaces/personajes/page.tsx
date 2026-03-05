@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Download, Upload, ImageIcon } from "lucide-react";
+import { useImagePicker } from "@/hooks/use-image-picker";
+import { useEffect } from "react";
 
 const DEFAULT_FILENAME = "PersonajesBundle.zip";
 
@@ -18,12 +20,93 @@ interface PersonajeData {
   imagenPreview: string | null;
 }
 
+// Sub-component for each slot to use the hook independently
+function PersonajeSlot({
+  index,
+  data,
+  onNameChange,
+  onImageChange,
+}: {
+  index: number;
+  data: PersonajeData;
+  onNameChange: (val: string) => void;
+  onImageChange: (file: File, url: string) => void;
+}) {
+  const {
+    previewUrl,
+    fileInputRef,
+    triggerUpload,
+    handleFileChange,
+    setPreviewUrl,
+  } = useImagePicker({
+    onImageSelect: onImageChange,
+    initialPreview: data.imagenPreview,
+  });
+
+  // Update internal preview if external data changes (e.g. on load)
+  useEffect(() => {
+    if (data.imagenPreview) {
+      setPreviewUrl(data.imagenPreview);
+    }
+  }, [data.imagenPreview, setPreviewUrl]);
+
+  return (
+    <Card className="border border-border bg-card shadow-none rounded-xl py-0 gap-0 overflow-hidden transition-all hover:border-brand/30 hover:shadow-sm">
+      <CardContent className="p-4 flex gap-3 items-center">
+        {/* Image upload area */}
+        <button
+          onClick={triggerUpload}
+          className="relative h-16 w-16 shrink-0 overflow-hidden bg-muted rounded-lg flex items-center justify-center border border-dashed border-border hover:border-brand/50 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {previewUrl ? (
+            <Image
+              src={previewUrl}
+              alt={`Preview ${index + 1}`}
+              fill
+              unoptimized
+              style={{ objectFit: "cover" }}
+            />
+          ) : (
+            <ImageIcon className="h-4 w-4 text-muted-foreground/40 group-hover:text-brand/60 transition-colors" />
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+          />
+        </button>
+
+        {/* Name input */}
+        <div className="flex-1 flex flex-col gap-1.5">
+          <Label
+            htmlFor={`personaje-${index}`}
+            className="text-2xs font-mono font-medium text-muted-foreground uppercase tracking-wider"
+          >
+            Slot {index + 1}
+          </Label>
+          <Input
+            id={`personaje-${index}`}
+            type="text"
+            value={data.nombre}
+            onChange={(e) => onNameChange(e.target.value)}
+            placeholder="Nombre del personaje..."
+            className="h-9 rounded-lg bg-background border-border text-sm placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-ring/30"
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function PersonajesPage() {
   const [personajes, setPersonajes] = useState<PersonajeData[]>(
-    Array(6).fill({ nombre: "", imagenFile: null, imagenPreview: null }),
+    Array(6)
+      .fill(null)
+      .map(() => ({ nombre: "", imagenFile: null, imagenPreview: null })),
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const itemFileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleNameChange = (index: number, value: string) => {
     const newPersonajes = [...personajes];
@@ -31,26 +114,14 @@ export default function PersonajesPage() {
     setPersonajes(newPersonajes);
   };
 
-  const handleImageChange = (
-    index: number,
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (personajes[index].imagenPreview)
-      URL.revokeObjectURL(personajes[index].imagenPreview!);
-    const previewUrl = URL.createObjectURL(file);
+  const handleImageChange = (index: number, file: File, url: string) => {
     const newPersonajes = [...personajes];
     newPersonajes[index] = {
       ...newPersonajes[index],
       imagenFile: file,
-      imagenPreview: previewUrl,
+      imagenPreview: url,
     };
     setPersonajes(newPersonajes);
-  };
-
-  const triggerImageUpload = (index: number) => {
-    itemFileInputRefs.current[index]?.click();
   };
 
   const handleSave = async () => {
@@ -123,9 +194,6 @@ export default function PersonajesPage() {
             }),
         );
 
-        personajes.forEach((p) => {
-          if (p.imagenPreview) URL.revokeObjectURL(p.imagenPreview);
-        });
         setPersonajes(newPersonajes);
       }
     } catch (error) {
@@ -141,7 +209,6 @@ export default function PersonajesPage() {
 
   return (
     <>
-      {/* Header */}
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10 transition-colors duration-200">
         <div className="flex items-center gap-3">
           <Link
@@ -193,10 +260,8 @@ export default function PersonajesPage() {
         </div>
       </header>
 
-      {/* Main */}
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-6 py-6">
-          {/* Section header */}
           <div className="mb-6">
             <p className="text-caption font-mono font-medium text-muted-foreground uppercase tracking-widest mb-1">
               Módulo Personajes
@@ -209,60 +274,17 @@ export default function PersonajesPage() {
             </p>
           </div>
 
-          {/* Cards grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
             {personajes.map((personaje, index) => (
-              <Card
+              <PersonajeSlot
                 key={index}
-                className="border border-border bg-card shadow-none rounded-xl py-0 gap-0 overflow-hidden transition-all hover:border-brand/30 hover:shadow-sm"
-              >
-                <CardContent className="p-4 flex gap-3 items-center">
-                  {/* Image upload area */}
-                  <button
-                    onClick={() => triggerImageUpload(index)}
-                    className="relative h-16 w-16 shrink-0 overflow-hidden bg-muted rounded-lg flex items-center justify-center border border-dashed border-border hover:border-brand/50 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {personaje.imagenPreview ? (
-                      <Image
-                        src={personaje.imagenPreview}
-                        alt={`Preview ${index + 1}`}
-                        fill
-                        unoptimized
-                        style={{ objectFit: "cover" }}
-                      />
-                    ) : (
-                      <ImageIcon className="h-4 w-4 text-muted-foreground/40 group-hover:text-brand/60 transition-colors" />
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      ref={(el) => {
-                        itemFileInputRefs.current[index] = el;
-                      }}
-                      onChange={(e) => handleImageChange(index, e)}
-                    />
-                  </button>
-
-                  {/* Name input */}
-                  <div className="flex-1 flex flex-col gap-1.5">
-                    <Label
-                      htmlFor={`personaje-${index}`}
-                      className="text-2xs font-mono font-medium text-muted-foreground uppercase tracking-wider"
-                    >
-                      Slot {index + 1}
-                    </Label>
-                    <Input
-                      id={`personaje-${index}`}
-                      type="text"
-                      value={personaje.nombre}
-                      onChange={(e) => handleNameChange(index, e.target.value)}
-                      placeholder="Nombre del personaje..."
-                      className="h-9 rounded-lg bg-background border-border text-sm placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-ring/30"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                index={index}
+                data={personaje}
+                onNameChange={(val) => handleNameChange(index, val)}
+                onImageChange={(file, url) =>
+                  handleImageChange(index, file, url)
+                }
+              />
             ))}
           </div>
         </div>
