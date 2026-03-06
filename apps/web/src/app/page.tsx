@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { FileText, Users, Sparkles } from "lucide-react";
+import { SpellCheck, CircleUser, Calculator, VenetianMask } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground font-sans">
-      {/* Top bar */}
       {/* Top bar */}
       <header className="flex h-12 items-center border-b border-border px-6 bg-background/80 backdrop-blur-md sticky top-0 z-20">
         <div className="flex items-center gap-3">
@@ -47,7 +46,7 @@ export default function Home() {
               className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                <FileText className="h-4 w-4" />
+                <SpellCheck className="h-4 w-4" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground">
@@ -67,7 +66,7 @@ export default function Home() {
               className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                <Users className="h-4 w-4" />
+                <CircleUser className="h-4 w-4" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground">
@@ -83,11 +82,31 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/workspaces/impostor"
-              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5 sm:col-span-2"
+              href="/workspaces/calculo-mental"
+              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                <Sparkles className="h-4 w-4 shadow-[0_0_10px_rgba(var(--brand-rgb),0.3)]" />
+                <Calculator className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  Cálculo Mental
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Operaciones matemáticas por rondas de 4 slots
+                </p>
+              </div>
+              <div className="absolute right-4 top-4 text-muted-foreground/30 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 text-sm font-bold">
+                →
+              </div>
+            </Link>
+
+            <Link
+              href="/workspaces/impostor"
+              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
+                <VenetianMask className="h-4 w-4 " />
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground">
