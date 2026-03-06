@@ -31,9 +31,17 @@ interface ImpostorRound {
   photos: Photo[];
 }
 
+interface PhotoMetadata {
+  path: string;
+  isImpostor: boolean;
+}
+
 interface RoundMetadata {
-  impostores: number[];
-  photos: string[];
+  photos: PhotoMetadata[];
+}
+
+interface SessionData {
+  rounds: RoundMetadata[];
 }
 
 export default function ImpostorPage() {
@@ -126,42 +134,37 @@ export default function ImpostorPage() {
   // Persistence logic
   const handleSave = async () => {
     console.log("[Impostor:Persistence] Starting ZIP export...");
-    const metadata = rounds.map((round) => {
-      const impostorIndices: number[] = [];
-      const photoPaths: string[] = [];
-
-      round.photos.forEach((photo, index) => {
-        if (photo.isImpostor) {
-          impostorIndices.push(index);
-        }
-
+    const metadataRounds: RoundMetadata[] = rounds.map((round) => {
+      const photosMetadata: PhotoMetadata[] = round.photos.map((photo) => {
+        let imagePath = "";
         if (photo.file) {
-          // Use a shorter 4-character prefix for the filename
           const shortId = nanoid(4);
-          const fileName = `${shortId}_${photo.file.name}`;
-          photoPaths.push(`images/${fileName}`);
-        } else {
-          // Placeholder or empty if no file
-          photoPaths.push("");
+          imagePath = `images/${shortId}_${photo.file.name}`;
         }
+        return {
+          path: imagePath,
+          isImpostor: photo.isImpostor,
+        };
       });
 
       return {
-        impostores: impostorIndices,
-        photos: photoPaths,
+        photos: photosMetadata,
       };
     });
 
-    console.log("[Impostor:Persistence] Metadata prepared:", metadata);
+    const sessionData: SessionData = {
+      rounds: metadataRounds,
+    };
+
+    console.log("[Impostor:Persistence] Metadata prepared:", sessionData);
 
     const filesToInclude: { name: string; file: File }[] = [];
-    // We need to re-generate the filenames to match the metadata photoPaths
     rounds.forEach((round, roundIndex) => {
-      const roundMetadata = metadata[roundIndex];
+      const roundMetadata = metadataRounds[roundIndex];
       round.photos.forEach((photo, photoIndex) => {
         if (photo.file) {
           filesToInclude.push({
-            name: roundMetadata.photos[photoIndex],
+            name: roundMetadata.photos[photoIndex].path,
             file: photo.file,
           });
         }
@@ -175,7 +178,7 @@ export default function ImpostorPage() {
     try {
       await saveAsZip(
         DEFAULT_FILENAME,
-        metadata,
+        sessionData,
         filesToInclude,
         SESSION_DATA_FILENAME,
       );
@@ -210,30 +213,24 @@ export default function ImpostorPage() {
       }
 
       const content = await dataFile.async("string");
-      const metadata = JSON.parse(content);
-      console.log("[Impostor:Persistence] Metadata loaded:", metadata);
+      const sessionData = JSON.parse(content) as SessionData;
 
-      if (Array.isArray(metadata)) {
-        // We let useImagePicker handle URL revocation when state updates
+      if (sessionData.rounds && Array.isArray(sessionData.rounds)) {
         const newRounds = await Promise.all(
-          metadata.map(async (m: RoundMetadata, roundIdx: number) => {
-            console.log(
-              `[Impostor:Persistence] Processing Round ${roundIdx + 1}...`,
-            );
-            // Reconstruct photos
+          sessionData.rounds.map(async (roundMeta, roundIdx) => {
+            console.log(`[Impostor] Restoring Round ${roundIdx + 1}...`);
+
             const photos = await Promise.all(
-              m.photos.map(async (path: string, index: number) => {
+              roundMeta.photos.map(async (pMeta) => {
                 let imageFile: File | undefined = undefined;
                 let imageUrl: string | undefined = undefined;
-                const isImpostor = m.impostores.includes(index);
 
-                if (path) {
-                  const imgEntry = zip.file(path);
+                if (pMeta.path) {
+                  const imgEntry = zip.file(pMeta.path);
                   if (imgEntry) {
                     const blob = await imgEntry.async("blob");
-                    // Extract name after the short prefix (4 chars + underscore)
-                    const fileNameOnly = path.split("/").pop();
-                    const parts = (fileNameOnly || path).split("_");
+                    const fileNameOnly = pMeta.path.split("/").pop();
+                    const parts = (fileNameOnly || pMeta.path).split("_");
                     const originalName =
                       parts.length > 1
                         ? parts.slice(1).join("_")
@@ -243,19 +240,12 @@ export default function ImpostorPage() {
                       type: blob.type || "image/png",
                     });
                     imageUrl = URL.createObjectURL(blob);
-                    console.log(
-                      `[Impostor:Persistence]  - Restored image: ${path} -> ${imageUrl}`,
-                    );
-                  } else {
-                    console.warn(
-                      `[Impostor:Persistence]  - Image not found in ZIP: ${path}`,
-                    );
                   }
                 }
 
                 return {
                   id: nanoid(),
-                  isImpostor,
+                  isImpostor: pMeta.isImpostor,
                   file: imageFile,
                   url: imageUrl,
                 };
@@ -267,10 +257,6 @@ export default function ImpostorPage() {
               photos,
             };
           }),
-        );
-
-        console.log(
-          "[Impostor:Persistence] State reconstruction complete. Updating rounds...",
         );
         setRounds(newRounds);
       }

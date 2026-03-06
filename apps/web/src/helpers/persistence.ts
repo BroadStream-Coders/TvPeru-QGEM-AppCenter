@@ -68,7 +68,7 @@ export const saveAsZip = async (
   zipFilename: string,
   jsonData: unknown,
   files: { name: string; file: File }[],
-  jsonFilename: string = "data.json",
+  jsonFilename: string = "sessionData.json",
 ) => {
   const zip = new JSZip();
 
