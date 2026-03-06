@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, AlertCircle } from "lucide-react";
+import { Trash2, AlertCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useImagePicker } from "@/hooks/use-image-picker";
@@ -40,10 +40,10 @@ export function ImpostorCard({
 
   return (
     <div
-      className={`group relative aspect-square w-full overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+      className={`group relative aspect-square w-full overflow-hidden rounded-lg border transition-all duration-200 ${
         isImpostor
-          ? "border-brand bg-brand/5 shadow-[0_0_15px_rgba(var(--brand-rgb),0.2)]"
-          : "border-border bg-muted/20 hover:border-brand/30"
+          ? "border-brand bg-brand/5 ring-1 ring-brand/20"
+          : "border-border bg-muted/20 hover:border-brand/40"
       }`}
     >
       {previewUrl ? (
@@ -59,11 +59,11 @@ export function ImpostorCard({
           onClick={triggerUpload}
           className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50 border border-dashed border-current">
-            <span className="text-xl">+</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted/50 border border-dashed border-border">
+            <Plus className="h-3.5 w-3.5" />
           </div>
-          <span className="text-2xs uppercase tracking-wider font-semibold">
-            Agregar Foto
+          <span className="text-3xs uppercase tracking-wider font-bold">
+            Foto
           </span>
         </button>
       )}
@@ -86,13 +86,13 @@ export function ImpostorCard({
             e.stopPropagation();
             onToggleImpostor();
           }}
-          className={`h-7 px-2 text-2xs font-bold uppercase transition-all ${
+          className={`h-6 px-1.5 text-3xs font-bold uppercase transition-all ${
             isImpostor
-              ? "bg-brand text-brand-foreground"
-              : "bg-background/80 backdrop-blur-sm text-foreground hover:bg-brand hover:text-white"
+              ? "bg-brand text-brand-foreground hover:brightness-110"
+              : "bg-background/80 text-foreground hover:bg-brand hover:text-brand-foreground"
           }`}
         >
-          {isImpostor ? "Impostor" : "Candidato"}
+          {isImpostor ? "Impostor" : "Inocente"}
         </Button>
 
         <Button
@@ -102,9 +102,9 @@ export function ImpostorCard({
             e.stopPropagation();
             onRemove();
           }}
-          className="h-7 w-7 bg-red-500/80 backdrop-blur-sm hover:bg-red-600 shadow-sm"
+          className="h-6 w-6 bg-destructive/90 hover:bg-destructive shadow-sm"
         >
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="h-3 w-3" />
         </Button>
       </div>
 

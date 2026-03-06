@@ -33,14 +33,14 @@ export function ImpostorColumn({
   const impostorCount = photos.filter((p) => p.isImpostor).length;
 
   return (
-    <Card className="flex flex-col h-full w-[360px] shrink-0 rounded-2xl border border-border bg-card/50 backdrop-blur-sm shadow-xl ring-1 ring-white/10 transition-all hover:shadow-2xl hover:bg-card/80">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-border/50 px-5 py-4 shrink-0">
+    <Card className="flex flex-col h-full w-[320px] shrink-0 rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-brand-foreground shadow-lg shadow-brand/20">
+          <div className="flex h-6 w-6 items-center justify-center rounded bg-brand/20 text-brand text-xs font-bold ring-1 ring-brand/10">
             {index}
           </div>
           <div>
-            <h3 className="text-sm font-bold text-foreground">Ronda {index}</h3>
+            <h3 className="text-xs font-bold text-foreground">Ronda {index}</h3>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="flex items-center gap-1 text-2xs font-medium text-muted-foreground uppercase tracking-tight">
                 <LayoutGrid className="h-2.5 w-2.5" />
@@ -60,15 +60,15 @@ export function ImpostorColumn({
           variant="ghost"
           size="icon"
           onClick={onRemoveColumn}
-          className="h-8 w-8 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
+          className="h-7 w-7 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col min-h-0 px-5 py-0 overflow-hidden">
-        <ScrollArea className="flex-1 min-h-0 py-5">
-          <div className="grid grid-cols-2 gap-4 pb-4">
+      <CardContent className="flex flex-1 flex-col min-h-0 px-4 py-0 overflow-hidden">
+        <ScrollArea className="flex-1 min-h-0 py-4">
+          <div className="grid grid-cols-2 gap-3 pb-4">
             {photos.map((photo, index) => (
               <ImpostorCard
                 key={index}
@@ -88,9 +88,9 @@ export function ImpostorColumn({
             {photos.length < 8 && (
               <button
                 onClick={onAddPhoto}
-                className="flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-brand/5 hover:text-brand"
+                className="flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
               >
-                <Plus className="h-6 w-6" />
+                <Plus className="h-5 w-5" />
                 <span className="text-2xs font-bold uppercase tracking-wider">
                   Agregar Foto
                 </span>

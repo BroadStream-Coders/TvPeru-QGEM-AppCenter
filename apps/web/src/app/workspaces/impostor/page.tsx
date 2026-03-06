@@ -3,14 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Plus,
-  Download,
-  Upload,
-  ArrowLeft,
-  Layers,
-  Sparkles,
-} from "lucide-react";
+import { Plus, Download, Upload, ArrowLeft } from "lucide-react";
 import { ImpostorColumn } from "./components/ImpostorColumn";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { nanoid } from "nanoid";
@@ -272,55 +265,47 @@ export default function ImpostorPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#0a0a0b] text-foreground overflow-hidden">
-      {/* Header — Glassmorphism Effect */}
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-white/5 bg-black/40 backdrop-blur-xl px-6 z-20 shadow-2xl">
-        <div className="flex items-center gap-4">
+    <>
+      {/* Header — h-12 = 48px */}
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10 transition-colors duration-200">
+        <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="group flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-white/5 hover:text-white active:scale-95"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-95"
           >
-            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            <ArrowLeft className="h-3.5 w-3.5" />
             Volver
           </Link>
-          <div className="h-6 w-px bg-white/10" />
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-brand via-brand/80 to-purple-600 text-white shadow-[0_0_20px_rgba(var(--brand-rgb),0.3)]">
-              <Sparkles className="h-5 w-5 fill-white/20" />
+          <div className="h-4 w-px bg-border" />
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold ring-1 ring-brand/10 uppercase">
+              I
             </div>
-            <div>
-              <h1 className="text-sm font-black uppercase tracking-widest text-white">
-                IMPOSTOR
-              </h1>
-              <p className="text-2xs font-medium text-muted-foreground uppercase tracking-tight">
-                Colector de Rondas
-              </p>
-            </div>
-          </div>
-          <div className="ml-2 flex items-center gap-1.5 rounded-full border border-white/5 bg-white/5 px-2.5 py-1">
-            <Layers className="h-3 w-3 text-brand" />
-            <span className="text-2xs font-bold text-white uppercase tracking-tighter">
-              {rounds.length} Ronda{rounds.length !== 1 ? "s" : ""}
+            <span className="text-sm font-semibold tracking-tight">
+              Impostor
             </span>
           </div>
+          <span className="rounded border border-border bg-muted/30 px-1.5 py-0.5 text-2xs font-mono text-muted-foreground">
+            {rounds.length} ronda{rounds.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={triggerLoad}
-            className="h-9 gap-2 text-xs font-bold uppercase tracking-tight text-muted-foreground hover:bg-white/5 hover:text-white"
+            className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
           >
-            <Upload className="h-4 w-4" />
+            <Upload className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Cargar</span>
           </Button>
           <Button
             size="sm"
             onClick={handleSave}
-            className="h-9 gap-2 bg-linear-to-r from-brand to-purple-600 hover:brightness-125 active:scale-[0.97] text-white text-xs font-black uppercase tracking-tight px-5 shadow-lg shadow-brand/20 transition-all"
+            className="h-7 gap-1.5 bg-brand hover:brightness-110 active:scale-[0.98] text-brand-foreground text-xs shadow-sm transition-all"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Exportar ZIP</span>
           </Button>
           <input
@@ -334,11 +319,11 @@ export default function ImpostorPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 relative overflow-hidden bg-[radial-gradient(circle_at_50%_0%,rgba(var(--brand-rgb),0.08),transparent_50%)]">
+      <main className="flex-1 overflow-hidden">
         <ScrollArea className="w-full h-full">
           <div
-            className="flex min-w-max gap-8 px-8 py-8"
-            style={{ height: "calc(100vh - 64px)" }}
+            className="flex min-w-max gap-6 px-6 py-6"
+            style={{ height: "calc(100vh - 48px - 36px)" }}
           >
             {rounds.map((round, roundIndex) => (
               <ImpostorColumn
@@ -357,20 +342,17 @@ export default function ImpostorPage() {
             ))}
 
             {/* Add round section */}
-            <div className="h-full w-[240px] shrink-0 flex flex-col gap-4">
+            <div className="h-full w-[200px] shrink-0 flex flex-col gap-4">
               <button
                 onClick={() => addRound(1)}
-                className="group flex h-1/2 w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/10 bg-white/2 text-muted-foreground transition-all hover:border-brand/40 hover:bg-brand/5 hover:text-brand"
+                className="group flex h-1/2 w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-dashed border-current transition-all group-hover:scale-110 group-hover:bg-brand group-hover:text-white group-hover:border-transparent group-hover:shadow-lg group-hover:shadow-brand/20">
-                  <Plus className="h-6 w-6" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-dashed border-current transition-all group-hover:scale-110 group-hover:bg-brand group-hover:text-brand-foreground group-hover:border-transparent">
+                  <Plus className="h-5 w-5" />
                 </div>
                 <div className="text-center">
-                  <span className="block text-xs font-black uppercase tracking-widest">
+                  <span className="block text-xs font-bold uppercase tracking-wide">
                     Añadir Ronda
-                  </span>
-                  <span className="text-2xs font-medium opacity-60">
-                    Nueva partida limpia
                   </span>
                 </div>
               </button>
@@ -382,31 +364,22 @@ export default function ImpostorPage() {
                     addRound(Number(count));
                   }
                 }}
-                className="group flex h-[40%] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/10 bg-white/2 text-muted-foreground transition-all hover:border-purple-500/40 hover:bg-purple-500/5 hover:text-purple-400"
+                className="group flex h-[40%] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-dashed border-current opacity-60 group-hover:opacity-100 transition-all">
-                  <Layers className="h-5 w-5" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-dashed border-current opacity-60 group-hover:opacity-100 transition-all">
+                  <Plus className="h-4 w-4" />
                 </div>
                 <div className="text-center">
-                  <span className="block text-caption font-black uppercase tracking-widest">
+                  <span className="block text-2xs font-bold uppercase tracking-wide">
                     Multi-Ronda
-                  </span>
-                  <span className="text-3xs font-medium opacity-60">
-                    Agregar en lote
                   </span>
                 </div>
               </button>
             </div>
           </div>
-          <ScrollBar orientation="horizontal" className="h-2.5 bg-white/5" />
+          <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </main>
-
-      <style jsx global>{`
-        :root {
-          --brand-rgb: 59, 130, 246; /* Blue-500 equivalent */
-        }
-      `}</style>
-    </div>
+    </>
   );
 }
