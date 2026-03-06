@@ -8,7 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Download, Upload, ImageIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  Upload,
+  ImageIcon,
+  CircleUser,
+} from "lucide-react";
 import { useImagePicker } from "@/hooks/use-image-picker";
 import { useEffect } from "react";
 
@@ -220,8 +226,8 @@ export default function PersonajesPage() {
           </Link>
           <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold ring-1 ring-brand/10">
-              P
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand ring-1 ring-brand/10">
+              <CircleUser className="h-3 w-3" />
             </div>
             <span className="text-sm font-semibold tracking-tight">
               Personajes

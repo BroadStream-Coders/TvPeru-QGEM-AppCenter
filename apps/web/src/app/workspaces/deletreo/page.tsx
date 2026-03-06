@@ -5,7 +5,7 @@ import Link from "next/link";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { getColumnData } from "@/helpers/data-processing";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload, ArrowLeft } from "lucide-react";
+import { Plus, Download, Upload, ArrowLeft, SpellCheck } from "lucide-react";
 import { DeletreoColumn } from "./components/DeletreoColumn";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
@@ -105,8 +105,8 @@ export default function DeletreoPage() {
           </Link>
           <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold ring-1 ring-brand/10">
-              D
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand ring-1 ring-brand/10">
+              <SpellCheck className="h-3 w-3" />
             </div>
             <span className="text-sm font-semibold tracking-tight">
               Deletreo

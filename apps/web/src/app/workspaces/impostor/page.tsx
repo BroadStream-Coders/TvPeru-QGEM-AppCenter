@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload, ArrowLeft } from "lucide-react";
+import { Plus, Download, Upload, ArrowLeft, VenetianMask } from "lucide-react";
 import { ImpostorColumn } from "./components/ImpostorColumn";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { nanoid } from "nanoid";
@@ -278,8 +278,8 @@ export default function ImpostorPage() {
           </Link>
           <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold ring-1 ring-brand/10 uppercase">
-              I
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand ring-1 ring-brand/10">
+              <VenetianMask className="h-3 w-3" />
             </div>
             <span className="text-sm font-semibold tracking-tight">
               Impostor

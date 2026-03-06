@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload, ArrowLeft } from "lucide-react";
+import { Plus, Download, Upload, ArrowLeft, Calculator } from "lucide-react";
 import { CalculoMentalColumn } from "./components/CalculoMentalColumn";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
@@ -173,8 +173,8 @@ export default function CalculoMentalPage() {
           </Link>
           <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand text-2xs font-bold ring-1 ring-brand/10 uppercase">
-              C
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-brand/20 text-brand ring-1 ring-brand/10">
+              <Calculator className="h-3 w-3" />
             </div>
             <span className="text-sm font-bold tracking-tight uppercase">
               Calculo Mental
@@ -249,7 +249,7 @@ export default function CalculoMentalPage() {
                   <span className="block text-xs font-bold uppercase tracking-wider">
                     Añadir Grupo
                   </span>
-                  <span className="text-[10px] text-muted-foreground/50 font-medium">
+                  <span className="text-2xs text-muted-foreground/50 font-medium">
                     (Nueva Columna)
                   </span>
                 </div>
