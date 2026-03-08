@@ -37,6 +37,12 @@ export default function MiLibroFavoritoPage() {
         { question: "", answer: "" },
       ],
     },
+    {
+      slots: [
+        { question: "", answer: "" },
+        { question: "", answer: "" },
+      ],
+    },
   ]);
 
   const handlePlayerNameChange = (index: number, name: string) => {

@@ -32,14 +32,8 @@ export function DeletreoColumn({
   onQuickLoad,
 }: DeletreoColumnProps) {
   return (
-    /*
-      h-full: la columna ocupa toda la altura del contenedor padre,
-      que ya tiene altura fija via calc() en la página.
-      Así la columna nunca crece ni encoge por el contenido interno.
-    */
     <Card className="flex flex-col h-full w-[320px] shrink-0 rounded-xl border border-border bg-card shadow-none gap-0 py-0 overflow-hidden">
-      {/* Header — altura fija */}
-      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3 shrink-0">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-4 shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-2xs font-bold text-muted-foreground font-mono">
             {index}
@@ -96,8 +90,7 @@ export function DeletreoColumn({
         </div>
       </CardContent>
 
-      {/* Footer — altura fija */}
-      <CardFooter className="border-t border-border px-4 py-3 shrink-0">
+      <CardFooter className="border-t border-border px-4 py-4 shrink-0">
         <QuickLoad onLoad={onQuickLoad} />
       </CardFooter>
     </Card>

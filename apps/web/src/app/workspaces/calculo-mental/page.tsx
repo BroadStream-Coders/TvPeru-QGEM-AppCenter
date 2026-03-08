@@ -35,7 +35,10 @@ const createEmptyBoard = (): BoardData => ({
 
 export default function CalculoMentalPage() {
   const [data, setData] = useState<CalculoMentalData>({
-    groups: [{ boards: [createEmptyBoard()] }],
+    groups: [
+      { boards: [createEmptyBoard()] },
+      { boards: [createEmptyBoard()] },
+    ],
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 

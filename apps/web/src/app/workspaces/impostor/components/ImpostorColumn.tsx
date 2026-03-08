@@ -33,8 +33,8 @@ export function ImpostorColumn({
   const impostorCount = photos.filter((p) => p.isImpostor).length;
 
   return (
-    <Card className="flex flex-col h-full w-[320px] shrink-0 rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3 shrink-0">
+    <Card className="flex flex-col h-full w-[320px] shrink-0 rounded-xl border border-border bg-card shadow-none gap-0 py-0 overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-4 shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex h-6 w-6 items-center justify-center rounded bg-brand/20 text-brand text-xs font-bold ring-1 ring-brand/10">
             {index}

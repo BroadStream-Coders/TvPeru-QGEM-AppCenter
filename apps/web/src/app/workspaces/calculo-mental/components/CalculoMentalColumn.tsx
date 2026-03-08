@@ -46,8 +46,8 @@ export function CalculoMentalColumn({
   onQuickLoad,
 }: CalculoMentalColumnProps) {
   return (
-    <Card className="flex flex-col h-full w-[650px] shrink-0 rounded-xl border border-border bg-card shadow-none gap-0 py-0 overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 pt-6 shrink-0 bg-muted/5">
+    <Card className="flex flex-col h-full w-[700px] shrink-0 rounded-xl border border-border bg-card shadow-none gap-0 py-0 overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-4 shrink-0 bg-muted/5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-brand/20 text-brand text-2xs font-bold font-mono">
             {index}
@@ -99,7 +99,7 @@ export function CalculoMentalColumn({
         </div>
       </CardContent>
 
-      <CardFooter className="border-t border-border px-4 pb-6 shrink-0 bg-muted/5">
+      <CardFooter className="border-t border-border px-4 py-4 shrink-0 bg-muted/5">
         <QuickLoad
           onLoad={(matrix) => {
             console.log("[CalculoMental:QuickLoad] Data received:", matrix);

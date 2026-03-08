@@ -41,8 +41,8 @@ export function LibroColumn({
   onQuickLoad,
 }: LibroColumnProps) {
   return (
-    <Card className="flex flex-col h-full w-[340px] shrink-0 rounded-xl border border-border bg-card shadow-none gap-0 py-0 overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3 shrink-0">
+    <Card className="flex flex-col h-full w-[650px] shrink-0 rounded-xl border border-border bg-card shadow-none gap-0 py-0 overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-4 shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-2xs font-bold text-muted-foreground font-mono">
             {index}
