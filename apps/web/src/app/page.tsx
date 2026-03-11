@@ -6,6 +6,7 @@ import {
   VenetianMask,
   BookOpen,
   ArrowRight,
+  PenTool,
 } from "lucide-react";
 
 const workspaces = [
@@ -28,16 +29,22 @@ const workspaces = [
     icon: Calculator,
   },
   {
+    name: "Mi Libro Favorito",
+    description: "Preguntas y respuestas de libros",
+    href: "/workspaces/mi-libro-favorito",
+    icon: BookOpen,
+  },
+  {
     name: "Impostor",
     description: "Colector de fotos y selección",
     href: "/workspaces/impostor",
     icon: VenetianMask,
   },
   {
-    name: "Mi Libro Favorito",
-    description: "Preguntas y respuestas de libros",
-    href: "/workspaces/mi-libro-favorito",
-    icon: BookOpen,
+    name: "Redactor",
+    description: "Corrección de errores ortográficos",
+    href: "/workspaces/redactor",
+    icon: PenTool,
   },
 ];
 
