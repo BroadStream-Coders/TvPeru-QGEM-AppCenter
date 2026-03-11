@@ -1,12 +1,45 @@
 import Link from "next/link";
 import {
   SpellCheck,
-  CircleUser,
+  // CircleUser,
   Calculator,
   VenetianMask,
   BookOpen,
   ArrowRight,
 } from "lucide-react";
+
+const workspaces = [
+  {
+    name: "Deletreo",
+    description: "Gestión de palabras por rondas",
+    href: "/workspaces/deletreo",
+    icon: SpellCheck,
+  },
+  // {
+  //   name: "Personajes",
+  //   description: "Nombres e imágenes de personajes",
+  //   href: "/workspaces/personajes",
+  //   icon: CircleUser,
+  // },
+  {
+    name: "Cálculo Mental",
+    description: "Operaciones matemáticas por rondas",
+    href: "/workspaces/calculo-mental",
+    icon: Calculator,
+  },
+  {
+    name: "Impostor",
+    description: "Colector de fotos y selección",
+    href: "/workspaces/impostor",
+    icon: VenetianMask,
+  },
+  {
+    name: "Mi Libro Favorito",
+    description: "Preguntas y respuestas de libros",
+    href: "/workspaces/mi-libro-favorito",
+    icon: BookOpen,
+  },
+];
 
 export default function Home() {
   return (
@@ -48,105 +81,28 @@ export default function Home() {
 
           {/* Module cards */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Link
-              href="/workspaces/deletreo"
-              className="group relative flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                <SpellCheck className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground truncate">
-                  Deletreo
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                  Gestión de palabras por rondas
-                </p>
-              </div>
-              <div className="text-muted-foreground/20 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 pr-1">
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </Link>
-
-            <Link
-              href="/workspaces/personajes"
-              className="group relative flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                <CircleUser className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground truncate">
-                  Personajes
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                  Nombres e imágenes de personajes
-                </p>
-              </div>
-              <div className="text-muted-foreground/20 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 pr-1">
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </Link>
-
-            <Link
-              href="/workspaces/calculo-mental"
-              className="group relative flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                <Calculator className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground truncate">
-                  Cálculo Mental
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                  Operaciones matemáticas por rondas
-                </p>
-              </div>
-              <div className="text-muted-foreground/20 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 pr-1">
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </Link>
-
-            <Link
-              href="/workspaces/impostor"
-              className="group relative flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                <VenetianMask className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground truncate">
-                  Impostor
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                  Colector de fotos y selección
-                </p>
-              </div>
-              <div className="text-muted-foreground/20 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 pr-1">
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </Link>
-
-            <Link
-              href="/workspaces/mi-libro-favorito"
-              className="group relative flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
-                <BookOpen className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground truncate">
-                  Mi Libro Favorito
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                  Preguntas y respuestas de libros
-                </p>
-              </div>
-              <div className="text-muted-foreground/20 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 pr-1">
-                <ArrowRight className="h-4 w-4" />
-              </div>
-            </Link>
+            {workspaces.map((workspace) => (
+              <Link
+                key={workspace.href}
+                href={workspace.href}
+                className="group relative flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-brand/40 hover:bg-card/80 active:scale-[0.98] hover:shadow-lg hover:shadow-brand/5"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:bg-brand/10 group-hover:text-brand transition-colors">
+                  <workspace.icon className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground truncate">
+                    {workspace.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
+                    {workspace.description}
+                  </p>
+                </div>
+                <div className="text-muted-foreground/20 transition-all group-hover:text-brand/60 group-hover:translate-x-0.5 pr-1">
+                  <ArrowRight className="h-4 w-4" />
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </main>
