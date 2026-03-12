@@ -14,6 +14,7 @@ const SESSION_DATA_FILENAME = "sessionData.json";
 
 interface Photo {
   id: string;
+  name?: string;
   file?: File;
   url?: string;
   isImpostor: boolean;
@@ -21,15 +22,18 @@ interface Photo {
 
 interface ImpostorRound {
   id: string;
+  context: string;
   photos: Photo[];
 }
 
 interface PhotoMetadata {
+  name?: string;
   path: string;
   isImpostor: boolean;
 }
 
 interface RoundMetadata {
+  context: string;
   photos: PhotoMetadata[];
 }
 
@@ -41,9 +45,10 @@ export default function ImpostorPage() {
   const [rounds, setRounds] = useState<ImpostorRound[]>([
     {
       id: nanoid(),
+      context: "",
       photos: Array(4)
         .fill(null)
-        .map(() => ({ id: nanoid(), isImpostor: false })),
+        .map(() => ({ id: nanoid(), name: "", isImpostor: false })),
     },
   ]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,9 +58,10 @@ export default function ImpostorPage() {
       .fill(null)
       .map(() => ({
         id: nanoid(),
+        context: "",
         photos: Array(4)
           .fill(null)
-          .map(() => ({ id: nanoid(), isImpostor: false })),
+          .map(() => ({ id: nanoid(), name: "", isImpostor: false })),
       }));
     setRounds([...rounds, ...newRounds]);
   };
@@ -74,7 +80,7 @@ export default function ImpostorPage() {
         if (r.id === roundId && r.photos.length < 8) {
           return {
             ...r,
-            photos: [...r.photos, { id: nanoid(), isImpostor: false }],
+            photos: [...r.photos, { id: nanoid(), name: "", isImpostor: false }],
           };
         }
         return r;
@@ -124,6 +130,17 @@ export default function ImpostorPage() {
     );
   };
 
+  const updateRound = (roundId: string, updates: Partial<ImpostorRound>) => {
+    setRounds(
+      rounds.map((r) => {
+        if (r.id === roundId) {
+          return { ...r, ...updates };
+        }
+        return r;
+      }),
+    );
+  };
+
   // Persistence logic
   const handleSave = async () => {
     console.log("[Impostor:Persistence] Starting ZIP export...");
@@ -135,12 +152,14 @@ export default function ImpostorPage() {
           imagePath = `images/${shortId}_${photo.file.name}`;
         }
         return {
+          name: photo.name,
           path: imagePath,
           isImpostor: photo.isImpostor,
         };
       });
 
       return {
+        context: round.context,
         photos: photosMetadata,
       };
     });
@@ -238,6 +257,7 @@ export default function ImpostorPage() {
 
                 return {
                   id: nanoid(),
+                  name: pMeta.name || "",
                   isImpostor: pMeta.isImpostor,
                   file: imageFile,
                   url: imageUrl,
@@ -247,6 +267,7 @@ export default function ImpostorPage() {
 
             return {
               id: nanoid(),
+              context: roundMeta.context || "",
               photos,
             };
           }),
@@ -330,6 +351,7 @@ export default function ImpostorPage() {
                 key={roundIndex}
                 index={roundIndex + 1}
                 photos={round.photos}
+                context={round.context}
                 onAddPhoto={() => addPhotoToRound(round.id)}
                 onRemovePhoto={(photoId) =>
                   removePhotoFromRound(round.id, photoId)
@@ -337,6 +359,7 @@ export default function ImpostorPage() {
                 onUpdatePhoto={(photoId, updates) =>
                   updatePhotoInRound(round.id, photoId, updates)
                 }
+                onUpdateRound={(updates) => updateRound(round.id, updates)}
                 onRemoveColumn={() => removeRound(round.id)}
               />
             ))}

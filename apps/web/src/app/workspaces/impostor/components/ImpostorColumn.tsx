@@ -8,6 +8,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface Photo {
   id: string;
+  name?: string;
   file?: File;
   url?: string;
   isImpostor: boolean;
@@ -16,18 +17,22 @@ interface Photo {
 interface ImpostorColumnProps {
   index: number;
   photos: Photo[];
+  context: string;
   onAddPhoto: () => void;
   onRemovePhoto: (id: string) => void;
   onUpdatePhoto: (id: string, updates: Partial<Photo>) => void;
+  onUpdateRound: (updates: Partial<{ context: string }>) => void;
   onRemoveColumn: () => void;
 }
 
 export function ImpostorColumn({
   index,
   photos,
+  context,
   onAddPhoto,
   onRemovePhoto,
   onUpdatePhoto,
+  onUpdateRound,
   onRemoveColumn,
 }: ImpostorColumnProps) {
   const impostorCount = photos.filter((p) => p.isImpostor).length;
@@ -66,18 +71,32 @@ export function ImpostorColumn({
         </Button>
       </CardHeader>
 
+      <div className="px-4 py-3 border-b border-border/50 bg-muted/10">
+        <label className="text-2xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">
+          Contexto de la Ronda
+        </label>
+        <textarea
+          value={context}
+          onChange={(e) => onUpdateRound({ context: e.target.value })}
+          placeholder="Escribe el contexto para esta ronda (ej. 'La gran estafa')..."
+          className="w-full h-14 resize-none rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all leading-relaxed"
+        />
+      </div>
+
       <CardContent className="flex flex-1 flex-col min-h-0 px-4 py-0 overflow-hidden">
         <ScrollArea className="flex-1 min-h-0 py-4">
           <div className="grid grid-cols-2 gap-3 pb-4">
-            {photos.map((photo, index) => (
+            {photos.map((photo) => (
               <ImpostorCard
-                key={index}
+                key={photo.id}
                 id={photo.id}
+                name={photo.name}
                 imageUrl={photo.url}
                 isImpostor={photo.isImpostor}
                 onImageChange={(file, url) =>
                   onUpdatePhoto(photo.id, { file, url })
                 }
+                onNameChange={(name) => onUpdatePhoto(photo.id, { name })}
                 onToggleImpostor={() =>
                   onUpdatePhoto(photo.id, { isImpostor: !photo.isImpostor })
                 }
