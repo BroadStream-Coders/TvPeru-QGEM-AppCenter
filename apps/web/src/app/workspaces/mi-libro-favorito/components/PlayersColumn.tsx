@@ -1,12 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Users, ImageIcon } from "lucide-react";
-import { useImagePicker } from "@/hooks/use-image-picker";
-import { useEffect } from "react";
+import { Users } from "lucide-react";
+import { ImagePicker } from "@/components/shared/ImagePicker";
 
 interface PlayerData {
   name: string;
@@ -26,23 +24,6 @@ function PlayerSlot({
   onNameChange,
   onImageChange,
 }: PlayerSlotProps) {
-  const {
-    previewUrl,
-    fileInputRef,
-    triggerUpload,
-    handleFileChange,
-    setPreviewUrl,
-  } = useImagePicker({
-    onImageSelect: onImageChange,
-    initialPreview: data.imagePreview,
-  });
-
-  useEffect(() => {
-    if (data.imagePreview) {
-      setPreviewUrl(data.imagePreview);
-    }
-  }, [data.imagePreview, setPreviewUrl]);
-
   return (
     <div className="flex flex-col gap-3 p-4 rounded-xl border border-border bg-background/40 transition-all hover:bg-background/60 hover:border-brand/30">
       <div className="flex items-center gap-2 mb-1">
@@ -55,29 +36,13 @@ function PlayerSlot({
       </div>
 
       <div className="flex flex-col gap-4 items-center">
-        <button
-          onClick={triggerUpload}
-          className="relative h-24 w-24 shrink-0 overflow-hidden bg-muted rounded-xl flex items-center justify-center border border-dashed border-border hover:border-brand/50 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {previewUrl ? (
-            <Image
-              src={previewUrl}
-              alt={`Player ${index + 1}`}
-              fill
-              unoptimized
-              style={{ objectFit: "cover" }}
-            />
-          ) : (
-            <ImageIcon className="h-6 w-6 text-muted-foreground/30 group-hover:text-brand/60 transition-colors" />
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange}
+        <div className="w-24">
+          <ImagePicker
+            value={data.imagePreview ?? undefined}
+            onChange={onImageChange}
+            aspectRatio="square"
           />
-        </button>
+        </div>
 
         <div className="w-full flex flex-col gap-1.5">
           <Label
