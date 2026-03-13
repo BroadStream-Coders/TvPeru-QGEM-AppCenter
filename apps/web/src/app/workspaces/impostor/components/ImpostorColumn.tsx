@@ -104,7 +104,7 @@ export function ImpostorColumn({
               />
             ))}
 
-            {photos.length < 8 && (
+            {photos.length < 4 && (
               <button
                 onClick={onAddPhoto}
                 className="flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
@@ -122,12 +122,12 @@ export function ImpostorColumn({
         <div className="py-4 border-t border-border/50">
           <div className="flex items-center justify-between px-1">
             <span className="text-2xs font-medium text-muted-foreground uppercase">
-              Capacidad: {photos.length}/8
+              Capacidad: {photos.length}/4
             </span>
             <div className="h-1.5 w-24 rounded-full bg-muted overflow-hidden">
               <div
-                className={`h-full transition-all duration-500 ${photos.length >= 4 ? "bg-emerald-500" : "bg-amber-500"}`}
-                style={{ width: `${(photos.length / 8) * 100}%` }}
+                className={`h-full transition-all duration-500 ${photos.length === 4 ? "bg-emerald-500" : "bg-brand"}`}
+                style={{ width: `${(photos.length / 4) * 100}%` }}
               />
             </div>
           </div>
