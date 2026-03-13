@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   SpellCheck,
-  // CircleUser,
   Calculator,
   VenetianMask,
   BookOpen,
@@ -16,12 +15,6 @@ const workspaces = [
     href: "/workspaces/deletreo",
     icon: SpellCheck,
   },
-  // {
-  //   name: "Personajes",
-  //   description: "Nombres e imágenes de personajes",
-  //   href: "/workspaces/personajes",
-  //   icon: CircleUser,
-  // },
   {
     name: "Cálculo Mental",
     description: "Operaciones matemáticas por rondas",
