@@ -5,10 +5,15 @@ import { useState, useRef, useCallback, useEffect } from "react";
 interface UseImagePickerOptions {
   onImageSelect?: (file: File, previewUrl: string) => void;
   initialPreview?: string | null;
+  skipCleanupOnUnmount?: boolean;
 }
 
 export function useImagePicker(options: UseImagePickerOptions = {}) {
-  const { onImageSelect, initialPreview } = options;
+  const {
+    onImageSelect,
+    initialPreview,
+    skipCleanupOnUnmount = false,
+  } = options;
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     initialPreview || null,
   );
@@ -62,13 +67,17 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
   useEffect(() => {
     const urlsToCleanup = ownedUrls.current;
     return () => {
+      if (skipCleanupOnUnmount) {
+        console.log(`[useImagePicker] Unmount: Skipping cleanup as requested.`);
+        return;
+      }
       urlsToCleanup.forEach((url) => {
         console.log(`[useImagePicker] Unmount Cleanup: Revoking ${url}`);
         URL.revokeObjectURL(url);
       });
       urlsToCleanup.clear();
     };
-  }, []);
+  }, [skipCleanupOnUnmount]);
 
   return {
     previewUrl,

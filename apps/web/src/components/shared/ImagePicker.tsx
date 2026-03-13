@@ -30,7 +30,11 @@ export function ImagePicker({
     triggerUpload,
     handleFileChange,
     setPreviewUrl,
-  } = useImagePicker({ onImageSelect: onChange, initialPreview: value });
+  } = useImagePicker({
+    onImageSelect: onChange,
+    initialPreview: value,
+    skipCleanupOnUnmount: true,
+  });
 
   useEffect(() => {
     if (value) setPreviewUrl(value);
