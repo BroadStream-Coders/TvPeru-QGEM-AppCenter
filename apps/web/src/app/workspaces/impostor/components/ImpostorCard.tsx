@@ -15,6 +15,8 @@ interface ImpostorCardProps {
   onNameChange: (name: string) => void;
   onToggleImpostor: () => void;
   onRemove: () => void;
+  hideName?: boolean;
+  variant?: "impostor" | "simple";
 }
 
 export function ImpostorCard({
@@ -25,6 +27,8 @@ export function ImpostorCard({
   onNameChange,
   onToggleImpostor,
   onRemove,
+  hideName = false,
+  variant = "impostor",
 }: ImpostorCardProps) {
   const {
     previewUrl,
@@ -83,37 +87,39 @@ export function ImpostorCard({
 
         <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
 
-        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between opacity-0 transition-all duration-300 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
-          <Button
-            size="sm"
-            variant={isImpostor ? "default" : "secondary"}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleImpostor();
-            }}
-            className={`h-6 px-1.5 text-3xs font-bold uppercase transition-all ${
-              isImpostor
-                ? "bg-brand text-brand-foreground hover:brightness-110"
-                : "bg-background/80 text-foreground hover:bg-brand hover:text-brand-foreground"
-            }`}
-          >
-            {isImpostor ? "Impostor" : "Inocente"}
-          </Button>
+        {variant === "impostor" && (
+          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between opacity-0 transition-all duration-300 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
+            <Button
+              size="sm"
+              variant={isImpostor ? "default" : "secondary"}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleImpostor();
+              }}
+              className={`h-6 px-1.5 text-3xs font-bold uppercase transition-all ${
+                isImpostor
+                  ? "bg-brand text-brand-foreground hover:brightness-110"
+                  : "bg-background/80 text-foreground hover:bg-brand hover:text-brand-foreground"
+              }`}
+            >
+              {isImpostor ? "Impostor" : "Inocente"}
+            </Button>
 
-          <Button
-            size="icon"
-            variant="destructive"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove();
-            }}
-            className="h-6 w-6 bg-destructive/90 hover:bg-destructive shadow-sm"
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
-        </div>
+            <Button
+              size="icon"
+              variant="destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              className="h-6 w-6 bg-destructive/90 hover:bg-destructive shadow-sm"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
 
-        {isImpostor && (
+        {variant === "impostor" && isImpostor && (
           <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white shadow-lg animate-pulse">
             <AlertCircle className="h-3.5 w-3.5" />
           </div>
@@ -121,18 +127,20 @@ export function ImpostorCard({
       </div>
 
       {/* Name tag/input area - Now below the image */}
-      <div className="px-0.5 pb-0.5">
-        <input
-          type="text"
-          value={name || ""}
-          onChange={(e) => onNameChange(e.target.value)}
-          placeholder="nombre..."
-          className={`w-full h-8 rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all ${
-            isImpostor ? "border-brand/30" : ""
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        />
-      </div>
+      {!hideName && (
+        <div className="px-0.5 pb-0.5">
+          <input
+            type="text"
+            value={name || ""}
+            onChange={(e) => onNameChange(e.target.value)}
+            placeholder="nombre..."
+            className={`w-full h-8 rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all ${
+              isImpostor ? "border-brand/30" : ""
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }

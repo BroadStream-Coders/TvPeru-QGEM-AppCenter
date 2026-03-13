@@ -3,11 +3,18 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload, ArrowLeft, VenetianMask } from "lucide-react";
-import { ImpostorColumn } from "./components/ImpostorColumn";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  Download,
+  Upload,
+  ArrowLeft,
+  VenetianMask,
+  Layers,
+} from "lucide-react";
+import { ImpostorLevel1View } from "./components/ImpostorLevel1View";
+import { ImpostorLevel2View } from "./components/ImpostorLevel2View";
 import { nanoid } from "nanoid";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_FILENAME = "Impostor.zip";
 const SESSION_DATA_FILENAME = "sessionData.json";
@@ -24,6 +31,7 @@ interface ImpostorRound {
   id: string;
   context: string;
   photos: Photo[];
+  options?: { text: string; isImpostor: boolean }[]; // Updated for L1
 }
 
 interface PhotoMetadata {
@@ -35,23 +43,49 @@ interface PhotoMetadata {
 interface RoundMetadata {
   context: string;
   photos: PhotoMetadata[];
+  options?: { text: string; isImpostor: boolean }[]; // Updated for L1
 }
 
 interface SessionData {
-  rounds: RoundMetadata[];
+  nivel_1: RoundMetadata[];
+  nivel_2: RoundMetadata[];
 }
 
+type LevelId = "nivel1" | "nivel2";
+
 export default function ImpostorPage() {
-  const [rounds, setRounds] = useState<ImpostorRound[]>([
-    {
-      id: nanoid(),
-      context: "",
-      photos: Array(4)
-        .fill(null)
-        .map(() => ({ id: nanoid(), name: "", isImpostor: false })),
-    },
-  ]);
+  const [activeTab, setActiveTab] = useState<LevelId>("nivel1");
+  const [roundsPerLevel, setRoundsPerLevel] = useState<
+    Record<LevelId, ImpostorRound[]>
+  >({
+    nivel1: [
+      {
+        id: nanoid(),
+        context: "",
+        photos: [{ id: nanoid(), name: "", isImpostor: false }],
+        options: [{ text: "", isImpostor: false }],
+      },
+    ],
+    nivel2: [
+      {
+        id: nanoid(),
+        context: "",
+        photos: Array(4)
+          .fill(null)
+          .map(() => ({ id: nanoid(), name: "", isImpostor: false })),
+      },
+    ],
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const rounds = roundsPerLevel[activeTab];
+
+  const setRounds = (newRounds: ImpostorRound[]) => {
+    setRoundsPerLevel((prev) => ({
+      ...prev,
+      [activeTab]: newRounds,
+    }));
+  };
 
   const addRound = (count: number = 1) => {
     const newRounds = Array(count)
@@ -59,9 +93,13 @@ export default function ImpostorPage() {
       .map(() => ({
         id: nanoid(),
         context: "",
-        photos: Array(4)
-          .fill(null)
-          .map(() => ({ id: nanoid(), name: "", isImpostor: false })),
+        photos:
+          activeTab === "nivel1"
+            ? [{ id: nanoid(), name: "", isImpostor: false }]
+            : Array(4)
+                .fill(null)
+                .map(() => ({ id: nanoid(), name: "", isImpostor: false })),
+        options: activeTab === "nivel1" ? [{ text: "", isImpostor: false }] : undefined,
       }));
     setRounds([...rounds, ...newRounds]);
   };
@@ -80,7 +118,10 @@ export default function ImpostorPage() {
         if (r.id === roundId && r.photos.length < 8) {
           return {
             ...r,
-            photos: [...r.photos, { id: nanoid(), name: "", isImpostor: false }],
+            photos: [
+              ...r.photos,
+              { id: nanoid(), name: "", isImpostor: false },
+            ],
           };
         }
         return r;
@@ -141,45 +182,68 @@ export default function ImpostorPage() {
     );
   };
 
+  const updateOptionsInRound = (roundId: string, options: { text: string; isImpostor: boolean }[]) => {
+    setRounds(
+      rounds.map((r) => {
+        if (r.id === roundId) {
+          return { ...r, options };
+        }
+        return r;
+      }),
+    );
+  };
+
   // Persistence logic
   const handleSave = async () => {
     console.log("[Impostor:Persistence] Starting ZIP export...");
-    const metadataRounds: RoundMetadata[] = rounds.map((round) => {
-      const photosMetadata: PhotoMetadata[] = round.photos.map((photo) => {
-        let imagePath = "";
-        if (photo.file) {
-          const shortId = nanoid(4);
-          imagePath = `images/${shortId}_${photo.file.name}`;
-        }
+    const prepareMetadata = (levelRounds: ImpostorRound[]) => {
+      return levelRounds.map((round) => {
+        const photosMetadata: PhotoMetadata[] = round.photos.map((photo) => {
+          let imagePath = "";
+          if (photo.file) {
+            const shortId = nanoid(4);
+            imagePath = `images/${shortId}_${photo.file.name}`;
+          }
+          return {
+            name: photo.name,
+            path: imagePath,
+            isImpostor: photo.isImpostor,
+          };
+        });
+
         return {
-          name: photo.name,
-          path: imagePath,
-          isImpostor: photo.isImpostor,
+          context: round.context,
+          photos: photosMetadata,
+          options: round.options,
         };
       });
-
-      return {
-        context: round.context,
-        photos: photosMetadata,
-      };
-    });
+    };
 
     const sessionData: SessionData = {
-      rounds: metadataRounds,
+      nivel_1: prepareMetadata(roundsPerLevel.nivel1),
+      nivel_2: prepareMetadata(roundsPerLevel.nivel2),
     };
 
     console.log("[Impostor:Persistence] Metadata prepared:", sessionData);
 
     const filesToInclude: { name: string; file: File }[] = [];
-    rounds.forEach((round, roundIndex) => {
-      const roundMetadata = metadataRounds[roundIndex];
-      round.photos.forEach((photo, photoIndex) => {
-        if (photo.file) {
-          filesToInclude.push({
-            name: roundMetadata.photos[photoIndex].path,
-            file: photo.file,
-          });
-        }
+
+    // Process both levels for file inclusion
+    (["nivel1", "nivel2"] as LevelId[]).forEach((lvl) => {
+      const levelRounds = roundsPerLevel[lvl];
+      const metadataRounds =
+        lvl === "nivel1" ? sessionData.nivel_1 : sessionData.nivel_2;
+
+      levelRounds.forEach((round, roundIndex) => {
+        const roundMetadata = metadataRounds[roundIndex];
+        round.photos.forEach((photo, photoIndex) => {
+          if (photo.file) {
+            filesToInclude.push({
+              name: roundMetadata.photos[photoIndex].path,
+              file: photo.file,
+            });
+          }
+        });
       });
     });
 
@@ -225,13 +289,23 @@ export default function ImpostorPage() {
       }
 
       const content = await dataFile.async("string");
-      const sessionData = JSON.parse(content) as SessionData;
+      const sessionData = JSON.parse(content) as any;
 
-      if (sessionData.rounds && Array.isArray(sessionData.rounds)) {
-        const newRounds = await Promise.all(
-          sessionData.rounds.map(async (roundMeta, roundIdx) => {
-            console.log(`[Impostor] Restoring Round ${roundIdx + 1}...`);
+      // Handle legacy structure or new levels structure
+      const levelsData = {
+        nivel1:
+          sessionData.nivel_1 ||
+          (sessionData.levels ? sessionData.levels.nivel1 : []),
+        nivel2:
+          sessionData.nivel_2 ||
+          (sessionData.levels ? sessionData.levels.nivel2 : sessionData.rounds) ||
+          [],
+      };
 
+      const processLevel = async (levelMeta: RoundMetadata[]) => {
+        if (!levelMeta || !Array.isArray(levelMeta)) return [];
+        return await Promise.all(
+          levelMeta.map(async (roundMeta, roundIdx) => {
             const photos = await Promise.all(
               roundMeta.photos.map(async (pMeta) => {
                 let imageFile: File | undefined = undefined;
@@ -269,11 +343,24 @@ export default function ImpostorPage() {
               id: nanoid(),
               context: roundMeta.context || "",
               photos,
+              options: roundMeta.options,
             };
           }),
         );
-        setRounds(newRounds);
-      }
+      };
+
+      const nivel1 = await processLevel(levelsData.nivel1);
+      const nivel2 = await processLevel(levelsData.nivel2);
+
+      setRoundsPerLevel({
+        nivel1: nivel1.length > 0 ? nivel1 : roundsPerLevel.nivel1,
+        nivel2:
+          nivel2.length > 0
+            ? nivel2
+            : nivel1.length === 0
+              ? roundsPerLevel.nivel2
+              : [],
+      });
     } catch (error) {
       console.error("[Impostor:Persistence] Import error:", error);
       alert("Error al importar los datos.");
@@ -339,69 +426,55 @@ export default function ImpostorPage() {
         </div>
       </header>
 
+      {/* Tabs Switcher — h-12 = 48px */}
+      <div className="flex h-12 shrink-0 items-center border-b border-border bg-muted/20 px-4 gap-1">
+        <button
+          onClick={() => setActiveTab("nivel1")}
+          className={cn(
+            "flex items-center gap-2 h-8 px-4 rounded-md text-xs font-bold transition-all",
+            activeTab === "nivel1"
+              ? "bg-brand text-brand-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-muted/50",
+          )}
+        >
+          <Layers className="h-3.5 w-3.5" />
+          Nivel 1
+        </button>
+        <button
+          onClick={() => setActiveTab("nivel2")}
+          className={cn(
+            "flex items-center gap-2 h-8 px-4 rounded-md text-xs font-bold transition-all",
+            activeTab === "nivel2"
+              ? "bg-brand text-brand-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-muted/50",
+          )}
+        >
+          <Layers className="h-3.5 w-3.5" />
+          Nivel 2
+        </button>
+      </div>
+
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
-        <ScrollArea className="w-full h-full">
-          <div
-            className="flex min-w-max gap-6 px-6 py-6"
-            style={{ height: "calc(100vh - 48px - 36px)" }}
-          >
-            {rounds.map((round, roundIndex) => (
-              <ImpostorColumn
-                key={roundIndex}
-                index={roundIndex + 1}
-                photos={round.photos}
-                context={round.context}
-                onAddPhoto={() => addPhotoToRound(round.id)}
-                onRemovePhoto={(photoId) =>
-                  removePhotoFromRound(round.id, photoId)
-                }
-                onUpdatePhoto={(photoId, updates) =>
-                  updatePhotoInRound(round.id, photoId, updates)
-                }
-                onUpdateRound={(updates) => updateRound(round.id, updates)}
-                onRemoveColumn={() => removeRound(round.id)}
-              />
-            ))}
-
-            {/* Add round section */}
-            <div className="h-full w-[200px] shrink-0 flex flex-col gap-4">
-              <button
-                onClick={() => addRound(1)}
-                className="group flex h-1/2 w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-dashed border-current transition-all group-hover:scale-110 group-hover:bg-brand group-hover:text-brand-foreground group-hover:border-transparent">
-                  <Plus className="h-5 w-5" />
-                </div>
-                <div className="text-center">
-                  <span className="block text-xs font-bold uppercase tracking-wide">
-                    Añadir Ronda
-                  </span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => {
-                  const count = prompt("¿Cuántas rondas deseas agregar?", "5");
-                  if (count && !isNaN(Number(count))) {
-                    addRound(Number(count));
-                  }
-                }}
-                className="group flex h-[40%] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
-              >
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-dashed border-current opacity-60 group-hover:opacity-100 transition-all">
-                  <Plus className="h-4 w-4" />
-                </div>
-                <div className="text-center">
-                  <span className="block text-2xs font-bold uppercase tracking-wide">
-                    Multi-Ronda
-                  </span>
-                </div>
-              </button>
-            </div>
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        {activeTab === "nivel1" ? (
+          <ImpostorLevel1View
+            rounds={rounds}
+            onAddRound={addRound}
+            onRemoveRound={removeRound}
+            onUpdatePhotoInRound={updatePhotoInRound}
+            onUpdateRound={updateRound}
+          />
+        ) : (
+          <ImpostorLevel2View
+            rounds={rounds}
+            onAddRound={addRound}
+            onRemoveRound={removeRound}
+            onAddPhotoToRound={addPhotoToRound}
+            onRemovePhotoFromRound={removePhotoFromRound}
+            onUpdatePhotoInRound={updatePhotoInRound}
+            onUpdateRound={updateRound}
+          />
+        )}
       </main>
     </>
   );
