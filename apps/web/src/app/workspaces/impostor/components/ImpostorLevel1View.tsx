@@ -1,3 +1,5 @@
+"use client";
+
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Plus } from "lucide-react";
 import { ImpostorLevel1Column } from "./ImpostorLevel1Column";
@@ -10,19 +12,38 @@ interface Photo {
   isImpostor: boolean;
 }
 
+interface Option {
+  text: string;
+  isImpostor: boolean;
+}
+
 interface ImpostorRound {
   id: string;
   context: string;
   photos: Photo[];
-  options?: { text: string; isImpostor: boolean }[];
+  options?: Option[];
 }
 
 interface ImpostorLevel1ViewProps {
   rounds: ImpostorRound[];
   onAddRound: (count?: number) => void;
   onRemoveRound: (id: string) => void;
-  onUpdatePhotoInRound: (roundId: string, photoId: string, updates: Partial<Photo>) => void;
+  onUpdatePhotoInRound: (
+    roundId: string,
+    photoId: string,
+    updates: Partial<Photo>,
+  ) => void;
   onUpdateRound: (roundId: string, updates: Partial<ImpostorRound>) => void;
+}
+
+const DEFAULT_OPTION: Option = { text: "", isImpostor: false };
+
+function normalizeOptions(options: Option[] | string[] | undefined): Option[] {
+  if (!options || options.length === 0) return [{ ...DEFAULT_OPTION }];
+  if (typeof options[0] === "string") {
+    return (options as string[]).map((text) => ({ text, isImpostor: false }));
+  }
+  return options as Option[];
 }
 
 export function ImpostorLevel1View({
@@ -44,14 +65,15 @@ export function ImpostorLevel1View({
             index={roundIndex + 1}
             photo={round.photos[0]}
             context={round.context}
-            options={round.options || [""]}
-            onUpdatePhoto={(updates) => onUpdatePhotoInRound(round.id, round.photos[0].id, updates)}
+            options={normalizeOptions(round.options)}
+            onUpdatePhoto={(updates) =>
+              onUpdatePhotoInRound(round.id, round.photos[0].id, updates)
+            }
             onUpdateRound={(updates) => onUpdateRound(round.id, updates)}
             onRemoveColumn={() => onRemoveRound(round.id)}
           />
         ))}
 
-        {/* Add round section */}
         <div className="h-full w-[200px] shrink-0 flex flex-col gap-4">
           <button
             onClick={() => onAddRound(1)}
@@ -70,9 +92,7 @@ export function ImpostorLevel1View({
           <button
             onClick={() => {
               const count = prompt("¿Cuántas rondas deseas agregar?", "5");
-              if (count && !isNaN(Number(count))) {
-                onAddRound(Number(count));
-              }
+              if (count && !isNaN(Number(count))) onAddRound(Number(count));
             }}
             className="group flex h-[40%] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
           >

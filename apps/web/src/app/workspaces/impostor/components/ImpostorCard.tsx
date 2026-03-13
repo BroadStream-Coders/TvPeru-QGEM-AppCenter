@@ -1,10 +1,8 @@
 "use client";
 
-import { Trash2, AlertCircle, Plus } from "lucide-react";
+import { Trash2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { useImagePicker } from "@/hooks/use-image-picker";
-import { useEffect } from "react";
+import { ImagePicker } from "@/components/shared/ImagePicker";
 
 interface ImpostorCardProps {
   id: string;
@@ -30,22 +28,6 @@ export function ImpostorCard({
   hideName = false,
   variant = "impostor",
 }: ImpostorCardProps) {
-  const {
-    previewUrl,
-    fileInputRef,
-    triggerUpload,
-    handleFileChange,
-    setPreviewUrl,
-  } = useImagePicker({
-    onImageSelect: onImageChange,
-    initialPreview: imageUrl,
-  });
-
-  // Sync with external imageUrl updates (e.g. from loading state)
-  useEffect(() => {
-    if (imageUrl) setPreviewUrl(imageUrl);
-  }, [imageUrl, setPreviewUrl]);
-
   return (
     <div
       className={`group flex flex-col gap-2 rounded-xl border p-1.5 transition-all duration-200 ${
@@ -54,38 +36,13 @@ export function ImpostorCard({
           : "border-border bg-card hover:border-brand/40 hover:shadow-xs"
       }`}
     >
-      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted/20">
-        {previewUrl ? (
-          <Image
-            src={previewUrl}
-            alt="Impostor candidate"
-            fill
-            unoptimized
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        ) : (
-          <button
-            onClick={triggerUpload}
-            className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted/50 border border-dashed border-border">
-              <Plus className="h-3.5 w-3.5" />
-            </div>
-            <span className="text-3xs uppercase tracking-wider font-bold">
-              Foto
-            </span>
-          </button>
-        )}
-
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="image/*"
-          className="hidden"
+      <div className="relative w-full">
+        <ImagePicker
+          value={imageUrl}
+          onChange={onImageChange}
+          aspectRatio="square"
+          placeholder="Foto"
         />
-
-        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
 
         {variant === "impostor" && (
           <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between opacity-0 transition-all duration-300 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
@@ -104,7 +61,6 @@ export function ImpostorCard({
             >
               {isImpostor ? "Impostor" : "Inocente"}
             </Button>
-
             <Button
               size="icon"
               variant="destructive"
@@ -120,13 +76,12 @@ export function ImpostorCard({
         )}
 
         {variant === "impostor" && isImpostor && (
-          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white shadow-lg animate-pulse">
+          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white shadow-lg animate-pulse pointer-events-none">
             <AlertCircle className="h-3.5 w-3.5" />
           </div>
         )}
       </div>
 
-      {/* Name tag/input area - Now below the image */}
       {!hideName && (
         <div className="px-0.5 pb-0.5">
           <input
