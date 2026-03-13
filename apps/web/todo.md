@@ -15,21 +15,16 @@
 - Exportación siempre por archivo (JSON o ZIP con imágenes). Sin backend, sin base de datos.
 - Tema dark por defecto, diseño con variables CSS propias (`--brand`, `--success`, etc.).
 - Cada colector tiene su propio schema de JSON (no hay schema global). Los componentes de UI sí se comparten.
+- Header de cada workspace controlado por `WorkspaceShell` — cada `page.tsx` pasa sus props. No usar Context API hasta que llegue la barra lateral (post-entrega de los 8 colectores).
 
 ---
 
-## Estado Actual (diagnóstico)
+## Estado Actual
 
-Cada `page.tsx` de workspace mezcla 4 responsabilidades:
+**Bloques 0 y 1 completados.** La base está lista — cada nuevo colector se construye sobre los componentes compartidos sin repetir código estructural.
 
-1. Renderizado del header (con botones Cargar/Guardar)
-2. Gestión completa del estado
-3. Lógica de persistencia (save/load JSON o ZIP)
-4. Layout y orquestación de columnas
-
-Esto produce archivos de 200–350 líneas, y componentes casi idénticos duplicados (`DeletreoColumn`, `LibroColumn`, `RedactorColumn`) que solo difieren en su interior.
-
-**Consecuencia directa**: agregar un colector nuevo tarda el doble de lo necesario y cualquier cambio global (ej. cambiar el estilo del header, agregar validación al guardado) hay que repetirlo en cada archivo.
+Colectores activos: `deletreo`, `calculo-mental`, `mi-libro-favorito`, `impostor`, `redactor`.
+Colector eliminado: `personajes` (juego cancelado por producción).
 
 ---
 
@@ -43,264 +38,170 @@ Esto produce archivos de 200–350 líneas, y componentes casi idénticos duplic
 
 ---
 
-## Estructura de Carpetas Objetivo
+## Estructura de Carpetas
 
 ```
 src/
 ├── app/
-│   ├── page.tsx                          # Home (ya OK)
-│   ├── layout.tsx                        # Root layout (ya OK)
+│   ├── page.tsx                          # Home
+│   ├── layout.tsx                        # Root layout
 │   └── workspaces/
-│       ├── layout.tsx                    # WorkspaceLayout: footer siempre presente
+│       ├── layout.tsx                    # Footer siempre presente
 │       ├── [nombre-colector]/
 │       │   ├── page.tsx                  # SOLO: estado + callbacks + schema
 │       │   └── components/              # Componentes privados del colector
 │       └── ...
 ├── components/
 │   ├── shared/
-│   │   ├── WorkspaceShell.tsx           # [NUEVO] Header declarativo del workspace
-│   │   ├── FileActions.tsx              # [NUEVO] Botones Cargar/Guardar unificados
-│   │   ├── BoardColumn.tsx              # [NUEVO] Columna genérica con header + scroll + footer
-│   │   ├── AddColumnButton.tsx          # [NUEVO] Botón ghost dashed "Añadir X"
-│   │   ├── ImagePicker.tsx              # [NUEVO] Componente visual wrapper de use-image-picker
-│   │   └── QuickLoad.tsx                # [YA EXISTE — mantener]
+│   │   ├── WorkspaceShell.tsx           # ✅ Header declarativo del workspace
+│   │   ├── FileActions.tsx              # ✅ Botones Cargar/Guardar unificados
+│   │   ├── BoardColumn.tsx              # ✅ Columna genérica con header + scroll + footer
+│   │   ├── AddColumnButton.tsx          # ✅ Botón ghost dashed "Añadir X"
+│   │   ├── ImagePicker.tsx              # ✅ Wrapper visual de use-image-picker
+│   │   └── QuickLoad.tsx                # ✅ Ya existía
 │   └── ui/                              # shadcn/ui (no tocar)
 ├── hooks/
-│   ├── use-image-picker.ts              # [YA EXISTE — mantener]
-│   └── use-workspace-groups.ts          # [NUEVO] Hook genérico para estado de grupos/columnas
+│   ├── use-image-picker.ts              # ✅ Actualizado con skipCleanupOnUnmount
+│   └── use-workspace-groups.ts          # ✅ Hook genérico para estado de grupos
 ├── helpers/
-│   ├── persistence.ts                   # [YA EXISTE — mantener]
-│   └── data-processing.ts              # [YA EXISTE — mantener]
+│   ├── persistence.ts                   # ✅ Sin cambios
+│   └── data-processing.ts              # ✅ Sin cambios
 ├── types/
-│   └── index.ts                         # [NUEVO] Tipos compartidos entre colectores
+│   └── index.ts                         # ✅ Tipos base compartidos
 └── lib/
-    └── utils.ts                         # [YA EXISTE — mantener]
+    └── utils.ts                         # ✅ Sin cambios
 ```
 
 ---
 
-## Hoja de Ruta — Tareas Ordenadas por Prioridad
+## Hoja de Ruta
 
-### BLOQUE 0 — Fundamentos (hacer ANTES de cualquier colector nuevo)
+### ✅ BLOQUE 0 — Fundamentos
 
-> Objetivo: tener la base lista para que cada colector nuevo tarde 1/3 del tiempo actual.
-> Estimado: 1–2 días de trabajo.
-
-#### 0.1 — Crear `/src/types/index.ts`
-
-- [ ] Definir tipos base reutilizables:
-  ```ts
-  export interface GroupBase<T> {
-    id: string; // usar nanoid() siempre
-    items: T[];
-  }
-  export interface SlotQA {
-    question: string;
-    answer: string;
-  }
-  export interface ImageSlot {
-    id: string;
-    name?: string;
-    file?: File;
-    url?: string;
-  }
-  ```
-- [ ] Migrar interfaces duplicadas de los `page.tsx` existentes a este archivo.
-- [ ] Todos los colectores importan tipos desde `@/types`.
-
-#### 0.2 — Crear `WorkspaceShell.tsx`
-
-**Responsabilidad**: Renderizar el header completo del workspace. Elimina el `<header>` duplicado en cada `page.tsx`.
-
-Props esperadas:
-
-```ts
-interface WorkspaceShellProps {
-  title: string;
-  icon: React.ReactNode;
-  badge?: string; // ej. "3 rondas"
-  actions?: React.ReactNode; // botones Cargar/Guardar
-  children: React.ReactNode;
-}
-```
-
-- [ ] Incluye: botón "Volver", separador, ícono + título, badge opcional, slot de acciones a la derecha.
-- [ ] Renderiza `<main className="flex-1 overflow-hidden">` alrededor de `children`.
-- [ ] El footer lo provee `workspaces/layout.tsx` (ya existe — no duplicar).
-- [ ] Usar en `deletreo/page.tsx` como prueba. Si funciona, migrar todos.
-
-#### 0.3 — Crear `FileActions.tsx`
-
-**Responsabilidad**: Botones "Cargar" y "Guardar" con el `<input type="file" hidden>` incluido.
-
-Variantes necesarias (prop `format`):
-
-- `"json"` → acepta `.json`, llama `onSave()` y `onLoad(file)`
-- `"zip"` → acepta `.zip`, llama `onSave()` y `onLoad(file)`
-
-```ts
-interface FileActionsProps {
-  format: "json" | "zip";
-  onSave: () => void;
-  onLoad: (file: File) => void;
-  saveLabel?: string; // default: "Guardar"
-}
-```
-
-- [ ] El componente maneja internamente el `useRef<HTMLInputElement>` y el `onChange`.
-- [ ] El `page.tsx` solo recibe el `File` y lo procesa — no gestiona el input.
-
-#### 0.4 — Crear `BoardColumn.tsx`
-
-**Responsabilidad**: Columna genérica que reemplaza `DeletreoColumn`, `LibroColumn`, `RedactorColumn`, `CalculoMentalColumn`.
-
-```ts
-interface BoardColumnProps {
-  index: number; // número de la columna (para el badge)
-  title: string; // ej. "Ronda 1", "Grupo 1"
-  itemCount?: number; // badge de cantidad
-  width?: string; // default: "w-[320px]"
-  onRemove: () => void;
-  footer?: React.ReactNode; // slot para QuickLoad u otro
-  addButton?: React.ReactNode; // slot para "Añadir ítem"
-  children: React.ReactNode; // los rows/cards del colector
-}
-```
-
-- [ ] Incluye: `CardHeader` con índice, título, badge, botón eliminar.
-- [ ] `CardContent` con `ScrollArea` vertical.
-- [ ] Slot `footer` en `CardFooter`.
-- [ ] Slot `addButton` justo antes del footer, dentro del scroll o fuera (a definir).
-
-#### 0.5 — Crear `AddColumnButton.tsx`
-
-**Responsabilidad**: El botón ghost dashed de "Añadir ronda / Añadir grupo" que aparece al final del scroll horizontal. Actualmente duplicado en todos los `page.tsx`.
-
-```ts
-interface AddColumnButtonProps {
-  label: string; // ej. "Añadir ronda"
-  sublabel?: string; // ej. "(Nueva Columna)"
-  onClick: () => void;
-  width?: string; // default: "w-[180px]"
-}
-```
-
-#### 0.6 — Crear `use-workspace-groups.ts`
-
-**Responsabilidad**: Hook genérico para la lógica de estado de grupos con items. Elimina el patrón `addGroup / removeGroup / addItemToGroup / updateItem / removeItem` duplicado en cada `page.tsx`.
-
-```ts
-function useWorkspaceGroups<TItem>(
-  initialGroups: TItem[][],
-  createEmptyItem: () => TItem
-): {
-  groups: TItem[][];
-  addGroup: () => void;
-  removeGroup: (index: number) => void;
-  addItem: (groupIndex: number) => void;
-  removeItem: (groupIndex: number, itemIndex: number) => void;
-  updateItem: (groupIndex: number, itemIndex: number, value: TItem) => void;
-  replaceGroup: (groupIndex: number, items: TItem[]) => void; // para QuickLoad
-  setGroups: Dispatch<...>; // escape hatch para casos complejos
-}
-```
-
-- [ ] Usar genéricos de TypeScript para que funcione con cualquier tipo de item.
-- [ ] `replaceGroup` reemplaza todos los items de un grupo (necesario para QuickLoad).
-
-#### 0.7 — Crear `ImagePicker.tsx` (componente visual)
-
-**Responsabilidad**: Componente visual que envuelve `use-image-picker`. Actualmente el hook se usa con boilerplate repetido en `ImpostorCard`, `PersonajeSlot`, `PlayerSlot`.
-
-```ts
-interface ImagePickerProps {
-  value?: string; // URL preview externa (para carga desde ZIP)
-  onChange: (file: File, url: string) => void;
-  aspectRatio?: "square" | "portrait" | "landscape"; // default: square
-  placeholder?: string;
-}
-```
-
-- [ ] El componente muestra la imagen si hay preview, o el estado vacío con botón.
-- [ ] Maneja internamente el `fileInputRef`, el `triggerUpload` y el cleanup de URL.
-- [ ] Sincroniza con `value` externo via `useEffect` (igual que hoy en los componentes que lo usan).
+- [x] **0.1** Crear `/src/types/index.ts` con tipos base (`SlotQA`, `ImageSlot`, `WorkspaceGroup<T>`, `SessionData`, `ValidationResult`)
+- [x] **0.2** Crear `WorkspaceShell.tsx`
+- [x] **0.3** Crear `FileActions.tsx`
+- [x] **0.4** Crear `BoardColumn.tsx`
+- [x] **0.5** Crear `AddColumnButton.tsx`
+- [x] **0.6** Crear `use-workspace-groups.ts`
+- [x] **0.7** Crear `ImagePicker.tsx` + actualizar `use-image-picker.ts` con `skipCleanupOnUnmount`
 
 ---
 
-### BLOQUE 1 — Migración de colectores existentes
+### ✅ BLOQUE 1 — Migración de colectores existentes
 
-> Objetivo: aplicar los componentes del Bloque 0 a los colectores ya construidos.
-> Hacer en este orden (de más simple a más complejo).
-> Estimado: 1 día.
-
-- [ ] **1.1** Migrar `deletreo` → usa `WorkspaceShell`, `FileActions`, `BoardColumn`, `AddColumnButton`, `use-workspace-groups`
-- [ ] **1.2** Migrar `redactor` → igual que deletreo (estructura casi idéntica)
-- [ ] **1.3** Migrar `mi-libro-favorito` → igual + `ImagePicker` para `PlayersColumn`
-- [ ] **1.4** Migrar `calculo-mental` → usa `BoardColumn` con ancho custom (`w-[700px]`)
-- [ ] **1.5** Migrar `impostor` → el más complejo, migrar al final; usa `ImagePicker` en `ImpostorCard`
-- [ ] **1.6** Revisar `personajes` → usa `ImagePicker`, simplificar `PersonajeSlot`
-
-**Criterio de "migrado"**: el `page.tsx` del colector no tiene `<header>`, no tiene `useRef<HTMLInputElement>`, y tiene menos de 120 líneas.
+- [x] **1.1** Migrar `deletreo`
+- [x] **1.2** Migrar `redactor`
+- [x] **1.3** Migrar `mi-libro-favorito`
+- [x] **1.4** Migrar `calculo-mental`
+- [x] **1.5** Migrar `impostor` + fix imágenes al cambiar de tab + fix error tipos `Option[]`
+- [x] **1.6** Eliminar `personajes` (juego cancelado)
 
 ---
 
-### BLOQUE 2 — Nuevos colectores
+### 🔲 BLOQUE 2 — Nuevos colectores
 
 > Con el Bloque 0 listo, cada nuevo colector solo necesita:
 >
 > 1. Crear la carpeta `workspaces/[nombre]/`
-> 2. Definir el schema de datos en `types/index.ts` o localmente
-> 3. Escribir `page.tsx` (estado + callbacks, ~80 líneas)
+> 2. Definir el schema localmente en `page.tsx` (o en `@/types` si se comparte)
+> 3. Escribir `page.tsx` (~80 líneas): estado + callbacks + `WorkspaceShell` + `FileActions`
 > 4. Crear componentes privados solo si la UI es única al colector
 
-**Colectores pendientes** (ordenar según prioridad de producción):
+**Colectores pendientes** (completar nombres y ordenar por prioridad de producción):
 
+- [ ] Colector 6: _(nombre pendiente)_
 - [ ] Colector 7: _(nombre pendiente)_
 - [ ] Colector 8: _(nombre pendiente)_
-- [ ] Colector 9+: _(definir)_
 
-**Template para nuevo colector** (crear como `_template/` en workspaces):
+**Template de referencia** — estructura mínima de un `page.tsx` nuevo:
 
-- [ ] Crear `workspaces/_template/page.tsx` con la estructura mínima comentada
-- [ ] Documentar en el template qué va en `page.tsx` y qué va en `components/`
+```tsx
+"use client";
+import { [Icono] } from "lucide-react";
+import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
+import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
+import { FileActions } from "@/components/shared/FileActions";
+import { AddColumnButton } from "@/components/shared/AddColumnButton";
+import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+
+/*
+  SCHEMA exportado (para Unity):
+  {
+    groups: [
+      { items: [...] }
+    ]
+  }
+*/
+
+const DEFAULT_FILENAME = "[Nombre].json"; // o .zip si tiene imágenes
+interface ItemData { ... }
+interface GroupData { items: ItemData[]; }
+interface ColectorData { groups: GroupData[]; }
+
+const createEmptyItem = (): ItemData => ({ ... });
+
+export default function [Nombre]Page() {
+  const { groups, addGroup, removeGroup, addItem, removeItem, updateItem, replaceGroup, setGroups } =
+    useWorkspaceGroups<ItemData>([[createEmptyItem()]], createEmptyItem);
+
+  const handleSave = () => {
+    const data: ColectorData = { groups: groups.map((items) => ({ items })) };
+    saveAsJson(DEFAULT_FILENAME, data);
+  };
+
+  const handleLoad = async (file: File) => {
+    try {
+      const data = await loadJsonFile<ColectorData>(file);
+      if (data?.groups) setGroups(data.groups.map((g) => g.items));
+    } catch {
+      alert("Error al cargar el archivo.");
+    }
+  };
+
+  return (
+    <WorkspaceShell
+      title="[Nombre]"
+      icon={<[Icono] className="h-3 w-3" />}
+      badge={`${groups.length} ronda${groups.length !== 1 ? "s" : ""}`}
+      actions={<FileActions format="json" onSave={handleSave} onLoad={handleLoad} />}
+    >
+      <ScrollArea className="w-full h-full">
+        <div className="flex min-w-max gap-4 px-6 py-6" style={{ height: "calc(100vh - 48px - 36px)" }}>
+          {groups.map((items, groupIndex) => (
+            <[Nombre]Column key={groupIndex} ... />
+          ))}
+          <AddColumnButton label="Agregar ronda" onClick={addGroup} />
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </WorkspaceShell>
+  );
+}
+```
 
 ---
 
-### BLOQUE 3 — Validaciones antes de exportar
+### 🔲 BLOQUE 3 — Validaciones antes de exportar
 
-> No bloquea los Bloques 0–2. Implementar cuando los colectores estén estables.
+> Implementar cuando los colectores del Bloque 2 estén estables.
 
-El sistema de validación debe ser **por colector** (cada juego tiene reglas distintas) pero usar una **infraestructura compartida**.
-
-#### 3.1 — Definir contrato de validación
-
-- [ ] Crear tipo `ValidationRule<T>` y función `validateWorkspace(data: T, rules: ValidationRule<T>[]): ValidationResult`
-- [ ] `ValidationResult` incluye: `isValid: boolean`, `errors: { field: string, message: string }[]`
-
-#### 3.2 — Componente `ValidationSummary`
-
-- [ ] Muestra errores antes de permitir guardar
-- [ ] Se integra en `FileActions` como prop opcional `validate?: () => ValidationResult`
-- [ ] Si `validate` retorna errores, el botón Guardar muestra un modal/toast con la lista antes de ejecutar
-
-#### 3.3 — Reglas comunes a implementar
-
-- [ ] Campo de texto requerido (no vacío)
-- [ ] Imagen requerida en slot
-- [ ] Mínimo N items en un grupo
-- [ ] Longitud máxima de texto (útil para palabras de Deletreo)
+- [ ] **3.1** Crear función `validateWorkspace(data, rules): ValidationResult` en `@/helpers/validation.ts`
+- [ ] **3.2** Crear componente `ValidationSummary` — muestra errores antes de permitir guardar
+- [ ] **3.3** Integrar en `FileActions` via prop opcional `validate?: () => ValidationResult`
+- [ ] **3.4** Implementar reglas comunes: campo requerido, imagen requerida, mínimo N items, longitud máxima
 
 ---
 
-### BLOQUE 4 — Pulido y documentación
+### 🔲 BLOQUE 4 — Infraestructura futura
 
-> Para cuando todo lo anterior esté estable. No es urgente.
+> Post-entrega de los 8 colectores. No bloquea nada anterior.
 
-- [ ] **4.1** Escribir `README.md` completo: qué es el proyecto, cómo correrlo, cómo crear un colector nuevo
-- [ ] **4.2** Documentar el contrato del schema de Unity: qué espera leer Unity de cada colector (para evitar romper la integración)
-- [ ] **4.3** Agregar JSDoc a los helpers `persistence.ts` y `data-processing.ts`
-- [ ] **4.4** Revisar consistencia visual: hover states, transiciones, spacing — una pasada final
-- [ ] **4.5** Considerar `nanoid` como dependencia explícita en todos los colectores que crean IDs (impostor ya lo usa)
+- [ ] **4.1** Migrar header al `layout.tsx` usando Context API cuando se agregue la barra lateral izquierda
+- [ ] **4.2** Escribir `README.md` completo: qué es el proyecto, cómo correrlo, cómo crear un colector nuevo
+- [ ] **4.3** Documentar el contrato del schema de Unity por colector
+- [ ] **4.4** Revisar consistencia visual final: hover states, transiciones, spacing
 
 ---
 
@@ -325,40 +226,37 @@ El sistema de validación debe ser **por colector** (cada juego tiene reglas dis
 
 ### Exportación
 
-- JSON: para colectores sin imágenes. Nombre: `[NombreColector].json`
-- ZIP: para colectores con imágenes. Nombre: `[NombreColector].zip`. Siempre incluir `sessionData.json` dentro.
-- El schema interno del ZIP siempre usa `sessionData.json` como entrada (no `data.json` — hay un caso legacy en Impostor a limpiar).
+- JSON: colectores sin imágenes → `saveAsJson` / `loadJsonFile`. Nombre: `[NombreColector].json`
+- ZIP: colectores con imágenes → `saveAsZip` / `loadZipFile`. Nombre: `[NombreColector].zip`. Siempre incluir `sessionData.json` dentro.
 
-### Colectores sin imágenes → `saveAsJson` / `loadJsonFile`
+### Schema y Unity
 
-### Colectores con imágenes → `saveAsZip` / `loadZipFile`
+- El schema JSON de cada colector es independiente — no intentar unificarlos.
+- El contrato con Unity es inamovible: no cambiar la estructura de un JSON ya en producción sin coordinar con el cliente Unity.
+- Siempre documentar el schema exportado en un comentario al inicio del `page.tsx`.
 
 ---
 
 ## Checklist de "Colector Listo para Producción"
 
-Antes de considerar un colector terminado, debe cumplir:
-
 - [ ] `page.tsx` tiene menos de 120 líneas
-- [ ] No hay `<header>` definido en `page.tsx` (lo maneja `WorkspaceShell`)
-- [ ] No hay `useRef<HTMLInputElement>` en `page.tsx` (lo maneja `FileActions`)
+- [ ] Usa `WorkspaceShell` — no hay `<header>` definido en `page.tsx`
+- [ ] Usa `FileActions` — no hay `useRef<HTMLInputElement>` en `page.tsx`
 - [ ] Usa `BoardColumn` para las columnas (si aplica)
-- [ ] Usa `ImagePicker` para todos los inputs de imagen
+- [ ] Usa `ImagePicker` para todos los inputs de imagen (si aplica)
 - [ ] Usa `use-workspace-groups` para el estado de grupos (si aplica)
 - [ ] El schema JSON exportado está documentado en un comentario al inicio de `page.tsx`
 - [ ] Está registrado en el array `workspaces` de `app/page.tsx` (home)
-- [ ] No hay `console.log` de debug sin limpiar
+- [ ] No hay `console.log` de debug
 
 ---
 
 ## Notas para Continuación con otra IA
 
-Si retomás este proyecto con otro modelo de lenguaje, el contexto clave es:
-
-1. **Este es un sistema de pre-producción**: los usuarios llenan datos → exportan archivos → Unity los lee en vivo. Sin backend.
-2. **La prioridad es velocidad de desarrollo**: 8 colectores en ~1 mes, trabajando solo.
-3. **El Bloque 0 es el desbloqueador**: sin esos 7 componentes/hooks base, cada colector nuevo es costoso. Terminar el Bloque 0 antes de cualquier otra cosa.
-4. **Los schemas JSON son distintos por colector**: no intentar unificarlos. Solo unificar la UI.
-5. **El archivo de referencia de estructura es este `todo.md`**: refleja las decisiones tomadas y el orden acordado.
-6. **Colectores existentes** (en `apps/web/src/app/workspaces/`): `deletreo`, `calculo-mental`, `mi-libro-favorito`, `impostor`, `redactor`, `personajes`.
-7. **El issue de legacy a resolver**: en `impostor/page.tsx`, la carga del ZIP intenta leer `data.json` como fallback. Estandarizar a `sessionData.json` siempre.
+1. **Sistema de pre-producción**: usuarios llenan datos → exportan archivos → Unity los lee en vivo. Sin backend.
+2. **Prioridad**: velocidad de desarrollo. 8 colectores en ~1 mes, trabajando solo.
+3. **Bloques 0 y 1 completados**: todos los componentes base existen y todos los colectores anteriores están migrados. Arrancar directo en Bloque 2.
+4. **Los schemas JSON son distintos por colector**: no unificarlos. Solo unificar la UI.
+5. **El template del Bloque 2** es el punto de partida para cualquier colector nuevo.
+6. **`use-image-picker.ts`** tiene la opción `skipCleanupOnUnmount` — activarla en `ImagePicker` para evitar que las URLs se invaliden al cambiar de tab (necesario en Impostor).
+7. **Impostor es especial**: tiene dos niveles con tabs, maneja su propio estado por nivel en `roundsPerLevel`, y NO usa `use-workspace-groups` porque su estructura es más compleja.

@@ -3,51 +3,11 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-/**
- * @file components/shared/WorkspaceShell.tsx
- *
- * Header declarativo compartido para todos los workspaces del QGEM App Center.
- *
- * RESPONSABILIDAD:
- * - Renderizar el header completo (botón volver, ícono, título, badge, acciones).
- * - Envolver el contenido en un <main> con el sizing correcto.
- * - El footer lo provee workspaces/layout.tsx — no duplicar aquí.
- *
- * LO QUE NO HACE:
- * - No gestiona estado.
- * - No sabe nada de persistencia ni de qué colector es.
- *
- * USO:
- * ```tsx
- * <WorkspaceShell
- *   title="Deletreo"
- *   icon={<SpellCheck />}
- *   badge="3 rondas"
- *   actions={<FileActions ... />}
- * >
- *   <ScrollArea className="w-full h-full">
- *     ...
- *   </ScrollArea>
- * </WorkspaceShell>
- * ```
- */
-
 interface WorkspaceShellProps {
-  /** Título del workspace que aparece en el header. */
   title: string;
-  /** Ícono del workspace (componente Lucide). Se muestra dentro de un badge de color brand. */
   icon: React.ReactNode;
-  /**
-   * Texto del badge de conteo junto al título.
-   * @example "3 rondas" | "2 grupos" | "6/6 cargados"
-   */
   badge?: string;
-  /**
-   * Slot para las acciones del header (botones Cargar / Guardar).
-   * Tipicamente un <FileActions /> pero puede ser cualquier nodo.
-   */
   actions?: React.ReactNode;
-  /** Contenido principal del workspace (columnas, grids, etc.). */
   children: React.ReactNode;
 }
 
@@ -61,7 +21,6 @@ export function WorkspaceShell({
   return (
     <>
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10">
-        {/* Lado izquierdo: navegación + identidad */}
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -89,7 +48,6 @@ export function WorkspaceShell({
           )}
         </div>
 
-        {/* Lado derecho: acciones (Cargar / Guardar) */}
         {actions && <div className="flex items-center gap-2">{actions}</div>}
       </header>
 

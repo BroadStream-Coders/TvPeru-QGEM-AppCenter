@@ -4,57 +4,11 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Upload } from "lucide-react";
 
-/**
- * @file components/shared/FileActions.tsx
- *
- * Botones "Cargar" y "Guardar" unificados para todos los workspaces.
- *
- * RESPONSABILIDAD:
- * - Renderizar los botones de acción de archivo.
- * - Manejar internamente el <input type="file" hidden> y su ref.
- * - Entregar el File al page.tsx via onLoad — nada más.
- *
- * LO QUE NO HACE:
- * - No llama a saveAsJson ni saveAsZip directamente.
- * - No parsea ni valida el archivo — eso es responsabilidad del page.tsx.
- *
- * USO básico (JSON):
- * ```tsx
- * <FileActions
- *   format="json"
- *   onSave={handleSave}
- *   onLoad={handleLoad}
- * />
- * ```
- *
- * USO con label personalizado (ZIP):
- * ```tsx
- * <FileActions
- *   format="zip"
- *   onSave={handleSave}
- *   onLoad={handleLoad}
- *   saveLabel="Exportar ZIP"
- * />
- * ```
- */
-
 interface FileActionsProps {
-  /**
-   * Formato del archivo a aceptar en la carga.
-   * - "json" → acepta .json
-   * - "zip"  → acepta .zip
-   */
   format: "json" | "zip";
-  /** Se llama al hacer click en "Guardar". El page.tsx ejecuta el save. */
   onSave: () => void;
-  /**
-   * Se llama cuando el usuario selecciona un archivo.
-   * Recibe el File directamente — el page.tsx decide qué hacer con él.
-   */
   onLoad: (file: File) => void;
-  /** Texto del botón guardar. Default: "Guardar" */
   saveLabel?: string;
-  /** Texto del botón cargar. Default: "Cargar" */
   loadLabel?: string;
 }
 
@@ -71,7 +25,6 @@ export function FileActions({
     const file = e.target.files?.[0];
     if (!file) return;
     onLoad(file);
-    // Limpiar el input para permitir cargar el mismo archivo dos veces seguidas.
     e.target.value = "";
   };
 
