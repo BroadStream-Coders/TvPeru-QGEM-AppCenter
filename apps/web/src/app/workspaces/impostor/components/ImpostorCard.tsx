@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, AlertCircle } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ImagePicker } from "@/components/shared/ImagePicker";
 
@@ -45,22 +45,30 @@ export function ImpostorCard({
         />
 
         {variant === "impostor" && (
-          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between opacity-0 transition-all duration-300 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
+          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between transition-all duration-300 pointer-events-auto">
             <Button
               size="sm"
-              variant={isImpostor ? "default" : "secondary"}
+              variant={isImpostor ? "default" : "outline"}
               onClick={(e) => {
                 e.stopPropagation();
-                onToggleImpostor();
+                // Only toggle if it's currently NOT the impostor.
+                // We don't want to un-toggle leaving the round with NO impostor at all.
+                if (!isImpostor) onToggleImpostor();
               }}
-              className={`h-6 px-1.5 text-3xs font-bold uppercase transition-all ${
+              className={`h-6 px-2 text-3xs font-bold uppercase transition-all shadow-sm w-full ${
                 isImpostor
-                  ? "bg-brand text-brand-foreground hover:brightness-110"
-                  : "bg-background/80 text-foreground hover:bg-brand hover:text-brand-foreground"
+                  ? "bg-brand text-brand-foreground hover:brightness-110 border-transparent"
+                  : "bg-background/95 text-muted-foreground hover:bg-brand/10 hover:text-brand border-border"
               }`}
             >
-              {isImpostor ? "Impostor" : "Inocente"}
+              {isImpostor ? "🎯 Es el Impostor" : "Marcar Impostor"}
             </Button>
+          </div>
+        )}
+
+        {/* Delete Button (moved to top right) */}
+        {variant === "impostor" && (
+          <div className="absolute top-2 right-2 flex opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
             <Button
               size="icon"
               variant="destructive"
@@ -72,12 +80,6 @@ export function ImpostorCard({
             >
               <Trash2 className="h-3 w-3" />
             </Button>
-          </div>
-        )}
-
-        {variant === "impostor" && isImpostor && (
-          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white shadow-lg animate-pulse pointer-events-none">
-            <AlertCircle className="h-3.5 w-3.5" />
           </div>
         )}
       </div>

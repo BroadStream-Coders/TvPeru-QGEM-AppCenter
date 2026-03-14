@@ -39,27 +39,27 @@ interface ImpostorRound {
   options?: Option[];
 }
 
-interface PhotoMetadata {
-  name?: string;
-  path: string;
-  isImpostor: boolean;
-}
-
-interface Level1RoundMetadata {
-  context: string;
-  photoPath: string;
-  options?: Option[];
-}
-
-interface Level2RoundMetadata {
-  context: string;
-  photos: PhotoMetadata[];
-  options?: Option[];
-}
-
 interface SessionData {
-  nivel_1: Level1RoundMetadata[];
-  nivel_2: Level2RoundMetadata[];
+  textRounds: TextRound[];
+  photoRounds: PhotoRound[];
+}
+
+interface TextRound {
+  description: string;
+  imagePath: string;
+  answerIndex: number;
+  choices: string[];
+}
+
+interface PhotoRound {
+  description: string;
+  answerIndex: number;
+  choices: PhotoChoice[];
+}
+
+interface PhotoChoice {
+  label: string;
+  imagePath: string;
 }
 
 type LevelId = "nivel1" | "nivel2";
@@ -77,11 +77,18 @@ const createEmptyLevel1Round = (): ImpostorRound => ({
   options: [{ text: "", isImpostor: false }],
 });
 
-const createEmptyLevel2Round = (): ImpostorRound => ({
-  id: nanoid(),
-  context: "",
-  photos: Array(4).fill(null).map(createEmptyPhoto),
-});
+const createEmptyLevel2Round = (): ImpostorRound => {
+  const photos = Array(4).fill(null).map(createEmptyPhoto);
+  // Default first photo to be the impostor
+  if (photos.length > 0) {
+    photos[0].isImpostor = true;
+  }
+  return {
+    id: nanoid(),
+    context: "",
+    photos,
+  };
+};
 
 export default function ImpostorPage() {
   const [activeTab, setActiveTab] = useState<LevelId>("nivel1");
@@ -158,10 +165,16 @@ export default function ImpostorPage() {
         return {
           ...r,
           photos: r.photos.map((p) => {
-            if (p.id !== photoId) return p;
-            if (updates.url && p.url && updates.url !== p.url)
-              URL.revokeObjectURL(p.url);
-            return { ...p, ...updates };
+            if (p.id === photoId) {
+              if (updates.url && p.url && updates.url !== p.url)
+                URL.revokeObjectURL(p.url);
+              return { ...p, ...updates };
+            }
+            // If another photo was marked as impostor, unmark this one
+            if (updates.isImpostor === true) {
+              return { ...p, isImpostor: false };
+            }
+            return p;
           }),
         };
       }),
@@ -176,19 +189,20 @@ export default function ImpostorPage() {
 
   const handleSave = async () => {
     const sessionData: SessionData = {
-      nivel_1: roundsPerLevel.nivel1.map((round) => ({
-        context: round.context,
-        photoPath: round.photos[0]?.file
+      textRounds: roundsPerLevel.nivel1.map((round) => ({
+        description: round.context,
+        imagePath: round.photos[0]?.file
           ? `images/${nanoid(4)}_${round.photos[0].file.name}`
           : "",
-        options: round.options,
+        answerIndex: Math.max(0, round.options?.findIndex((o) => o.isImpostor) ?? 0),
+        choices: round.options?.map((o) => o.text) ?? [],
       })),
-      nivel_2: roundsPerLevel.nivel2.map((round) => ({
-        context: round.context,
-        photos: round.photos.map((photo) => ({
-          name: photo.name,
-          path: photo.file ? `images/${nanoid(4)}_${photo.file.name}` : "",
-          isImpostor: photo.isImpostor,
+      photoRounds: roundsPerLevel.nivel2.map((round) => ({
+        description: round.context,
+        answerIndex: Math.max(0, round.photos.findIndex((p) => p.isImpostor)),
+        choices: round.photos.map((photo) => ({
+          label: photo.name || "",
+          imagePath: photo.file ? `images/${nanoid(4)}_${photo.file.name}` : "",
         })),
       })),
     };
@@ -198,7 +212,7 @@ export default function ImpostorPage() {
     roundsPerLevel.nivel1.forEach((round, roundIndex) => {
       const photo = round.photos[0];
       if (photo?.file) {
-        const path = sessionData.nivel_1[roundIndex].photoPath;
+        const path = sessionData.textRounds[roundIndex].imagePath;
         if (path) {
           filesToInclude.push({
             name: path,
@@ -211,7 +225,8 @@ export default function ImpostorPage() {
     roundsPerLevel.nivel2.forEach((round, roundIndex) => {
       round.photos.forEach((photo, photoIndex) => {
         if (photo.file) {
-          const path = sessionData.nivel_2[roundIndex].photos[photoIndex].path;
+          const path =
+            sessionData.photoRounds[roundIndex].choices[photoIndex].imagePath;
           if (path) {
             filesToInclude.push({
               name: path,
@@ -248,16 +263,16 @@ export default function ImpostorPage() {
 
       const content = await dataFile.async("string");
       const sessionData = JSON.parse(content) as SessionData & {
-        rounds?: Level2RoundMetadata[];
+        rounds?: PhotoRound[];
       };
 
       const levelsData = {
-        nivel1: sessionData.nivel_1 || [],
-        nivel2: sessionData.nivel_2 || sessionData.rounds || [],
+        nivel1: sessionData.textRounds || [],
+        nivel2: sessionData.photoRounds || sessionData.rounds || [],
       };
 
       const processLevel1 = async (
-        levelMeta: Level1RoundMetadata[],
+        levelMeta: TextRound[],
       ): Promise<ImpostorRound[]> => {
         if (!Array.isArray(levelMeta)) return [];
         return Promise.all(
@@ -265,7 +280,7 @@ export default function ImpostorPage() {
             let imageFile: File | undefined;
             let imageUrl: string | undefined;
 
-            const photoPath = roundMeta.photoPath;
+            const photoPath = roundMeta.imagePath;
 
             if (photoPath) {
               const imgEntry = zip.file(photoPath);
@@ -284,18 +299,21 @@ export default function ImpostorPage() {
             }
 
             const normalizedOptions =
-              Array.isArray(roundMeta.options) && roundMeta.options.length > 0
-                ? typeof roundMeta.options[0] === "string"
-                  ? (roundMeta.options as unknown as string[]).map((text) => ({
+              Array.isArray(roundMeta.choices) && roundMeta.choices.length > 0
+                ? typeof roundMeta.choices[0] === "string"
+                  ? (roundMeta.choices as unknown as string[]).map((text, idx) => ({
                       text,
-                      isImpostor: false,
+                      isImpostor: idx === roundMeta.answerIndex,
                     }))
-                  : roundMeta.options
+                  : (roundMeta.choices as any[]).map((c, idx) => ({
+                      text: c.text ?? "",
+                      isImpostor: c.isImpostor ?? idx === roundMeta.answerIndex,
+                    }))
                 : [{ text: "", isImpostor: false }];
 
             return {
               id: nanoid(),
-              context: roundMeta.context || "",
+              context: roundMeta.description || "",
               photos: [
                 {
                   id: nanoid(),
@@ -312,21 +330,22 @@ export default function ImpostorPage() {
       };
 
       const processLevel2 = async (
-        levelMeta: Level2RoundMetadata[],
+        levelMeta: PhotoRound[],
       ): Promise<ImpostorRound[]> => {
         if (!Array.isArray(levelMeta)) return [];
         return Promise.all(
           levelMeta.map(async (roundMeta) => {
             const photos = await Promise.all(
-              (roundMeta.photos || []).map(async (pMeta) => {
+              (roundMeta.choices || []).map(async (pMeta: any, idx) => {
                 let imageFile: File | undefined;
                 let imageUrl: string | undefined;
-                if (pMeta.path) {
-                  const imgEntry = zip.file(pMeta.path);
+                const path = pMeta.imagePath || pMeta.path;
+                if (path) {
+                  const imgEntry = zip.file(path);
                   if (imgEntry) {
                     const blob = await imgEntry.async("blob");
                     const parts = (
-                      pMeta.path.split("/").pop() || pMeta.path
+                      path.split("/").pop() || path
                     ).split("_");
                     const originalName =
                       parts.length > 1 ? parts.slice(1).join("_") : parts[0];
@@ -338,29 +357,18 @@ export default function ImpostorPage() {
                 }
                 return {
                   id: nanoid(),
-                  name: pMeta.name || "",
-                  isImpostor: pMeta.isImpostor,
+                  name: pMeta.label || pMeta.name || "",
+                  isImpostor: pMeta.isImpostor ?? idx === roundMeta.answerIndex,
                   file: imageFile,
                   url: imageUrl,
                 };
               }),
             );
 
-            const normalizedOptions =
-              Array.isArray(roundMeta.options) && roundMeta.options.length > 0
-                ? typeof roundMeta.options[0] === "string"
-                  ? (roundMeta.options as unknown as string[]).map((text) => ({
-                      text,
-                      isImpostor: false,
-                    }))
-                  : roundMeta.options
-                : [{ text: "", isImpostor: false }];
-
             return {
               id: nanoid(),
-              context: roundMeta.context || "",
+              context: roundMeta.description || "",
               photos,
-              options: normalizedOptions,
             };
           }),
         );
