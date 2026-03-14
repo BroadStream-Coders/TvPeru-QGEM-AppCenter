@@ -7,15 +7,10 @@ import {
   ArrowRight,
   PenTool,
   Image as ImageIcon,
+  Trophy,
 } from "lucide-react";
 
 const workspaces = [
-  {
-    name: "Album",
-    description: "Colector de fotos en columnas",
-    href: "/workspaces/album",
-    icon: ImageIcon,
-  },
   {
     name: "Deletreo",
     description: "Gestión de palabras por rondas",
@@ -46,6 +41,12 @@ const workspaces = [
     href: "/workspaces/redactor",
     icon: PenTool,
   },
+  {
+    name: "Album",
+    description: "Colector de fotos en columnas",
+    href: "/workspaces/album",
+    icon: ImageIcon,
+  },
 ];
 
 export default function Home() {
@@ -55,9 +56,7 @@ export default function Home() {
       <header className="flex h-12 items-center border-b border-border px-6 bg-background/80 backdrop-blur-md sticky top-0 z-20">
         <div className="flex items-center gap-3">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-brand/10 border border-brand/20 shadow-[0_0_15px_rgba(var(--brand-rgb),0.1)]">
-            <span className="text-3xs font-black text-brand leading-none">
-              Q
-            </span>
+            <Trophy className="h-3.5 w-3.5 text-brand" />
           </div>
           <span className="text-sm font-bold tracking-tight text-foreground/90">
             QGEM App Center
