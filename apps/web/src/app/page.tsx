@@ -6,9 +6,16 @@ import {
   BookOpen,
   ArrowRight,
   PenTool,
+  Image as ImageIcon,
 } from "lucide-react";
 
 const workspaces = [
+  {
+    name: "Album",
+    description: "Colector de fotos en columnas",
+    href: "/workspaces/album",
+    icon: ImageIcon,
+  },
   {
     name: "Deletreo",
     description: "Gestión de palabras por rondas",
