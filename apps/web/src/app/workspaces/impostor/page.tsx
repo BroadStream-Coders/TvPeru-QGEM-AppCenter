@@ -45,15 +45,21 @@ interface PhotoMetadata {
   isImpostor: boolean;
 }
 
-interface RoundMetadata {
+interface Level1RoundMetadata {
+  context: string;
+  photoPath: string;
+  options?: Option[];
+}
+
+interface Level2RoundMetadata {
   context: string;
   photos: PhotoMetadata[];
   options?: Option[];
 }
 
 interface SessionData {
-  nivel_1: RoundMetadata[];
-  nivel_2: RoundMetadata[];
+  nivel_1: Level1RoundMetadata[];
+  nivel_2: Level2RoundMetadata[];
 }
 
 type LevelId = "nivel1" | "nivel2";
@@ -169,37 +175,50 @@ export default function ImpostorPage() {
   };
 
   const handleSave = async () => {
-    const prepareMetadata = (levelRounds: ImpostorRound[]): RoundMetadata[] =>
-      levelRounds.map((round) => ({
+    const sessionData: SessionData = {
+      nivel_1: roundsPerLevel.nivel1.map((round) => ({
         context: round.context,
+        photoPath: round.photos[0]?.file
+          ? `images/${nanoid(4)}_${round.photos[0].file.name}`
+          : "",
         options: round.options,
+      })),
+      nivel_2: roundsPerLevel.nivel2.map((round) => ({
+        context: round.context,
         photos: round.photos.map((photo) => ({
           name: photo.name,
           path: photo.file ? `images/${nanoid(4)}_${photo.file.name}` : "",
           isImpostor: photo.isImpostor,
         })),
-      }));
-
-    const sessionData: SessionData = {
-      nivel_1: prepareMetadata(roundsPerLevel.nivel1),
-      nivel_2: prepareMetadata(roundsPerLevel.nivel2),
+      })),
     };
 
     const filesToInclude: { name: string; file: File }[] = [];
 
-    (["nivel1", "nivel2"] as LevelId[]).forEach((lvl) => {
-      const levelRounds = roundsPerLevel[lvl];
-      const metadataRounds =
-        lvl === "nivel1" ? sessionData.nivel_1 : sessionData.nivel_2;
-      levelRounds.forEach((round, roundIndex) => {
-        round.photos.forEach((photo, photoIndex) => {
-          if (photo.file) {
+    roundsPerLevel.nivel1.forEach((round, roundIndex) => {
+      const photo = round.photos[0];
+      if (photo?.file) {
+        const path = sessionData.nivel_1[roundIndex].photoPath;
+        if (path) {
+          filesToInclude.push({
+            name: path,
+            file: photo.file,
+          });
+        }
+      }
+    });
+
+    roundsPerLevel.nivel2.forEach((round, roundIndex) => {
+      round.photos.forEach((photo, photoIndex) => {
+        if (photo.file) {
+          const path = sessionData.nivel_2[roundIndex].photos[photoIndex].path;
+          if (path) {
             filesToInclude.push({
-              name: metadataRounds[roundIndex].photos[photoIndex].path,
+              name: path,
               file: photo.file,
             });
           }
-        });
+        }
       });
     });
 
@@ -229,7 +248,7 @@ export default function ImpostorPage() {
 
       const content = await dataFile.async("string");
       const sessionData = JSON.parse(content) as SessionData & {
-        rounds?: RoundMetadata[];
+        rounds?: Level2RoundMetadata[];
       };
 
       const levelsData = {
@@ -237,14 +256,69 @@ export default function ImpostorPage() {
         nivel2: sessionData.nivel_2 || sessionData.rounds || [],
       };
 
-      const processLevel = async (
-        levelMeta: RoundMetadata[],
+      const processLevel1 = async (
+        levelMeta: Level1RoundMetadata[],
+      ): Promise<ImpostorRound[]> => {
+        if (!Array.isArray(levelMeta)) return [];
+        return Promise.all(
+          levelMeta.map(async (roundMeta) => {
+            let imageFile: File | undefined;
+            let imageUrl: string | undefined;
+
+            const photoPath = roundMeta.photoPath;
+
+            if (photoPath) {
+              const imgEntry = zip.file(photoPath);
+              if (imgEntry) {
+                const blob = await imgEntry.async("blob");
+                const parts = (photoPath.split("/").pop() || photoPath).split(
+                  "_",
+                );
+                const originalName =
+                  parts.length > 1 ? parts.slice(1).join("_") : parts[0];
+                imageFile = new File([blob], originalName, {
+                  type: blob.type || "image/png",
+                });
+                imageUrl = URL.createObjectURL(blob);
+              }
+            }
+
+            const normalizedOptions =
+              Array.isArray(roundMeta.options) && roundMeta.options.length > 0
+                ? typeof roundMeta.options[0] === "string"
+                  ? (roundMeta.options as unknown as string[]).map((text) => ({
+                      text,
+                      isImpostor: false,
+                    }))
+                  : roundMeta.options
+                : [{ text: "", isImpostor: false }];
+
+            return {
+              id: nanoid(),
+              context: roundMeta.context || "",
+              photos: [
+                {
+                  id: nanoid(),
+                  name: "",
+                  isImpostor: false,
+                  file: imageFile,
+                  url: imageUrl,
+                },
+              ],
+              options: normalizedOptions,
+            };
+          }),
+        );
+      };
+
+      const processLevel2 = async (
+        levelMeta: Level2RoundMetadata[],
       ): Promise<ImpostorRound[]> => {
         if (!Array.isArray(levelMeta)) return [];
         return Promise.all(
           levelMeta.map(async (roundMeta) => {
             const photos = await Promise.all(
-              roundMeta.photos.map(async (pMeta) => {
+              (roundMeta.photos || []).map(async (pMeta) => {
                 let imageFile: File | undefined;
                 let imageUrl: string | undefined;
                 if (pMeta.path) {
@@ -293,8 +367,8 @@ export default function ImpostorPage() {
       };
 
       const [nivel1, nivel2] = await Promise.all([
-        processLevel(levelsData.nivel1),
-        processLevel(levelsData.nivel2),
+        processLevel1(levelsData.nivel1),
+        processLevel2(levelsData.nivel2),
       ]);
 
       setRoundsPerLevel({
