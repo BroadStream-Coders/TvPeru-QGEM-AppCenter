@@ -8,6 +8,7 @@ export interface ImageSlot {
   name?: string;
   file?: File;
   url?: string;
+  isCroma?: boolean;
 }
 
 export interface WorkspaceGroup<T> {

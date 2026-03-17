@@ -2,7 +2,7 @@
 
 import { AlbumCard } from "./AlbumCard";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, LayoutGrid } from "lucide-react";
+import { Trash2, LayoutGrid } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ImageSlot } from "@/types";
@@ -11,8 +11,6 @@ interface AlbumColumnProps {
   index: number;
   photos: ImageSlot[];
   context: string;
-  onAddPhoto: () => void;
-  onRemovePhoto: (id: string) => void;
   onUpdatePhoto: (id: string, updates: Partial<ImageSlot>) => void;
   onUpdateRound: (updates: Partial<{ context: string }>) => void;
   onRemoveColumn: () => void;
@@ -22,8 +20,6 @@ export function AlbumColumn({
   index,
   photos,
   context,
-  onAddPhoto,
-  onRemovePhoto,
   onUpdatePhoto,
   onUpdateRound,
   onRemoveColumn,
@@ -36,7 +32,9 @@ export function AlbumColumn({
             {index}
           </div>
           <div>
-            <h3 className="text-xs font-bold text-foreground">Columna {index}</h3>
+            <h3 className="text-xs font-bold text-foreground">
+              Columna {index}
+            </h3>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="flex items-center gap-1 text-2xs font-medium text-muted-foreground uppercase tracking-tight">
                 <LayoutGrid className="h-2.5 w-2.5" />
@@ -59,11 +57,12 @@ export function AlbumColumn({
         <label className="text-2xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">
           Título de la Columna
         </label>
-        <textarea
+        <input
+          type="text"
           value={context}
           onChange={(e) => onUpdateRound({ context: e.target.value })}
-          placeholder="Escribe el título (ej. 'Recuerdos')..."
-          className="w-full h-14 resize-none rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all leading-relaxed"
+          placeholder="Escribe el título (ej. 'Miguel Grau')..."
+          className="w-full h-8 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all"
         />
       </div>
 
@@ -76,23 +75,16 @@ export function AlbumColumn({
                 id={photo.id}
                 name={photo.name}
                 imageUrl={photo.url}
+                isCroma={photo.isCroma}
                 onImageChange={(file, url) =>
                   onUpdatePhoto(photo.id, { file, url })
                 }
                 onNameChange={(name) => onUpdatePhoto(photo.id, { name })}
-                onRemove={() => onRemovePhoto(photo.id)}
+                onToggleCroma={() =>
+                  onUpdatePhoto(photo.id, { isCroma: !photo.isCroma })
+                }
               />
             ))}
-
-            <button
-              onClick={onAddPhoto}
-              className="flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/60 bg-muted/5 text-muted-foreground transition-all hover:border-brand/40 hover:bg-muted/10 hover:text-foreground"
-            >
-              <Plus className="h-5 w-5" />
-              <span className="text-2xs font-bold uppercase tracking-wider">
-                Agregar Foto
-              </span>
-            </button>
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>

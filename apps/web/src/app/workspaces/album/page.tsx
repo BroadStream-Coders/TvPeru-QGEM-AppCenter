@@ -20,19 +20,19 @@ interface AlbumRound {
   photos: ImageSlot[];
 }
 
-interface PhotoMetadata {
-  name: string;
-  path: string;
+interface AlbumExportCard {
+  isCroma?: boolean;
+  question: string;
+  imagePath: string;
 }
 
-interface RoundMetadata {
-  context: string;
-  photos: PhotoMetadata[];
+interface AlbumExportRound {
+  title: string;
+  cards: AlbumExportCard[];
 }
 
 interface AlbumSessionData {
-  version: number;
-  groups: RoundMetadata[];
+  rounds: AlbumExportRound[];
 }
 
 const createEmptyPhoto = (): ImageSlot => ({
@@ -40,11 +40,14 @@ const createEmptyPhoto = (): ImageSlot => ({
   name: "",
 });
 
-const createEmptyAlbumRound = (): AlbumRound => ({
-  id: nanoid(),
-  context: "",
-  photos: [createEmptyPhoto(), createEmptyPhoto()],
-});
+const createEmptyAlbumRound = (): AlbumRound => {
+  const photos = Array(5).fill(null).map(createEmptyPhoto);
+  return {
+    id: nanoid(),
+    context: "",
+    photos,
+  };
+};
 
 export default function AlbumPage() {
   const [rounds, setRounds] = useState<AlbumRound[]>([createEmptyAlbumRound()]);
@@ -64,26 +67,7 @@ export default function AlbumPage() {
     setRounds((prev) => prev.filter((r) => r.id !== roundId));
   };
 
-  const addPhotoToRound = (roundId: string) => {
-    setRounds((prev) =>
-      prev.map((r) =>
-        r.id === roundId
-          ? { ...r, photos: [...r.photos, createEmptyPhoto()] }
-          : r,
-      ),
-    );
-  };
-
-  const removePhotoFromRound = (roundId: string, photoId: string) => {
-    setRounds((prev) =>
-      prev.map((r) => {
-        if (r.id !== roundId) return r;
-        const photo = r.photos.find((p) => p.id === photoId);
-        if (photo?.url) URL.revokeObjectURL(photo.url);
-        return { ...r, photos: r.photos.filter((p) => p.id !== photoId) };
-      }),
-    );
-  };
+  // Photos amount are fixed to 5 per round. Removed addPhotoToRound and removePhotoFromRound.
 
   const updatePhotoInRound = (
     roundId: string,
@@ -96,11 +80,13 @@ export default function AlbumPage() {
         return {
           ...r,
           photos: r.photos.map((p) => {
-            if (p.id !== photoId) return p;
-            if (updates.url && p.url && updates.url !== p.url) {
-              URL.revokeObjectURL(p.url);
+            if (p.id === photoId) {
+              if (updates.url && p.url && updates.url !== p.url) {
+                URL.revokeObjectURL(p.url);
+              }
+              return { ...p, ...updates };
             }
-            return { ...p, ...updates };
+            return p;
           }),
         };
       }),
@@ -114,18 +100,18 @@ export default function AlbumPage() {
   };
 
   const handleSave = async () => {
-    const prepareMetadata = (albumRounds: AlbumRound[]): RoundMetadata[] =>
+    const prepareMetadata = (albumRounds: AlbumRound[]): AlbumExportRound[] =>
       albumRounds.map((round) => ({
-        context: round.context,
-        photos: round.photos.map((photo) => ({
-          name: photo.name || "",
-          path: photo.file ? `images/${nanoid(4)}_${photo.file.name}` : "",
+        title: round.context,
+        cards: round.photos.map((photo) => ({
+          isCroma: photo.isCroma ? true : undefined,
+          question: photo.name || "",
+          imagePath: photo.file ? `images/${nanoid(4)}_${photo.file.name}` : "",
         })),
       }));
 
     const sessionData: AlbumSessionData = {
-      version: 1,
-      groups: prepareMetadata(rounds),
+      rounds: prepareMetadata(rounds),
     };
 
     const filesToInclude: { name: string; file: File }[] = [];
@@ -133,7 +119,7 @@ export default function AlbumPage() {
     rounds.forEach((round, roundIndex) => {
       round.photos.forEach((photo, photoIndex) => {
         if (photo.file) {
-          const path = sessionData.groups[roundIndex].photos[photoIndex].path;
+          const path = sessionData.rounds[roundIndex].cards[photoIndex].imagePath;
           if (path) {
             filesToInclude.push({
               name: path,
@@ -171,26 +157,26 @@ export default function AlbumPage() {
       const content = await dataFile.async("string");
       const sessionData = JSON.parse(content) as AlbumSessionData;
 
-      if (!sessionData.groups || !Array.isArray(sessionData.groups)) {
-          alert("El archivo no contiene data de columnas validas.");
+      if (!sessionData.rounds || !Array.isArray(sessionData.rounds)) {
+          alert("El archivo no contiene data de rondas validas.");
           return;
       }
 
       const processGroups = async (
-        groupsMeta: RoundMetadata[],
+        groupsMeta: AlbumExportRound[],
       ): Promise<AlbumRound[]> => {
         return Promise.all(
           groupsMeta.map(async (roundMeta) => {
             const photos = await Promise.all(
-              (roundMeta.photos || []).map(async (pMeta) => {
+              (roundMeta.cards || []).map(async (pMeta) => {
                 let imageFile: File | undefined;
                 let imageUrl: string | undefined;
-                if (pMeta.path) {
-                  const imgEntry = zip.file(pMeta.path);
+                if (pMeta.imagePath) {
+                  const imgEntry = zip.file(pMeta.imagePath);
                   if (imgEntry) {
                     const blob = await imgEntry.async("blob");
                     const parts = (
-                      pMeta.path.split("/").pop() || pMeta.path
+                      pMeta.imagePath.split("/").pop() || pMeta.imagePath
                     ).split("_");
                     const originalName =
                       parts.length > 1 ? parts.slice(1).join("_") : parts[0];
@@ -202,7 +188,7 @@ export default function AlbumPage() {
                 }
                 return {
                   id: nanoid(),
-                  name: pMeta.name || "",
+                  name: pMeta.question || "",
                   file: imageFile,
                   url: imageUrl,
                 };
@@ -211,14 +197,14 @@ export default function AlbumPage() {
 
             return {
               id: nanoid(),
-              context: roundMeta.context || "",
+              context: roundMeta.title || "",
               photos: photos.length > 0 ? photos : [createEmptyPhoto(), createEmptyPhoto()],
             };
           }),
         );
       };
 
-      const loadedGroups = await processGroups(sessionData.groups);
+      const loadedGroups = await processGroups(sessionData.rounds);
 
       setRounds(loadedGroups.length > 0 ? loadedGroups : [createEmptyAlbumRound()]);
     } catch {
@@ -246,10 +232,6 @@ export default function AlbumPage() {
               index={roundIndex + 1}
               photos={round.photos}
               context={round.context}
-              onAddPhoto={() => addPhotoToRound(round.id)}
-              onRemovePhoto={(photoId) =>
-                removePhotoFromRound(round.id, photoId)
-              }
               onUpdatePhoto={(photoId, updates) =>
                 updatePhotoInRound(round.id, photoId, updates)
               }
