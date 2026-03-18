@@ -1,17 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { ExamenGroupColumn } from "./ExamenGroupColumn";
 import { AddColumnButton } from "@/components/shared/AddColumnButton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
 import { nanoid } from "nanoid";
+import { ExamenLevel4Row, ExamenLevel4RowData } from "./ExamenLevel4Row";
 
-export function ExamenLevel4View() {
-  const [columns, setColumns] = useState<{id: string, text: string}[][]>([[{ id: nanoid(), text: "Fila de ejemplo" }]]);
+export interface ExamenLevel4ViewRef {
+  getData: () => ExamenLevel4RowData[][];
+  setData: (data: ExamenLevel4RowData[][]) => void;
+}
+
+export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
+  const createEmptyRow = (): ExamenLevel4RowData => ({
+    id: nanoid(),
+    pairs: Array.from({ length: 4 }, () => ({ leftText: "", rightText: "" })),
+  });
+
+  const [columns, setColumns] = useState<ExamenLevel4RowData[][]>([
+    [createEmptyRow()],
+  ]);
+
+  useImperativeHandle(ref, () => ({
+    getData: () => columns,
+    setData: (data) => setColumns(data),
+  }));
 
   const addColumn = () => {
-    setColumns([...columns, [{ id: nanoid(), text: "Nueva fila" }]]);
+    setColumns([...columns, [createEmptyRow()]]);
   };
 
   const removeColumn = (index: number) => {
@@ -20,9 +37,68 @@ export function ExamenLevel4View() {
 
   const addRow = (columnIndex: number) => {
     const newColumns = [...columns];
-    newColumns[columnIndex] = [...newColumns[columnIndex], { id: nanoid(), text: "" }];
+    newColumns[columnIndex] = [...newColumns[columnIndex], createEmptyRow()];
     setColumns(newColumns);
   };
+
+  const updateRow = (
+    columnIndex: number,
+    rowIndex: number,
+    updates: Partial<ExamenLevel4RowData>,
+  ) => {
+    const newColumns = [...columns];
+    newColumns[columnIndex][rowIndex] = {
+      ...newColumns[columnIndex][rowIndex],
+      ...updates,
+    };
+    setColumns(newColumns);
+  };
+
+  const removeRow = (columnIndex: number, rowIndex: number) => {
+    const newColumns = [...columns];
+    newColumns[columnIndex] = newColumns[columnIndex].filter(
+      (_, i) => i !== rowIndex,
+    );
+    setColumns(newColumns);
+  };
+
+  const handleQuickLoad = useCallback(
+    (columnIndex: number, matrix: string[][]) => {
+      // We expect matrix rows with at least two valid cells (colA, colB).
+      const validRows = matrix.filter(
+        (row) =>
+          row.length >= 2 && (row[0].trim() !== "" || row[1].trim() !== ""),
+      );
+
+      const newRows: ExamenLevel4RowData[] = [];
+
+      // Parse every 4 lines as a new row
+      for (let i = 0; i < validRows.length; i += 4) {
+        const chunk = validRows.slice(i, i + 4);
+        const pairs = Array.from({ length: 4 }, (_, idx) => {
+          const rowData = chunk[idx];
+          return {
+            leftText: rowData ? rowData[0] || "" : "",
+            rightText: rowData ? rowData[1] || "" : "",
+          };
+        });
+
+        newRows.push({
+          id: nanoid(),
+          pairs,
+        });
+      }
+
+      if (newRows.length > 0) {
+        setColumns((prev) => {
+          const next = [...prev];
+          next[columnIndex] = newRows;
+          return next;
+        });
+      }
+    },
+    [],
+  );
 
   return (
     <div className="flex flex-col h-full">
@@ -38,14 +114,19 @@ export function ExamenLevel4View() {
               itemCount={rows.length}
               onRemoveColumn={() => removeColumn(colIndex)}
               onAddRow={() => addRow(colIndex)}
-              onQuickLoad={() => {}}
+              onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
             >
               <div className="flex flex-col gap-2">
-                {rows.map((row) => (
-                  <div key={row.id} className="flex items-center gap-2 p-3 bg-card border border-border rounded-md shadow-sm">
-                    <span className="text-xs text-muted-foreground mr-2 cursor-move">☰</span>
-                    <Input className="h-8 text-xs" placeholder="Placeholder Nivel 4..." />
-                  </div>
+                {rows.map((row, rowIndex) => (
+                  <ExamenLevel4Row
+                    key={row.id}
+                    index={rowIndex}
+                    data={row}
+                    onChange={(updates) =>
+                      updateRow(colIndex, rowIndex, updates)
+                    }
+                    onRemove={() => removeRow(colIndex, rowIndex)}
+                  />
                 ))}
               </div>
             </ExamenGroupColumn>
@@ -56,4 +137,6 @@ export function ExamenLevel4View() {
       </ScrollArea>
     </div>
   );
-}
+});
+
+ExamenLevel4View.displayName = "ExamenLevel4View";

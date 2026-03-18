@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { ExamenGroupColumn } from "./ExamenGroupColumn";
 import { AddColumnButton } from "@/components/shared/AddColumnButton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { nanoid } from "nanoid";
 import { ExamenLevel1Row, ExamenLevel1RowData } from "./ExamenLevel1Row";
 
-export function ExamenLevel1View() {
+export interface ExamenLevel1ViewRef {
+  getData: () => ExamenLevel1RowData[][];
+  setData: (data: ExamenLevel1RowData[][]) => void;
+}
+
+export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
   const [columns, setColumns] = useState<ExamenLevel1RowData[][]>([
     [
       {
@@ -20,29 +25,47 @@ export function ExamenLevel1View() {
     ],
   ]);
 
-  const handleQuickLoad = (columnIndex: number, matrix: string[][]) => {
-    const newColumns = [...columns];
-    const newRows = matrix.map((row) => {
-      const isLCorrect = Math.random() > 0.5;
-      return {
-        id: nanoid(),
-        question: row[0] || "",
-        answerL: isLCorrect ? row[1] || "" : row[2] || "",
-        answerR: isLCorrect ? row[2] || "" : row[1] || "",
-        correctAnswer: isLCorrect ? "L" : "R",
-      } as ExamenLevel1RowData;
-    });
-    
-    // Replace existing rows if it's just the initial empty row, otherwise append or replace based on your standard pattern.
-    // Usually QuickLoad replaces all rows in the group for a fresh start.
-    newColumns[columnIndex] = newRows;
-    setColumns(newColumns);
-  };
+  useImperativeHandle(ref, () => ({
+    getData: () => columns,
+    setData: (data) => setColumns(data),
+  }));
+
+  const handleQuickLoad = useCallback(
+    (columnIndex: number, matrix: string[][]) => {
+      const newRows = matrix.map((row) => {
+        const isLCorrect = Math.random() > 0.5;
+        return {
+          id: nanoid(),
+          question: row[0] || "",
+          answerL: isLCorrect ? row[1] || "" : row[2] || "",
+          answerR: isLCorrect ? row[2] || "" : row[1] || "",
+          correctAnswer: isLCorrect ? "L" : "R",
+        } as ExamenLevel1RowData;
+      });
+
+      // Replace existing rows if it's just the initial empty row, otherwise append or replace based on your standard pattern.
+      // Usually QuickLoad replaces all rows in the group for a fresh start.
+      setColumns((prev) => {
+        const next = [...prev];
+        next[columnIndex] = newRows;
+        return next;
+      });
+    },
+    [],
+  );
 
   const addColumn = () => {
     setColumns([
       ...columns,
-      [{ id: nanoid(), question: "", answerL: "", answerR: "", correctAnswer: "L" }],
+      [
+        {
+          id: nanoid(),
+          question: "",
+          answerL: "",
+          answerR: "",
+          correctAnswer: "L",
+        },
+      ],
     ]);
   };
 
@@ -54,7 +77,13 @@ export function ExamenLevel1View() {
     const newColumns = [...columns];
     newColumns[columnIndex] = [
       ...newColumns[columnIndex],
-      { id: nanoid(), question: "", answerL: "", answerR: "", correctAnswer: "L" },
+      {
+        id: nanoid(),
+        question: "",
+        answerL: "",
+        answerR: "",
+        correctAnswer: "L",
+      },
     ];
     setColumns(newColumns);
   };
@@ -62,7 +91,7 @@ export function ExamenLevel1View() {
   const updateRow = (
     columnIndex: number,
     rowIndex: number,
-    updates: Partial<ExamenLevel1RowData>
+    updates: Partial<ExamenLevel1RowData>,
   ) => {
     const newColumns = [...columns];
     newColumns[columnIndex][rowIndex] = {
@@ -75,7 +104,7 @@ export function ExamenLevel1View() {
   const removeRow = (columnIndex: number, rowIndex: number) => {
     const newColumns = [...columns];
     newColumns[columnIndex] = newColumns[columnIndex].filter(
-      (_, i) => i !== rowIndex
+      (_, i) => i !== rowIndex,
     );
     setColumns(newColumns);
   };
@@ -117,4 +146,6 @@ export function ExamenLevel1View() {
       </ScrollArea>
     </div>
   );
-}
+});
+
+ExamenLevel1View.displayName = "ExamenLevel1View";

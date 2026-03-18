@@ -1,17 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { ExamenGroupColumn } from "./ExamenGroupColumn";
 import { AddColumnButton } from "@/components/shared/AddColumnButton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
 import { nanoid } from "nanoid";
+import { ExamenLevel3Row, ExamenLevel3RowData } from "./ExamenLevel3Row";
 
-export function ExamenLevel3View() {
-  const [columns, setColumns] = useState<{id: string, text: string}[][]>([[{ id: nanoid(), text: "Fila de ejemplo" }]]);
+export interface ExamenLevel3ViewRef {
+  getData: () => ExamenLevel3RowData[][];
+  setData: (data: ExamenLevel3RowData[][]) => void;
+}
+
+export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
+  const [columns, setColumns] = useState<ExamenLevel3RowData[][]>([
+    [
+      {
+        id: nanoid(),
+        question: "",
+        answer: "",
+      },
+    ],
+  ]);
+
+  useImperativeHandle(ref, () => ({
+    getData: () => columns,
+    setData: (data) => setColumns(data),
+  }));
 
   const addColumn = () => {
-    setColumns([...columns, [{ id: nanoid(), text: "Nueva fila" }]]);
+    setColumns([
+      ...columns,
+      [
+        {
+          id: nanoid(),
+          question: "",
+          answer: "",
+        },
+      ],
+    ]);
   };
 
   const removeColumn = (index: number) => {
@@ -20,8 +47,52 @@ export function ExamenLevel3View() {
 
   const addRow = (columnIndex: number) => {
     const newColumns = [...columns];
-    newColumns[columnIndex] = [...newColumns[columnIndex], { id: nanoid(), text: "" }];
+    newColumns[columnIndex] = [
+      ...newColumns[columnIndex],
+      {
+        id: nanoid(),
+        question: "",
+        answer: "",
+      },
+    ];
     setColumns(newColumns);
+  };
+
+  const updateRow = (
+    columnIndex: number,
+    rowIndex: number,
+    updates: Partial<ExamenLevel3RowData>,
+  ) => {
+    const newColumns = [...columns];
+    newColumns[columnIndex][rowIndex] = {
+      ...newColumns[columnIndex][rowIndex],
+      ...updates,
+    };
+    setColumns(newColumns);
+  };
+
+  const removeRow = (columnIndex: number, rowIndex: number) => {
+    const newColumns = [...columns];
+    newColumns[columnIndex] = newColumns[columnIndex].filter(
+      (_, i) => i !== rowIndex,
+    );
+    setColumns(newColumns);
+  };
+
+  const handleQuickLoad = (columnIndex: number, matrix: string[][]) => {
+    const newRows: ExamenLevel3RowData[] = matrix
+      .filter((row) => row.length > 0 && row.some((cell) => cell.trim() !== ""))
+      .map((row) => ({
+        id: nanoid(),
+        question: row[0] || "",
+        answer: row[1] || "",
+      }));
+
+    if (newRows.length > 0) {
+      const newColumns = [...columns];
+      newColumns[columnIndex] = newRows;
+      setColumns(newColumns);
+    }
   };
 
   return (
@@ -38,14 +109,19 @@ export function ExamenLevel3View() {
               itemCount={rows.length}
               onRemoveColumn={() => removeColumn(colIndex)}
               onAddRow={() => addRow(colIndex)}
-              onQuickLoad={() => {}}
+              onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
             >
               <div className="flex flex-col gap-2">
-                {rows.map((row) => (
-                  <div key={row.id} className="flex items-center gap-2 p-3 bg-card border border-border rounded-md shadow-sm">
-                    <span className="text-xs text-muted-foreground mr-2 cursor-move">☰</span>
-                    <Input className="h-8 text-xs" placeholder="Placeholder Nivel 3..." />
-                  </div>
+                {rows.map((row, rowIndex) => (
+                  <ExamenLevel3Row
+                    key={row.id}
+                    index={rowIndex}
+                    data={row}
+                    onChange={(updates) =>
+                      updateRow(colIndex, rowIndex, updates)
+                    }
+                    onRemove={() => removeRow(colIndex, rowIndex)}
+                  />
                 ))}
               </div>
             </ExamenGroupColumn>
@@ -56,4 +132,6 @@ export function ExamenLevel3View() {
       </ScrollArea>
     </div>
   );
-}
+});
+
+ExamenLevel3View.displayName = "ExamenLevel3View";
