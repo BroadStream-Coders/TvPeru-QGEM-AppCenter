@@ -68,7 +68,7 @@ export function ExamenLevel1Row({
         <Input
           value={data.answerL}
           onChange={(e) => onChange({ answerL: e.target.value })}
-          placeholder="Ingrese la respuesta..."
+          placeholder="Respuesta izquierda..."
           className="h-8 w-full border-border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-brand"
         />
 
@@ -88,7 +88,7 @@ export function ExamenLevel1Row({
         <Input
           value={data.answerR}
           onChange={(e) => onChange({ answerR: e.target.value })}
-          placeholder="Ingrese la respuesta..."
+          placeholder="Respuesta derecha..."
           className="h-8 w-full border-border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-brand"
         />
       </div>

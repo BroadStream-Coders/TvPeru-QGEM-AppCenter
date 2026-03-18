@@ -62,8 +62,8 @@ export default function Home() {
       {/* Top bar */}
       <header className="flex h-12 items-center border-b border-border px-6 bg-background/80 backdrop-blur-md sticky top-0 z-20">
         <div className="flex items-center gap-3">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-brand/10 border border-brand/20 shadow-[0_0_15px_rgba(var(--brand-rgb),0.1)]">
-            <Trophy className="h-3.5 w-3.5 text-brand" />
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-muted-foreground">
+            <Trophy className="h-3.5 w-3.5" />
           </div>
           <span className="text-sm font-bold tracking-tight text-foreground/90">
             QGEM App Center
