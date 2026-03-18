@@ -194,12 +194,18 @@ export default function ImpostorPage() {
         imagePath: round.photos[0]?.file
           ? `images/${nanoid(4)}_${round.photos[0].file.name}`
           : "",
-        answerIndex: Math.max(0, round.options?.findIndex((o) => o.isImpostor) ?? 0),
+        answerIndex: Math.max(
+          0,
+          round.options?.findIndex((o) => o.isImpostor) ?? 0,
+        ),
         choices: round.options?.map((o) => o.text) ?? [],
       })),
       photoRounds: roundsPerLevel.nivel2.map((round) => ({
         description: round.context,
-        answerIndex: Math.max(0, round.photos.findIndex((p) => p.isImpostor)),
+        answerIndex: Math.max(
+          0,
+          round.photos.findIndex((p) => p.isImpostor),
+        ),
         choices: round.photos.map((photo) => ({
           label: photo.name || "",
           imagePath: photo.file ? `images/${nanoid(4)}_${photo.file.name}` : "",
@@ -301,10 +307,12 @@ export default function ImpostorPage() {
             const normalizedOptions =
               Array.isArray(roundMeta.choices) && roundMeta.choices.length > 0
                 ? typeof roundMeta.choices[0] === "string"
-                  ? (roundMeta.choices as unknown as string[]).map((text, idx) => ({
-                      text,
-                      isImpostor: idx === roundMeta.answerIndex,
-                    }))
+                  ? (roundMeta.choices as unknown as string[]).map(
+                      (text, idx) => ({
+                        text,
+                        isImpostor: idx === roundMeta.answerIndex,
+                      }),
+                    )
                   : (roundMeta.choices as any[]).map((c, idx) => ({
                       text: c.text ?? "",
                       isImpostor: c.isImpostor ?? idx === roundMeta.answerIndex,
@@ -344,9 +352,7 @@ export default function ImpostorPage() {
                   const imgEntry = zip.file(path);
                   if (imgEntry) {
                     const blob = await imgEntry.async("blob");
-                    const parts = (
-                      path.split("/").pop() || path
-                    ).split("_");
+                    const parts = (path.split("/").pop() || path).split("_");
                     const originalName =
                       parts.length > 1 ? parts.slice(1).join("_") : parts[0];
                     imageFile = new File([blob], originalName, {

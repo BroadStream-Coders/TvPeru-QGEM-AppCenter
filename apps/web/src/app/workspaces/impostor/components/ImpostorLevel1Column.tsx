@@ -111,7 +111,7 @@ export function ImpostorLevel1Column({
               imageUrl={photo.url}
               isImpostor={false} // Force false in UI
               onImageChange={(file, url) => onUpdatePhoto({ file, url })}
-              onNameChange={() => {}} 
+              onNameChange={() => {}}
               onToggleImpostor={() => {}}
               onRemove={() => {}}
               variant="simple"
@@ -135,20 +135,28 @@ export function ImpostorLevel1Column({
               </button>
             )}
           </div>
-          
+
           <div className="space-y-2">
             {options.map((option, idx) => (
               <div key={idx} className="group relative">
-                <div className={`flex items-center gap-2 rounded-md border transition-all ${
-                  option.isImpostor ? "border-brand bg-brand/5 ring-1 ring-brand/20 shadow-sm" : "border-border bg-background/50"
-                }`}>
+                <div
+                  className={`flex items-center gap-2 rounded-md border transition-all ${
+                    option.isImpostor
+                      ? "border-brand bg-brand/5 ring-1 ring-brand/20 shadow-sm"
+                      : "border-border bg-background/50"
+                  }`}
+                >
                   <button
                     onClick={() => toggleOptionImpostor(idx)}
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-l-md border-r transition-colors ${
-                      option.isImpostor ? "bg-brand text-brand-foreground border-brand/20" : "bg-muted/30 text-muted-foreground/30 hover:text-brand hover:bg-brand/10"
+                      option.isImpostor
+                        ? "bg-brand text-brand-foreground border-brand/20"
+                        : "bg-muted/30 text-muted-foreground/30 hover:text-brand hover:bg-brand/10"
                     }`}
                   >
-                    <AlertCircle className={`h-4 w-4 ${option.isImpostor ? "animate-pulse" : ""}`} />
+                    <AlertCircle
+                      className={`h-4 w-4 ${option.isImpostor ? "animate-pulse" : ""}`}
+                    />
                   </button>
                   <input
                     type="text"

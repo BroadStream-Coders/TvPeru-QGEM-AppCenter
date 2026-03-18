@@ -53,9 +53,7 @@ export default function AlbumPage() {
   const [rounds, setRounds] = useState<AlbumRound[]>([createEmptyAlbumRound()]);
 
   const addRound = (count: number = 1) => {
-    const newRounds = Array(count)
-      .fill(null)
-      .map(createEmptyAlbumRound);
+    const newRounds = Array(count).fill(null).map(createEmptyAlbumRound);
     setRounds((prev) => [...prev, ...newRounds]);
   };
 
@@ -93,7 +91,10 @@ export default function AlbumPage() {
     );
   };
 
-  const updateRound = (roundId: string, updates: Partial<{ context: string }>) => {
+  const updateRound = (
+    roundId: string,
+    updates: Partial<{ context: string }>,
+  ) => {
     setRounds((prev) =>
       prev.map((r) => (r.id === roundId ? { ...r, ...updates } : r)),
     );
@@ -119,7 +120,8 @@ export default function AlbumPage() {
     rounds.forEach((round, roundIndex) => {
       round.photos.forEach((photo, photoIndex) => {
         if (photo.file) {
-          const path = sessionData.rounds[roundIndex].cards[photoIndex].imagePath;
+          const path =
+            sessionData.rounds[roundIndex].cards[photoIndex].imagePath;
           if (path) {
             filesToInclude.push({
               name: path,
@@ -158,8 +160,8 @@ export default function AlbumPage() {
       const sessionData = JSON.parse(content) as AlbumSessionData;
 
       if (!sessionData.rounds || !Array.isArray(sessionData.rounds)) {
-          alert("El archivo no contiene data de rondas validas.");
-          return;
+        alert("El archivo no contiene data de rondas validas.");
+        return;
       }
 
       const processGroups = async (
@@ -198,7 +200,10 @@ export default function AlbumPage() {
             return {
               id: nanoid(),
               context: roundMeta.title || "",
-              photos: photos.length > 0 ? photos : [createEmptyPhoto(), createEmptyPhoto()],
+              photos:
+                photos.length > 0
+                  ? photos
+                  : [createEmptyPhoto(), createEmptyPhoto()],
             };
           }),
         );
@@ -206,7 +211,9 @@ export default function AlbumPage() {
 
       const loadedGroups = await processGroups(sessionData.rounds);
 
-      setRounds(loadedGroups.length > 0 ? loadedGroups : [createEmptyAlbumRound()]);
+      setRounds(
+        loadedGroups.length > 0 ? loadedGroups : [createEmptyAlbumRound()],
+      );
     } catch {
       alert("Error al importar los datos.");
     }
@@ -240,7 +247,10 @@ export default function AlbumPage() {
             />
           ))}
 
-          <AddColumnButton label="Agregar columna" onClick={() => addRound(1)} />
+          <AddColumnButton
+            label="Agregar columna"
+            onClick={() => addRound(1)}
+          />
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
