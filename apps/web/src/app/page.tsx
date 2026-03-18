@@ -8,6 +8,7 @@ import {
   PenTool,
   Image as ImageIcon,
   Trophy,
+  FileText,
 } from "lucide-react";
 
 const workspaces = [
@@ -46,6 +47,12 @@ const workspaces = [
     description: "Colector de fotos en columnas",
     href: "/workspaces/album",
     icon: ImageIcon,
+  },
+  {
+    name: "Examen",
+    description: "Evaluación de conocimientos",
+    href: "/workspaces/examen",
+    icon: FileText,
   },
 ];
 
