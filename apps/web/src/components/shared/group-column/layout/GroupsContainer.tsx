@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
 
 interface GroupsContainerProps {

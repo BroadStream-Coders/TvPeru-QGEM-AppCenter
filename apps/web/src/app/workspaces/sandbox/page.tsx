@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Box } from "lucide-react";
-import { GroupsContainer } from "@/components/shared/group-column/GroupsContainer";
-import { GroupColumn } from "@/components/shared/group-column/GroupColumn";
-import { GroupFooter } from "@/components/shared/group-column/GroupFooter";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
+import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
+import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
 import { TitleInput } from "@/components/shared/group-column/components/TitleInput";
 import { DescriptionInput } from "@/components/shared/group-column/components/DescriptionInput";
 import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
@@ -108,7 +108,10 @@ export default function SandboxPage() {
                       const newItems = matrix.map((row) => row[0] || "");
                       const available = MAX_CAPACITY - rows.length;
                       const toAdd = newItems.slice(0, available);
-                      console.log(`Agregando ${toAdd.length} elementos:`, toAdd);
+                      console.log(
+                        `Agregando ${toAdd.length} elementos:`,
+                        toAdd,
+                      );
                       setRows([...rows, ...toAdd]);
                     }}
                   />
