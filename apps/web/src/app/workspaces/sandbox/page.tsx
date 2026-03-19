@@ -1,9 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Box } from "lucide-react";
+import { GroupsContainer } from "@/components/shared/group-column/GroupsContainer";
+import { GroupColumn } from "@/components/shared/group-column/GroupColumn";
+import { nanoid } from "nanoid";
 
 export default function SandboxPage() {
+  const [columns, setColumns] = useState([{ id: nanoid() }, { id: nanoid() }]);
+
+  const addColumn = () => setColumns([...columns, { id: nanoid() }]);
+  const removeColumn = (id: string) =>
+    setColumns(columns.filter((c) => c.id !== id));
   return (
     <div className="flex h-screen flex-col bg-background text-foreground font-sans overflow-hidden">
       {/* Top bar */}
@@ -25,15 +34,34 @@ export default function SandboxPage() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-6 flex flex-col items-center justify-center text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground mb-4">
-          <Box className="h-8 w-8 opacity-50" />
+      <main className="flex-1 overflow-hidden relative">
+        <div className="absolute inset-0 z-10">
+          <GroupsContainer onAddGroup={addColumn}>
+            {columns.map((col, index) => (
+              <GroupColumn
+                key={col.id}
+                index={index + 1}
+                onRemove={() => removeColumn(col.id)}
+                currentCapacity={3}
+                maxCapacity={4}
+              >
+                {/* Dummy injected Lego content for testing stretch */}
+                <div className="flex-1 min-h-0 rounded-md border-2 border-dashed border-border/50 bg-background/50 flex flex-col items-center justify-center text-muted-foreground p-4">
+                  <p className="text-xs font-mono font-bold mb-1">
+                    Contenedor Filas (Scroll)
+                  </p>
+                  <p className="text-2xs text-center max-w-[200px] opacity-70">
+                    Ocupará todo el resto del alto disponible gracias a flex-1 y
+                    min-h-0.
+                  </p>
+                </div>
+                <div className="shrink-0 rounded-md border-2 border-dashed border-border/50 bg-muted/30 flex items-center justify-center p-3 text-2xs font-mono font-bold text-muted-foreground">
+                  Footer (Botones Llenado)
+                </div>
+              </GroupColumn>
+            ))}
+          </GroupsContainer>
         </div>
-        <h2 className="text-xl font-bold mb-2">Entorno de Pruebas</h2>
-        <p className="text-sm text-muted-foreground max-w-sm">
-          Este colector está completamente aislado. Aquí construiremos y probaremos la 
-          arquitectura estandarizada de componentes GroupColumn sin afectar otros módulos.
-        </p>
       </main>
     </div>
   );

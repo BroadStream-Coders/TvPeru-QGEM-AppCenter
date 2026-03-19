@@ -1,0 +1,23 @@
+import { ReactNode } from "react";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { AddColumnButton } from "@/components/shared/AddColumnButton";
+
+interface GroupsContainerProps {
+  children: ReactNode;
+  onAddGroup: () => void;
+  addLabel?: string;
+  className?: string;
+}
+
+export function GroupsContainer({
+  children,
+  onAddGroup,
+  addLabel = "Agregar Grupo",
+}: GroupsContainerProps) {
+  return (
+    <div className="flex min-w-max gap-4 px-6 py-6 h-full">
+      {children}
+      <AddColumnButton onClick={onAddGroup} label={addLabel} />
+    </div>
+  );
+}
