@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { ExamenGroupColumn } from "./ExamenGroupColumn";
 import { AddColumnButton } from "@/components/shared/AddColumnButton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -13,13 +13,14 @@ export interface ExamenLevel4ViewRef {
 }
 
 export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
-  const createEmptyRow = (): ExamenLevel4RowData => ({
-    id: nanoid(),
-    pairs: Array.from({ length: 4 }, () => ({ leftText: "", rightText: "" })),
-  });
-
   const [columns, setColumns] = useState<ExamenLevel4RowData[][]>([
-    [createEmptyRow()],
+    [
+      {
+        id: nanoid(),
+        question: "",
+        answer: "",
+      },
+    ],
   ]);
 
   useImperativeHandle(ref, () => ({
@@ -28,7 +29,16 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
   }));
 
   const addColumn = () => {
-    setColumns([...columns, [createEmptyRow()]]);
+    setColumns([
+      ...columns,
+      [
+        {
+          id: nanoid(),
+          question: "",
+          answer: "",
+        },
+      ],
+    ]);
   };
 
   const removeColumn = (index: number) => {
@@ -37,7 +47,14 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
 
   const addRow = (columnIndex: number) => {
     const newColumns = [...columns];
-    newColumns[columnIndex] = [...newColumns[columnIndex], createEmptyRow()];
+    newColumns[columnIndex] = [
+      ...newColumns[columnIndex],
+      {
+        id: nanoid(),
+        question: "",
+        answer: "",
+      },
+    ];
     setColumns(newColumns);
   };
 
@@ -62,43 +79,21 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
     setColumns(newColumns);
   };
 
-  const handleQuickLoad = useCallback(
-    (columnIndex: number, matrix: string[][]) => {
-      // We expect matrix rows with at least two valid cells (colA, colB).
-      const validRows = matrix.filter(
-        (row) =>
-          row.length >= 2 && (row[0].trim() !== "" || row[1].trim() !== ""),
-      );
+  const handleQuickLoad = (columnIndex: number, matrix: string[][]) => {
+    const newRows: ExamenLevel4RowData[] = matrix
+      .filter((row) => row.length > 0 && row.some((cell) => cell.trim() !== ""))
+      .map((row) => ({
+        id: nanoid(),
+        question: row[0] || "",
+        answer: row[1] || "",
+      }));
 
-      const newRows: ExamenLevel4RowData[] = [];
-
-      // Parse every 4 lines as a new row
-      for (let i = 0; i < validRows.length; i += 4) {
-        const chunk = validRows.slice(i, i + 4);
-        const pairs = Array.from({ length: 4 }, (_, idx) => {
-          const rowData = chunk[idx];
-          return {
-            leftText: rowData ? rowData[0] || "" : "",
-            rightText: rowData ? rowData[1] || "" : "",
-          };
-        });
-
-        newRows.push({
-          id: nanoid(),
-          pairs,
-        });
-      }
-
-      if (newRows.length > 0) {
-        setColumns((prev) => {
-          const next = [...prev];
-          next[columnIndex] = newRows;
-          return next;
-        });
-      }
-    },
-    [],
-  );
+    if (newRows.length > 0) {
+      const newColumns = [...columns];
+      newColumns[columnIndex] = newRows;
+      setColumns(newColumns);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">

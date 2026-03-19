@@ -76,18 +76,18 @@ export default function ExamenPage() {
       level3: {
         groups: data3.map((g) => ({
           questions: g.map((q) => ({
-            question: q.question,
-            answer: q.answer,
+            pairs: q.pairs.map((pair) => ({
+              leftText: pair.leftText,
+              rightText: pair.rightText,
+            })),
           })),
         })),
       },
       level4: {
         groups: data4.map((g) => ({
           questions: g.map((q) => ({
-            pairs: q.pairs.map((pair) => ({
-              leftText: pair.leftText,
-              rightText: pair.rightText,
-            })),
+            question: q.question,
+            answer: q.answer,
           })),
         })),
       },
@@ -157,8 +157,11 @@ export default function ExamenPage() {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               g.questions.map((q: any) => ({
                 id: nanoid(),
-                question: q.question || "",
-                answer: q.answer || "",
+                // Try to load up to 4 pairs or fill with empty if missing
+                pairs: Array.from({ length: 4 }, (_, idx) => ({
+                  leftText: q.pairs?.[idx]?.leftText || "",
+                  rightText: q.pairs?.[idx]?.rightText || "",
+                })),
               })),
             );
             level3Ref.current?.setData(d3);
@@ -170,11 +173,8 @@ export default function ExamenPage() {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               g.questions.map((q: any) => ({
                 id: nanoid(),
-                // Try to load up to 4 pairs or fill with empty if missing
-                pairs: Array.from({ length: 4 }, (_, idx) => ({
-                  leftText: q.pairs?.[idx]?.leftText || "",
-                  rightText: q.pairs?.[idx]?.rightText || "",
-                })),
+                question: q.question || "",
+                answer: q.answer || "",
               })),
             );
             level4Ref.current?.setData(d4);

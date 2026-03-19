@@ -1,17 +1,14 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
-export interface ExamenLevel4Pair {
-  leftText: string;
-  rightText: string;
-}
-
 export interface ExamenLevel4RowData {
   id: string;
-  pairs: ExamenLevel4Pair[];
+  question: string;
+  answer: string;
 }
 
 interface ExamenLevel4RowProps {
@@ -27,32 +24,10 @@ export function ExamenLevel4Row({
   onChange,
   onRemove,
 }: ExamenLevel4RowProps) {
-  const handlePairChange = (
-    pairIndex: number,
-    field: "leftText" | "rightText",
-    value: string,
-  ) => {
-    const newPairs = [...(data.pairs || [])];
-    if (!newPairs[pairIndex]) {
-      newPairs[pairIndex] = { leftText: "", rightText: "" };
-    }
-    newPairs[pairIndex] = { ...newPairs[pairIndex], [field]: value };
-    onChange({ pairs: newPairs });
-  };
-
-  // Ensure we always render exactly 4 pairs
-  const pairsToRender =
-    data.pairs?.length === 4
-      ? data.pairs
-      : Array.from(
-          { length: 4 },
-          (_, i) => data.pairs?.[i] || { leftText: "", rightText: "" },
-        );
-
   return (
     <div className="flex flex-col rounded-lg border border-border bg-card p-3 shadow-sm transition-all hover:border-brand/30">
       <div className="grid grid-cols-[2rem_1fr] items-start gap-2 w-full">
-        {/* Left column: Trash and Number */}
+        {/* Left column top: Trash and Number */}
         <div className="flex flex-col gap-1 w-full shrink-0">
           <Button
             variant="ghost"
@@ -67,29 +42,24 @@ export function ExamenLevel4Row({
           </div>
         </div>
 
-        {/* Right column: 4 Pairs of Inputs */}
-        <div className="flex flex-col gap-2 w-full">
-          {pairsToRender.map((pair, pIndex) => (
-            <div key={pIndex} className="grid grid-cols-2 gap-2 w-full">
-              <Input
-                value={pair.leftText}
-                onChange={(e) =>
-                  handlePairChange(pIndex, "leftText", e.target.value)
-                }
-                placeholder={`Col A (Par ${pIndex + 1})`}
-                className="h-8 border-border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-brand"
-              />
-              <Input
-                value={pair.rightText}
-                onChange={(e) =>
-                  handlePairChange(pIndex, "rightText", e.target.value)
-                }
-                placeholder={`Col B (Par ${pIndex + 1})`}
-                className="h-8 border-border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-brand"
-              />
-            </div>
-          ))}
-        </div>
+        {/* Right column top: Textarea Question */}
+        <Textarea
+          value={data.question}
+          onChange={(e) => onChange({ question: e.target.value })}
+          placeholder="Ingrese la pregunta..."
+          className="h-[66px] min-h-[66px] resize-none w-full border-border bg-background px-2.5 py-2 text-xs text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-brand"
+        />
+
+        {/* Left column bottom: Empty placeholder to align with input */}
+        <div className="h-8 w-full" />
+
+        {/* Right column bottom: Answer Input */}
+        <Input
+          value={data.answer}
+          onChange={(e) => onChange({ answer: e.target.value })}
+          placeholder="Ingrese la respuesta..."
+          className="h-8 w-full border-border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-brand"
+        />
       </div>
     </div>
   );
