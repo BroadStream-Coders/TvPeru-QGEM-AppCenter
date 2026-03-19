@@ -4,7 +4,7 @@ import { PenTool } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
-import { AddColumnButton } from "@/components/shared/AddColumnButton";
+import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { RedactorCard } from "./components/RedactorColumn";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";

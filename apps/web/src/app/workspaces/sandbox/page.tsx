@@ -6,7 +6,7 @@ import { ArrowLeft, Box } from "lucide-react";
 import { GroupsContainer } from "@/components/shared/group-column/GroupsContainer";
 import { GroupColumn } from "@/components/shared/group-column/GroupColumn";
 import { GroupFooter } from "@/components/shared/group-column/GroupFooter";
-import { QuickLoad } from "@/components/shared/QuickLoad";
+import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { nanoid } from "nanoid";

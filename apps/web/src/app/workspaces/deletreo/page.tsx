@@ -5,7 +5,7 @@ import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { getColumnData } from "@/helpers/data-processing";
 import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
-import { AddColumnButton } from "@/components/shared/AddColumnButton";
+import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { DeletreoColumn } from "./components/DeletreoColumn";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";

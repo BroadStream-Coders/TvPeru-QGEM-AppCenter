@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { BoardColumn } from "@/components/shared/BoardColumn";
-import { QuickLoad } from "@/components/shared/QuickLoad";
+import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
 import { RedactorRow } from "./RedactorRow";
 
 interface RedactorRowData {

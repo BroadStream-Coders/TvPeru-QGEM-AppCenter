@@ -5,7 +5,7 @@ import { Image as ImageIcon } from "lucide-react";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
-import { AddColumnButton } from "@/components/shared/AddColumnButton";
+import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { nanoid } from "nanoid";
 import { ImageSlot } from "@/types";

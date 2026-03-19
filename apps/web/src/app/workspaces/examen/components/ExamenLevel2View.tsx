@@ -2,7 +2,7 @@
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { ExamenGroupColumn } from "./ExamenGroupColumn";
-import { AddColumnButton } from "@/components/shared/AddColumnButton";
+import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { nanoid } from "nanoid";
 import { ExamenLevel2Row, ExamenLevel2RowData } from "./ExamenLevel2Row";
