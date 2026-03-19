@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Box } from "lucide-react";
+import { ArrowLeft, Box, PenTool, FileText } from "lucide-react";
+import { LevelTabs } from "@/components/shared/LevelTabs";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
 import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
@@ -16,7 +17,7 @@ import { Trash2 } from "lucide-react";
 
 const MAX_CAPACITY = 20;
 
-export default function SandboxPage() {
+function ColumnsDemo() {
   const [columns, setColumns] = useState([{ id: nanoid() }]);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
@@ -32,9 +33,88 @@ export default function SandboxPage() {
   const removeRow = (idx: number) => setRows(rows.filter((_, i) => i !== idx));
   const updateRow = (idx: number, val: string) =>
     setRows(rows.map((r, i) => (i === idx ? val : r)));
+
+  return (
+    <GroupsContainer onAddGroup={addColumn}>
+      {columns.map((col, index) => (
+        <GroupColumn
+          key={col.id}
+          index={index + 1}
+          onRemove={() => removeColumn(col.id)}
+          currentCapacity={rows.length}
+          maxCapacity={MAX_CAPACITY}
+        >
+          <TitleInput
+            value={title}
+            onChange={setTitle}
+            placeholder="Escribe el título del grupo..."
+          />
+          <DescriptionInput
+            value={desc}
+            onChange={setDesc}
+            placeholder="Contexto o descripción de esta ronda..."
+          />
+          <RowsContainer>
+            {rows.map((row, rowIdx) => (
+              <div key={rowIdx} className="flex items-center gap-2">
+                <span className="text-2xs font-mono text-muted-foreground w-4 text-right shrink-0">
+                  {rowIdx + 1}
+                </span>
+                <input
+                  type="text"
+                  value={row}
+                  onChange={(e) => updateRow(rowIdx, e.target.value)}
+                  placeholder="Escribe aquí..."
+                  className="flex-1 h-8 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all"
+                />
+                <button
+                  onClick={() => removeRow(rowIdx)}
+                  className="h-6 w-6 shrink-0 flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </RowsContainer>
+          <AddRowButton onClick={addRow} label="Agregar nueva fila" />
+          <GroupFooter>
+            <QuickLoad
+              onLoad={(matrix) => {
+                const newItems = matrix.map((row) => row[0] || "");
+                const available = MAX_CAPACITY - rows.length;
+                const toAdd = newItems.slice(0, available);
+                setRows([...rows, ...toAdd]);
+              }}
+            />
+          </GroupFooter>
+        </GroupColumn>
+      ))}
+    </GroupsContainer>
+  );
+}
+
+function EmptyLevel({ name }: { name: string }) {
+  return (
+    <div className="flex h-full items-center justify-center text-muted-foreground">
+      <div className="text-center">
+        <p className="text-sm font-bold mb-1">{name}</p>
+        <p className="text-2xs opacity-60">
+          Aquí iría el contenido de este nivel.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function SandboxPage() {
+  const levels = [
+    { name: "Columnas", icon: PenTool, component: <ColumnsDemo /> },
+    { name: "Nivel 2", icon: FileText, component: <EmptyLevel name="Vista del Nivel 2" /> },
+    { name: "Nivel 3", component: <EmptyLevel name="Vista del Nivel 3" /> },
+  ];
+
   return (
     <div className="flex h-screen flex-col bg-background text-foreground font-sans overflow-hidden">
-      {/* Top bar */}
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-card/50 px-6 backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <Link
@@ -52,74 +132,8 @@ export default function SandboxPage() {
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-hidden relative">
-        <div className="absolute inset-0 z-10">
-          <GroupsContainer onAddGroup={addColumn}>
-            {columns.map((col, index) => (
-              <GroupColumn
-                key={col.id}
-                index={index + 1}
-                onRemove={() => removeColumn(col.id)}
-                currentCapacity={rows.length}
-                maxCapacity={MAX_CAPACITY}
-              >
-                <TitleInput
-                  value={title}
-                  onChange={setTitle}
-                  placeholder="Escribe el título del grupo..."
-                />
-
-                <DescriptionInput
-                  value={desc}
-                  onChange={setDesc}
-                  placeholder="Contexto o descripción de esta ronda..."
-                />
-
-                <RowsContainer>
-                  {rows.map((row, rowIdx) => (
-                    <div key={rowIdx} className="flex items-center gap-2">
-                      <span className="text-2xs font-mono text-muted-foreground w-4 text-right shrink-0">
-                        {rowIdx + 1}
-                      </span>
-                      <input
-                        type="text"
-                        value={row}
-                        onChange={(e) => updateRow(rowIdx, e.target.value)}
-                        placeholder="Escribe aquí..."
-                        className="flex-1 h-8 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all"
-                      />
-                      <button
-                        onClick={() => removeRow(rowIdx)}
-                        className="h-6 w-6 shrink-0 flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </RowsContainer>
-
-                <AddRowButton onClick={addRow} label="Agregar nueva fila" />
-
-                <GroupFooter>
-                  <QuickLoad
-                    onLoad={(matrix) => {
-                      console.log("QuickLoad matriz recibida:", matrix);
-                      const newItems = matrix.map((row) => row[0] || "");
-                      const available = MAX_CAPACITY - rows.length;
-                      const toAdd = newItems.slice(0, available);
-                      console.log(
-                        `Agregando ${toAdd.length} elementos:`,
-                        toAdd,
-                      );
-                      setRows([...rows, ...toAdd]);
-                    }}
-                  />
-                </GroupFooter>
-              </GroupColumn>
-            ))}
-          </GroupsContainer>
-        </div>
+      <main className="flex-1 overflow-hidden">
+        <LevelTabs levels={levels} />
       </main>
     </div>
   );
