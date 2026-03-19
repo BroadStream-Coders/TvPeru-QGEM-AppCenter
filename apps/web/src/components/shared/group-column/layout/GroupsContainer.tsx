@@ -14,9 +14,11 @@ export function GroupsContainer({
   addLabel = "Agregar Grupo",
 }: GroupsContainerProps) {
   return (
-    <div className="flex min-w-max gap-4 px-6 py-6 h-full">
-      {children}
-      <AddColumnButton onClick={onAddGroup} label={addLabel} />
+    <div className="h-full overflow-x-auto overflow-y-hidden">
+      <div className="flex min-w-max gap-4 px-6 py-6 h-full">
+        {children}
+        <AddColumnButton onClick={onAddGroup} label={addLabel} />
+      </div>
     </div>
   );
 }

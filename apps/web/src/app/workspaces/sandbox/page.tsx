@@ -109,7 +109,11 @@ function EmptyLevel({ name }: { name: string }) {
 export default function SandboxPage() {
   const levels = [
     { name: "Columnas", icon: PenTool, component: <ColumnsDemo /> },
-    { name: "Nivel 2", icon: FileText, component: <EmptyLevel name="Vista del Nivel 2" /> },
+    {
+      name: "Nivel 2",
+      icon: FileText,
+      component: <EmptyLevel name="Vista del Nivel 2" />,
+    },
     { name: "Nivel 3", component: <EmptyLevel name="Vista del Nivel 3" /> },
   ];
 

@@ -47,9 +47,7 @@ export function LevelTabs({ levels, className = "" }: LevelTabsProps) {
                 : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/30"
             }`}
           >
-            {level.icon && (
-              <level.icon className="h-3.5 w-3.5 shrink-0 mb-1" />
-            )}
+            {level.icon && <level.icon className="h-3.5 w-3.5 shrink-0 mb-1" />}
             <span
               className="text-2xs font-bold uppercase tracking-widest"
               style={{ writingMode: "vertical-lr" }}
