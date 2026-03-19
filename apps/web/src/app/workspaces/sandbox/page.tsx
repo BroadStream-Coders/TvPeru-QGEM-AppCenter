@@ -9,17 +9,29 @@ import { GroupFooter } from "@/components/shared/group-column/GroupFooter";
 import { TitleInput } from "@/components/shared/group-column/components/TitleInput";
 import { DescriptionInput } from "@/components/shared/group-column/components/DescriptionInput";
 import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
+import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
 import { nanoid } from "nanoid";
+import { Trash2 } from "lucide-react";
+
+const MAX_CAPACITY = 20;
 
 export default function SandboxPage() {
   const [columns, setColumns] = useState([{ id: nanoid() }]);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
+  const [rows, setRows] = useState(["Elemento 1", "Elemento 2", "Elemento 3"]);
 
   const addColumn = () => setColumns([...columns, { id: nanoid() }]);
   const removeColumn = (id: string) =>
     setColumns(columns.filter((c) => c.id !== id));
+  const addRow = () => {
+    if (rows.length >= MAX_CAPACITY) return;
+    setRows([...rows, ""]);
+  };
+  const removeRow = (idx: number) => setRows(rows.filter((_, i) => i !== idx));
+  const updateRow = (idx: number, val: string) =>
+    setRows(rows.map((r, i) => (i === idx ? val : r)));
   return (
     <div className="flex h-screen flex-col bg-background text-foreground font-sans overflow-hidden">
       {/* Top bar */}
@@ -49,8 +61,8 @@ export default function SandboxPage() {
                 key={col.id}
                 index={index + 1}
                 onRemove={() => removeColumn(col.id)}
-                currentCapacity={3}
-                maxCapacity={4}
+                currentCapacity={rows.length}
+                maxCapacity={MAX_CAPACITY}
               >
                 <TitleInput
                   value={title}
@@ -64,25 +76,41 @@ export default function SandboxPage() {
                   placeholder="Contexto o descripción de esta ronda..."
                 />
 
-                <div className="px-4 py-4 flex-1 flex flex-col min-h-0">
-                  <div className="flex-1 rounded-md border-2 border-dashed border-border/50 bg-background/50 flex flex-col items-center justify-center text-muted-foreground">
-                    <p className="text-xs font-mono font-bold mb-1">
-                      Contenedor Filas (Scroll)
-                    </p>
-                    <p className="text-2xs text-center max-w-[200px] opacity-70">
-                      Se estira dinámicamente.
-                    </p>
-                  </div>
-                </div>
+                <RowsContainer>
+                  {rows.map((row, rowIdx) => (
+                    <div key={rowIdx} className="flex items-center gap-2">
+                      <span className="text-2xs font-mono text-muted-foreground w-4 text-right shrink-0">
+                        {rowIdx + 1}
+                      </span>
+                      <input
+                        type="text"
+                        value={row}
+                        onChange={(e) => updateRow(rowIdx, e.target.value)}
+                        placeholder="Escribe aquí..."
+                        className="flex-1 h-8 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all"
+                      />
+                      <button
+                        onClick={() => removeRow(rowIdx)}
+                        className="h-6 w-6 shrink-0 flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </RowsContainer>
 
-                <AddRowButton
-                  onClick={() => console.log("Add Row")}
-                  label="Agregar nueva fila"
-                />
+                <AddRowButton onClick={addRow} label="Agregar nueva fila" />
 
                 <GroupFooter>
                   <QuickLoad
-                    onLoad={(matrix) => console.log("Matriz:", matrix)}
+                    onLoad={(matrix) => {
+                      console.log("QuickLoad matriz recibida:", matrix);
+                      const newItems = matrix.map((row) => row[0] || "");
+                      const available = MAX_CAPACITY - rows.length;
+                      const toAdd = newItems.slice(0, available);
+                      console.log(`Agregando ${toAdd.length} elementos:`, toAdd);
+                      setRows([...rows, ...toAdd]);
+                    }}
                   />
                 </GroupFooter>
               </GroupColumn>
