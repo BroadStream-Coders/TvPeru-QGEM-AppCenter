@@ -24,7 +24,7 @@ export function GroupColumn({
     <Card
       className={`flex h-full flex-col shrink-0 rounded-xl border border-border bg-card shadow-none gap-0 py-0 overflow-hidden ${width}`}
     >
-      <CardHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3 shrink-0 bg-muted/5">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border p-4 shrink-0 bg-muted/5">
         <div className="flex items-center gap-3">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-brand/20 text-brand text-2xs font-bold font-mono">
             {index}
@@ -56,7 +56,7 @@ export function GroupColumn({
         </Button>
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col min-h-0 px-4 py-4 gap-4">
+      <CardContent className="flex flex-1 flex-col min-h-0 p-0">
         {children}
       </CardContent>
     </Card>

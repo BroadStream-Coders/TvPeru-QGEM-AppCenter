@@ -5,6 +5,10 @@ import Link from "next/link";
 import { ArrowLeft, Box } from "lucide-react";
 import { GroupsContainer } from "@/components/shared/group-column/GroupsContainer";
 import { GroupColumn } from "@/components/shared/group-column/GroupColumn";
+import { GroupFooter } from "@/components/shared/group-column/GroupFooter";
+import { QuickLoad } from "@/components/shared/QuickLoad";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { nanoid } from "nanoid";
 
 export default function SandboxPage() {
@@ -46,7 +50,7 @@ export default function SandboxPage() {
                 maxCapacity={4}
               >
                 {/* Dummy injected Lego content for testing stretch */}
-                <div className="flex-1 min-h-0 rounded-md border-2 border-dashed border-border/50 bg-background/50 flex flex-col items-center justify-center text-muted-foreground p-4">
+                <div className="flex-1 min-h-0 rounded-md border-2 border-dashed border-border/50 bg-background/50 flex flex-col items-center justify-center text-muted-foreground m-4 p-4">
                   <p className="text-xs font-mono font-bold mb-1">
                     Contenedor Filas (Scroll)
                   </p>
@@ -55,9 +59,23 @@ export default function SandboxPage() {
                     min-h-0.
                   </p>
                 </div>
-                <div className="shrink-0 rounded-md border-2 border-dashed border-border/50 bg-muted/30 flex items-center justify-center p-3 text-2xs font-mono font-bold text-muted-foreground">
-                  Footer (Botones Llenado)
-                </div>
+                <GroupFooter>
+                  {index === 1 ? (
+                    <QuickLoad
+                      onLoad={(matrix) =>
+                        console.log("Matriz cargada:", matrix)
+                      }
+                    />
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 text-xs"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      Agregar Elemento
+                    </Button>
+                  )}
+                </GroupFooter>
               </GroupColumn>
             ))}
           </GroupsContainer>
