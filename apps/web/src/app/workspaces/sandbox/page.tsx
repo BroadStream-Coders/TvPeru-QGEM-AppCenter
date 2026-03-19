@@ -6,13 +6,16 @@ import { ArrowLeft, Box } from "lucide-react";
 import { GroupsContainer } from "@/components/shared/group-column/GroupsContainer";
 import { GroupColumn } from "@/components/shared/group-column/GroupColumn";
 import { GroupFooter } from "@/components/shared/group-column/GroupFooter";
+import { TitleInput } from "@/components/shared/group-column/components/TitleInput";
+import { DescriptionInput } from "@/components/shared/group-column/components/DescriptionInput";
+import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { nanoid } from "nanoid";
 
 export default function SandboxPage() {
-  const [columns, setColumns] = useState([{ id: nanoid() }, { id: nanoid() }]);
+  const [columns, setColumns] = useState([{ id: nanoid() }]);
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
 
   const addColumn = () => setColumns([...columns, { id: nanoid() }]);
   const removeColumn = (id: string) =>
@@ -49,32 +52,38 @@ export default function SandboxPage() {
                 currentCapacity={3}
                 maxCapacity={4}
               >
-                {/* Dummy injected Lego content for testing stretch */}
-                <div className="flex-1 min-h-0 rounded-md border-2 border-dashed border-border/50 bg-background/50 flex flex-col items-center justify-center text-muted-foreground m-4 p-4">
-                  <p className="text-xs font-mono font-bold mb-1">
-                    Contenedor Filas (Scroll)
-                  </p>
-                  <p className="text-2xs text-center max-w-[200px] opacity-70">
-                    Ocupará todo el resto del alto disponible gracias a flex-1 y
-                    min-h-0.
-                  </p>
+                <TitleInput
+                  value={title}
+                  onChange={setTitle}
+                  placeholder="Escribe el título del grupo..."
+                />
+
+                <DescriptionInput
+                  value={desc}
+                  onChange={setDesc}
+                  placeholder="Contexto o descripción de esta ronda..."
+                />
+
+                <div className="px-4 py-4 flex-1 flex flex-col min-h-0">
+                  <div className="flex-1 rounded-md border-2 border-dashed border-border/50 bg-background/50 flex flex-col items-center justify-center text-muted-foreground">
+                    <p className="text-xs font-mono font-bold mb-1">
+                      Contenedor Filas (Scroll)
+                    </p>
+                    <p className="text-2xs text-center max-w-[200px] opacity-70">
+                      Se estira dinámicamente.
+                    </p>
+                  </div>
                 </div>
+
+                <AddRowButton
+                  onClick={() => console.log("Add Row")}
+                  label="Agregar nueva fila"
+                />
+
                 <GroupFooter>
-                  {index === 1 ? (
-                    <QuickLoad
-                      onLoad={(matrix) =>
-                        console.log("Matriz cargada:", matrix)
-                      }
-                    />
-                  ) : (
-                    <Button
-                      variant="outline"
-                      className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 text-xs"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      Agregar Elemento
-                    </Button>
-                  )}
+                  <QuickLoad
+                    onLoad={(matrix) => console.log("Matriz:", matrix)}
+                  />
                 </GroupFooter>
               </GroupColumn>
             ))}

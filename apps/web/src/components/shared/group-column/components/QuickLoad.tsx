@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { ArrowUp } from "lucide-react";
 import { useState } from "react";
 import { parseExcelPaste } from "@/helpers/data-processing";
@@ -30,9 +29,9 @@ export function QuickLoad({
 
   return (
     <div className={`flex gap-2 w-full ${className}`}>
-      <Textarea
+      <textarea
         placeholder={placeholder}
-        className="h-[72px] flex-1 resize-none text-xs bg-background border-border placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-ring/30 overflow-y-auto"
+        className="block h-[72px] flex-1 resize-none rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all overflow-y-auto"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
       />
