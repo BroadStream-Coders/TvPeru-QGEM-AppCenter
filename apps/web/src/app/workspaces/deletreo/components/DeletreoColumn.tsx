@@ -1,10 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { BoardColumn } from "@/components/shared/BoardColumn";
+import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
+import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
+import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
+import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
 import { DeletreoRow } from "./DeletreoRow";
+
+const MAX_CAPACITY = 30;
 
 interface DeletreoColumnProps {
   index: number;
@@ -25,33 +28,35 @@ export function DeletreoColumn({
   onRemoveColumn,
   onQuickLoad,
 }: DeletreoColumnProps) {
+  const handleAddWord = () => {
+    if (words.length >= MAX_CAPACITY) return;
+    onAddWord();
+  };
+
   return (
-    <BoardColumn
+    <GroupColumn
       index={index}
-      title={`Ronda ${index}`}
-      itemCount={words.length}
       onRemove={onRemoveColumn}
-      footer={<QuickLoad onLoad={onQuickLoad} />}
-      addButton={
-        <Button
-          onClick={onAddWord}
-          variant="outline"
-          className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 text-xs"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Agregar Palabra
-        </Button>
-      }
+      currentCapacity={words.length}
+      maxCapacity={MAX_CAPACITY}
     >
-      {words.map((word, wordIndex) => (
-        <DeletreoRow
-          key={wordIndex}
-          index={wordIndex}
-          value={word}
-          onChange={(val) => onWordChange(wordIndex, val)}
-          onRemove={() => onRemoveWord(wordIndex)}
-        />
-      ))}
-    </BoardColumn>
+      <RowsContainer>
+        {words.map((word, wordIndex) => (
+          <DeletreoRow
+            key={wordIndex}
+            index={wordIndex}
+            value={word}
+            onChange={(val) => onWordChange(wordIndex, val)}
+            onRemove={() => onRemoveWord(wordIndex)}
+          />
+        ))}
+      </RowsContainer>
+
+      <AddRowButton onClick={handleAddWord} label="Agregar Palabra" />
+
+      <GroupFooter>
+        <QuickLoad onLoad={onQuickLoad} />
+      </GroupFooter>
+    </GroupColumn>
   );
 }

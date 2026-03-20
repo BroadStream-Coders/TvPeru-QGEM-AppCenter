@@ -5,10 +5,9 @@ import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { getColumnData } from "@/helpers/data-processing";
 import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
-import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { DeletreoColumn } from "./components/DeletreoColumn";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const DEFAULT_FILENAME = "DeletreoData.json";
 
@@ -66,30 +65,22 @@ export default function DeletreoPage() {
         <FileActions format="json" onSave={handleSave} onLoad={handleLoad} />
       }
     >
-      <ScrollArea className="w-full h-full">
-        <div
-          className="flex min-w-max gap-4 px-6 py-6"
-          style={{ height: "calc(100vh - 48px - 36px)" }}
-        >
-          {groups.map((words, groupIndex) => (
-            <DeletreoColumn
-              key={groupIndex}
-              index={groupIndex + 1}
-              words={words}
-              onWordChange={(wordIdx, val) =>
-                updateItem(groupIndex, wordIdx, val)
-              }
-              onAddWord={() => addItem(groupIndex)}
-              onRemoveWord={(wordIdx) => removeItem(groupIndex, wordIdx)}
-              onRemoveColumn={() => removeGroup(groupIndex)}
-              onQuickLoad={(matrix) => handleQuickLoad(groupIndex, matrix)}
-            />
-          ))}
-
-          <AddColumnButton label="Agregar ronda" onClick={addGroup} />
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      <GroupsContainer onAddGroup={addGroup} addLabel="Agregar ronda">
+        {groups.map((words, groupIndex) => (
+          <DeletreoColumn
+            key={groupIndex}
+            index={groupIndex + 1}
+            words={words}
+            onWordChange={(wordIdx, val) =>
+              updateItem(groupIndex, wordIdx, val)
+            }
+            onAddWord={() => addItem(groupIndex)}
+            onRemoveWord={(wordIdx) => removeItem(groupIndex, wordIdx)}
+            onRemoveColumn={() => removeGroup(groupIndex)}
+            onQuickLoad={(matrix) => handleQuickLoad(groupIndex, matrix)}
+          />
+        ))}
+      </GroupsContainer>
     </WorkspaceShell>
   );
 }
