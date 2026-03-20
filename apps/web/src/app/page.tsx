@@ -9,7 +9,7 @@ import {
   Image as ImageIcon,
   Trophy,
   FileText,
-  Box,
+  // Box,
 } from "lucide-react";
 
 const workspaces = [
@@ -55,12 +55,12 @@ const workspaces = [
     href: "/workspaces/examen",
     icon: FileText,
   },
-  {
-    name: "Sandbox",
-    description: "Entorno de pruebas estandarizado",
-    href: "/workspaces/sandbox",
-    icon: Box,
-  },
+  // {
+  //   name: "Sandbox",
+  //   description: "Entorno de pruebas estandarizado",
+  //   href: "/workspaces/sandbox",
+  //   icon: Box,
+  // },
 ];
 
 export default function Home() {
