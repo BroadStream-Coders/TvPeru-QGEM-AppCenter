@@ -5,11 +5,10 @@ import { BookOpen, Users } from "lucide-react";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
-import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { LibroColumn } from "./components/LibroColumn";
 import { PlayersColumn } from "./components/PlayersColumn";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const DEFAULT_FILENAME = "MiLibroFavorito.zip";
 
@@ -29,7 +28,7 @@ interface PlayerData {
 }
 
 interface SessionData {
-  players: { name: string; imageFile: string | null }[];
+  players: { playerName: string; pictureFile: string | null; maxHealth: number }[];
   groups: LibroGroup[];
 }
 
@@ -80,10 +79,11 @@ export default function MiLibroFavoritoPage() {
 
   const handleSave = async () => {
     const playersMetadata = players.map((p, i) => ({
-      name: p.name,
-      imageFile: p.imageFile
+      playerName: p.name,
+      pictureFile: p.imageFile
         ? `images/player_${i + 1}.${p.imageFile.name.split(".").pop()}`
         : null,
+      maxHealth: 3,
     }));
 
     const sessionData: SessionData = {
@@ -119,13 +119,13 @@ export default function MiLibroFavoritoPage() {
           sessionData.players.map(async (p) => {
             let imageFile = null;
             let imagePreview = null;
-            if (p.imageFile) {
-              const entry = zip.file(p.imageFile);
+            if (p.pictureFile) {
+              const entry = zip.file(p.pictureFile);
               if (entry) {
                 const blob = await entry.async("blob");
                 imageFile = new File(
                   [blob],
-                  p.imageFile.split("/").pop() || "image",
+                  p.pictureFile.split("/").pop() || "image",
                   {
                     type: blob.type,
                   },
@@ -133,7 +133,7 @@ export default function MiLibroFavoritoPage() {
                 imagePreview = URL.createObjectURL(blob);
               }
             }
-            return { name: p.name || "", imageFile, imagePreview };
+            return { name: p.playerName || "", imageFile, imagePreview };
           }),
         );
         setPlayers(loadedPlayers);
@@ -164,41 +164,41 @@ export default function MiLibroFavoritoPage() {
         </>
       }
     >
-      <ScrollArea className="w-full h-full">
-        <div
-          className="flex min-w-max gap-4 px-6 py-6"
-          style={{ height: "calc(100vh - 48px - 36px)" }}
-        >
+      <div className="flex h-full overflow-hidden">
+        {/* Player info column — se mantiene fuera del sistema de grupos */}
+        <div className="shrink-0 overflow-y-auto py-6 px-6">
           <PlayersColumn
             players={players}
             onPlayerNameChange={handlePlayerNameChange}
             onPlayerImageChange={handlePlayerImageChange}
           />
-
-          <div className="w-px bg-border/50 shrink-0 mx-2" />
-
-          {groups.map((slots, groupIndex) => (
-            <LibroColumn
-              key={groupIndex}
-              index={groupIndex + 1}
-              items={slots}
-              onItemChange={(itemIdx, field, val) =>
-                updateItem(groupIndex, itemIdx, {
-                  ...slots[itemIdx],
-                  [field]: val,
-                })
-              }
-              onAddItem={() => addItem(groupIndex)}
-              onRemoveItem={(itemIdx) => removeItem(groupIndex, itemIdx)}
-              onRemoveColumn={() => removeGroup(groupIndex)}
-              onQuickLoad={(matrix) => handleQuickLoad(groupIndex, matrix)}
-            />
-          ))}
-
-          <AddColumnButton label="Agregar ronda" onClick={addGroup} />
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+
+        <div className="w-px bg-border/50 shrink-0 my-6" />
+
+        {/* Columnas de rondas */}
+        <div className="flex-1 min-w-0">
+          <GroupsContainer onAddGroup={addGroup} addLabel="Agregar ronda">
+            {groups.map((slots, groupIndex) => (
+              <LibroColumn
+                key={groupIndex}
+                index={groupIndex + 1}
+                items={slots}
+                onItemChange={(itemIdx, field, val) =>
+                  updateItem(groupIndex, itemIdx, {
+                    ...slots[itemIdx],
+                    [field]: val,
+                  })
+                }
+                onAddItem={() => addItem(groupIndex)}
+                onRemoveItem={(itemIdx) => removeItem(groupIndex, itemIdx)}
+                onRemoveColumn={() => removeGroup(groupIndex)}
+                onQuickLoad={(matrix) => handleQuickLoad(groupIndex, matrix)}
+              />
+            ))}
+          </GroupsContainer>
+        </div>
+      </div>
     </WorkspaceShell>
   );
 }
