@@ -1,9 +1,13 @@
 "use client";
 
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Plus, Trash2, X, AlertCircle } from "lucide-react";
+import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
+import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
+import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
+import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
+import { DescriptionInput } from "@/components/shared/group-column/components/DescriptionInput";
+import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
+import { X, AlertCircle } from "lucide-react";
 import { ImpostorCard } from "./ImpostorCard";
-import { Textarea } from "@/components/ui/textarea";
 
 interface Photo {
   id: string;
@@ -26,6 +30,7 @@ interface ImpostorLevel1ColumnProps {
   onUpdatePhoto: (updates: Partial<Photo>) => void;
   onUpdateRound: (updates: { context?: string; options?: Option[] }) => void;
   onRemoveColumn: () => void;
+  onQuickLoad: (data: string[][]) => void;
 }
 
 export function ImpostorLevel1Column({
@@ -36,6 +41,7 @@ export function ImpostorLevel1Column({
   onUpdatePhoto,
   onUpdateRound,
   onRemoveColumn,
+  onQuickLoad,
 }: ImpostorLevel1ColumnProps) {
   const addOption = () => {
     if (options.length < 4) {
@@ -59,47 +65,26 @@ export function ImpostorLevel1Column({
   const toggleOptionImpostor = (idx: number) => {
     const newOptions = options.map((opt, i) => ({
       ...opt,
-      isImpostor: i === idx ? !opt.isImpostor : false, // Only one can be impostor
+      isImpostor: i === idx ? !opt.isImpostor : false,
     }));
     onUpdateRound({ options: newOptions });
   };
 
   return (
-    <Card className="flex h-full w-[320px] shrink-0 flex-col overflow-hidden border-2 transition-all hover:border-brand/30 hover:shadow-lg">
-      <CardHeader className="shrink-0 border-b bg-muted/30 p-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-brand text-2xs font-bold text-brand-foreground shadow-sm">
-              #{index}
-            </div>
-            <h3 className="text-xs font-bold uppercase tracking-tight text-foreground">
-              Nivel 1
-            </h3>
-          </div>
-          <button
-            onClick={onRemoveColumn}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/50 transition-all hover:bg-destructive/10 hover:text-destructive active:scale-90"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
-      </CardHeader>
+    <GroupColumn
+      index={index}
+      onRemove={onRemoveColumn}
+      currentCapacity={options.length}
+      maxCapacity={4}
+    >
+      <DescriptionInput
+        value={context}
+        onChange={(val) => onUpdateRound({ context: val })}
+        placeholder="Escribe el contexto..."
+      />
 
-      <CardContent className="flex flex-1 flex-col gap-4 p-4 overflow-y-auto">
-        {/* Context Input */}
-        <div className="space-y-1.5">
-          <label className="text-2xs font-bold uppercase tracking-wider text-muted-foreground/60 px-1">
-            Contexto / Título
-          </label>
-          <Textarea
-            value={context}
-            onChange={(e) => onUpdateRound({ context: e.target.value })}
-            placeholder="Escribe el contexto..."
-            className="min-h-[50px] resize-none text-xs leading-relaxed focus-visible:ring-brand/30"
-          />
-        </div>
-
-        {/* Larger Simple Photo Section */}
+      <RowsContainer>
+        {/* Imagen única */}
         <div className="space-y-1.5">
           <label className="text-2xs font-bold uppercase tracking-wider text-muted-foreground/60 px-1">
             Imagen única
@@ -109,7 +94,7 @@ export function ImpostorLevel1Column({
               id={photo.id}
               name={photo.name}
               imageUrl={photo.url}
-              isImpostor={false} // Force false in UI
+              isImpostor={false}
               onImageChange={(file, url) => onUpdatePhoto({ file, url })}
               onNameChange={() => {}}
               onToggleImpostor={() => {}}
@@ -120,20 +105,12 @@ export function ImpostorLevel1Column({
           </div>
         </div>
 
-        {/* Options Section */}
+        {/* Opciones */}
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <label className="text-2xs font-bold uppercase tracking-wider text-muted-foreground/60">
               Opciones ({options.length}/4)
             </label>
-            {options.length < 4 && (
-              <button
-                onClick={addOption}
-                className="flex h-5 w-5 items-center justify-center rounded bg-brand/10 text-brand hover:bg-brand hover:text-brand-foreground transition-colors"
-              >
-                <Plus className="h-3 w-3" />
-              </button>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -178,7 +155,13 @@ export function ImpostorLevel1Column({
             ))}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </RowsContainer>
+
+      <AddRowButton onClick={addOption} label="Agregar Opción" />
+
+      <GroupFooter>
+        <QuickLoad onLoad={onQuickLoad} />
+      </GroupFooter>
+    </GroupColumn>
   );
 }
