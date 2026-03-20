@@ -7,6 +7,7 @@ import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
 import { LevelTabs } from "@/components/shared/LevelTabs";
 import { nanoid } from "nanoid";
+import { ExamenSessionData } from "./types";
 import {
   ExamenLevel1View,
   ExamenLevel1ViewRef,
@@ -97,21 +98,17 @@ export default function ExamenPage() {
 
   const handleLoad = async (file: File) => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const isValid = (data: unknown): data is any =>
+      const isValid = (data: unknown): data is ExamenSessionData =>
         typeof data === "object" && data !== null;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const sessionData = await loadJsonFile<any>(file, isValid);
+      const sessionData = await loadJsonFile<ExamenSessionData>(file, isValid);
       if (!sessionData) return;
 
       if (sessionData.level1?.groups) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const d1: ExamenLevel1Column[] = sessionData.level1.groups.map(
-          (g: any) => ({
+          (g) => ({
             title: g.title || "",
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            rows: g.questions.map((q: any) => ({
+            rows: g.questions.map((q) => ({
               id: nanoid(),
               question: q.question || "",
               answerL: q.options?.[0] || "",
@@ -124,19 +121,17 @@ export default function ExamenPage() {
       }
 
       if (sessionData.level2?.groups) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const d2: ExamenLevel2Column[] = sessionData.level2.groups.map(
-          (g: any) => ({
+          (g) => ({
             title: g.title || "",
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            rows: g.questions.map((q: any) => ({
+            rows: g.questions.map((q) => ({
               id: nanoid(),
               question: q.question || "",
               answerA: q.options?.[0] || "",
               answerB: q.options?.[1] || "",
               answerC: q.options?.[2] || "",
               answerD: q.options?.[3] || "",
-              correctAnswer: ["A", "B", "C", "D"][q.correctIndex || 0],
+              correctAnswer: (["A", "B", "C", "D"] as const)[q.correctIndex || 0],
             })),
           }),
         );
@@ -144,12 +139,10 @@ export default function ExamenPage() {
       }
 
       if (sessionData.level3?.groups) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const d3: ExamenLevel3Column[] = sessionData.level3.groups.map(
-          (g: any) => ({
+          (g) => ({
             title: g.title || "",
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            rows: g.questions.map((q: any) => ({
+            rows: g.questions.map((q) => ({
               id: nanoid(),
               pairs: Array.from({ length: 4 }, (_, idx) => ({
                 leftText: q.pairs?.[idx]?.leftText || "",
@@ -162,12 +155,10 @@ export default function ExamenPage() {
       }
 
       if (sessionData.level4?.groups) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const d4: ExamenLevel4Column[] = sessionData.level4.groups.map(
-          (g: any) => ({
+          (g) => ({
             title: g.title || "",
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            rows: g.questions.map((q: any) => ({
+            rows: g.questions.map((q) => ({
               id: nanoid(),
               question: q.question || "",
               answer: q.answer || "",
