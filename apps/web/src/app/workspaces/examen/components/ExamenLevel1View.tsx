@@ -2,27 +2,34 @@
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { ExamenGroupColumn } from "./ExamenGroupColumn";
-import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
 import { ExamenLevel1Row, ExamenLevel1RowData } from "./ExamenLevel1Row";
 
+export interface ExamenLevel1Column {
+  title: string;
+  rows: ExamenLevel1RowData[];
+}
+
 export interface ExamenLevel1ViewRef {
-  getData: () => ExamenLevel1RowData[][];
-  setData: (data: ExamenLevel1RowData[][]) => void;
+  getData: () => ExamenLevel1Column[];
+  setData: (data: ExamenLevel1Column[]) => void;
 }
 
 export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
-  const [columns, setColumns] = useState<ExamenLevel1RowData[][]>([
-    [
-      {
-        id: nanoid(),
-        question: "",
-        answerL: "",
-        answerR: "",
-        correctAnswer: "L",
-      },
-    ],
+  const [columns, setColumns] = useState<ExamenLevel1Column[]>([
+    {
+      title: "",
+      rows: [
+        {
+          id: nanoid(),
+          question: "",
+          answerL: "",
+          answerR: "",
+          correctAnswer: "L",
+        },
+      ],
+    },
   ]);
 
   useImperativeHandle(ref, () => ({
@@ -43,13 +50,13 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
         } as ExamenLevel1RowData;
       });
 
-      // Replace existing rows if it's just the initial empty row, otherwise append or replace based on your standard pattern.
-      // Usually QuickLoad replaces all rows in the group for a fresh start.
-      setColumns((prev) => {
-        const next = [...prev];
-        next[columnIndex] = newRows;
-        return next;
-      });
+      if (newRows.length > 0) {
+        setColumns((prev) => {
+          const next = [...prev];
+          next[columnIndex] = { ...next[columnIndex], rows: newRows };
+          return next;
+        });
+      }
     },
     [],
   );
@@ -57,7 +64,37 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
   const addColumn = () => {
     setColumns([
       ...columns,
-      [
+      {
+        title: "",
+        rows: [
+          {
+            id: nanoid(),
+            question: "",
+            answerL: "",
+            answerR: "",
+            correctAnswer: "L",
+          },
+        ],
+      },
+    ]);
+  };
+
+  const removeColumn = (index: number) => {
+    setColumns(columns.filter((_, i) => i !== index));
+  };
+
+  const updateTitle = (columnIndex: number, title: string) => {
+    const next = [...columns];
+    next[columnIndex] = { ...next[columnIndex], title };
+    setColumns(next);
+  };
+
+  const addRow = (columnIndex: number) => {
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: [
+        ...next[columnIndex].rows,
         {
           id: nanoid(),
           question: "",
@@ -66,26 +103,8 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
           correctAnswer: "L",
         },
       ],
-    ]);
-  };
-
-  const removeColumn = (index: number) => {
-    setColumns(columns.filter((_, i) => i !== index));
-  };
-
-  const addRow = (columnIndex: number) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex] = [
-      ...newColumns[columnIndex],
-      {
-        id: nanoid(),
-        question: "",
-        answerL: "",
-        answerR: "",
-        correctAnswer: "L",
-      },
-    ];
-    setColumns(newColumns);
+    };
+    setColumns(next);
   };
 
   const updateRow = (
@@ -93,58 +112,50 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
     rowIndex: number,
     updates: Partial<ExamenLevel1RowData>,
   ) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex][rowIndex] = {
-      ...newColumns[columnIndex][rowIndex],
-      ...updates,
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: next[columnIndex].rows.map((r, i) =>
+        i === rowIndex ? { ...r, ...updates } : r,
+      ),
     };
-    setColumns(newColumns);
+    setColumns(next);
   };
 
   const removeRow = (columnIndex: number, rowIndex: number) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex] = newColumns[columnIndex].filter(
-      (_, i) => i !== rowIndex,
-    );
-    setColumns(newColumns);
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: next[columnIndex].rows.filter((_, i) => i !== rowIndex),
+    };
+    setColumns(next);
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 w-full bg-muted/5">
-        <div
-          className="flex min-w-max gap-4 px-6 py-6"
-          style={{ height: "calc(100vh - 48px - 36px - 48px)" }}
+    <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
+      {columns.map((col, colIndex) => (
+        <ExamenGroupColumn
+          key={colIndex}
+          index={colIndex + 1}
+          title={col.title}
+          onTitleChange={(val) => updateTitle(colIndex, val)}
+          itemCount={col.rows.length}
+          onRemoveColumn={() => removeColumn(colIndex)}
+          onAddRow={() => addRow(colIndex)}
+          onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
-          {columns.map((rows, colIndex) => (
-            <ExamenGroupColumn
-              key={colIndex}
-              index={colIndex + 1}
-              itemCount={rows.length}
-              onRemoveColumn={() => removeColumn(colIndex)}
-              onAddRow={() => addRow(colIndex)}
-              onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
-            >
-              <div className="flex flex-col gap-2">
-                {rows.map((row, rowIndex) => (
-                  <ExamenLevel1Row
-                    key={row.id}
-                    index={rowIndex}
-                    data={row}
-                    onChange={(updates) =>
-                      updateRow(colIndex, rowIndex, updates)
-                    }
-                    onRemove={() => removeRow(colIndex, rowIndex)}
-                  />
-                ))}
-              </div>
-            </ExamenGroupColumn>
+          {col.rows.map((row, rowIndex) => (
+            <ExamenLevel1Row
+              key={row.id}
+              index={rowIndex}
+              data={row}
+              onChange={(updates) => updateRow(colIndex, rowIndex, updates)}
+              onRemove={() => removeRow(colIndex, rowIndex)}
+            />
           ))}
-          <AddColumnButton onClick={addColumn} label="Agregar Grupo" />
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    </div>
+        </ExamenGroupColumn>
+      ))}
+    </GroupsContainer>
   );
 });
 

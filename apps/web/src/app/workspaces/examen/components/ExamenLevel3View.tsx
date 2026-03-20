@@ -2,14 +2,18 @@
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { ExamenGroupColumn } from "./ExamenGroupColumn";
-import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
 import { ExamenLevel3Row, ExamenLevel3RowData } from "./ExamenLevel3Row";
 
+export interface ExamenLevel3Column {
+  title: string;
+  rows: ExamenLevel3RowData[];
+}
+
 export interface ExamenLevel3ViewRef {
-  getData: () => ExamenLevel3RowData[][];
-  setData: (data: ExamenLevel3RowData[][]) => void;
+  getData: () => ExamenLevel3Column[];
+  setData: (data: ExamenLevel3Column[]) => void;
 }
 
 export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
@@ -18,8 +22,8 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
     pairs: Array.from({ length: 4 }, () => ({ leftText: "", rightText: "" })),
   });
 
-  const [columns, setColumns] = useState<ExamenLevel3RowData[][]>([
-    [createEmptyRow()],
+  const [columns, setColumns] = useState<ExamenLevel3Column[]>([
+    { title: "", rows: [createEmptyRow()] },
   ]);
 
   useImperativeHandle(ref, () => ({
@@ -28,17 +32,26 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
   }));
 
   const addColumn = () => {
-    setColumns([...columns, [createEmptyRow()]]);
+    setColumns([...columns, { title: "", rows: [createEmptyRow()] }]);
   };
 
   const removeColumn = (index: number) => {
     setColumns(columns.filter((_, i) => i !== index));
   };
 
+  const updateTitle = (columnIndex: number, title: string) => {
+    const next = [...columns];
+    next[columnIndex] = { ...next[columnIndex], title };
+    setColumns(next);
+  };
+
   const addRow = (columnIndex: number) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex] = [...newColumns[columnIndex], createEmptyRow()];
-    setColumns(newColumns);
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: [...next[columnIndex].rows, createEmptyRow()],
+    };
+    setColumns(next);
   };
 
   const updateRow = (
@@ -46,25 +59,27 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
     rowIndex: number,
     updates: Partial<ExamenLevel3RowData>,
   ) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex][rowIndex] = {
-      ...newColumns[columnIndex][rowIndex],
-      ...updates,
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: next[columnIndex].rows.map((r, i) =>
+        i === rowIndex ? { ...r, ...updates } : r,
+      ),
     };
-    setColumns(newColumns);
+    setColumns(next);
   };
 
   const removeRow = (columnIndex: number, rowIndex: number) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex] = newColumns[columnIndex].filter(
-      (_, i) => i !== rowIndex,
-    );
-    setColumns(newColumns);
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: next[columnIndex].rows.filter((_, i) => i !== rowIndex),
+    };
+    setColumns(next);
   };
 
   const handleQuickLoad = useCallback(
     (columnIndex: number, matrix: string[][]) => {
-      // We expect matrix rows with at least two valid cells (colA, colB).
       const validRows = matrix.filter(
         (row) =>
           row.length >= 2 && (row[0].trim() !== "" || row[1].trim() !== ""),
@@ -72,7 +87,6 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
 
       const newRows: ExamenLevel3RowData[] = [];
 
-      // Parse every 4 lines as a new row
       for (let i = 0; i < validRows.length; i += 4) {
         const chunk = validRows.slice(i, i + 4);
         const pairs = Array.from({ length: 4 }, (_, idx) => {
@@ -92,7 +106,7 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
       if (newRows.length > 0) {
         setColumns((prev) => {
           const next = [...prev];
-          next[columnIndex] = newRows;
+          next[columnIndex] = { ...next[columnIndex], rows: newRows };
           return next;
         });
       }
@@ -101,41 +115,30 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
   );
 
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 w-full bg-muted/5">
-        <div
-          className="flex min-w-max gap-4 px-6 py-6"
-          style={{ height: "calc(100vh - 48px - 36px - 48px)" }}
+    <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
+      {columns.map((col, colIndex) => (
+        <ExamenGroupColumn
+          key={colIndex}
+          index={colIndex + 1}
+          title={col.title}
+          onTitleChange={(val) => updateTitle(colIndex, val)}
+          itemCount={col.rows.length}
+          onRemoveColumn={() => removeColumn(colIndex)}
+          onAddRow={() => addRow(colIndex)}
+          onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
-          {columns.map((rows, colIndex) => (
-            <ExamenGroupColumn
-              key={colIndex}
-              index={colIndex + 1}
-              itemCount={rows.length}
-              onRemoveColumn={() => removeColumn(colIndex)}
-              onAddRow={() => addRow(colIndex)}
-              onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
-            >
-              <div className="flex flex-col gap-2">
-                {rows.map((row, rowIndex) => (
-                  <ExamenLevel3Row
-                    key={row.id}
-                    index={rowIndex}
-                    data={row}
-                    onChange={(updates) =>
-                      updateRow(colIndex, rowIndex, updates)
-                    }
-                    onRemove={() => removeRow(colIndex, rowIndex)}
-                  />
-                ))}
-              </div>
-            </ExamenGroupColumn>
+          {col.rows.map((row, rowIndex) => (
+            <ExamenLevel3Row
+              key={row.id}
+              index={rowIndex}
+              data={row}
+              onChange={(updates) => updateRow(colIndex, rowIndex, updates)}
+              onRemove={() => removeRow(colIndex, rowIndex)}
+            />
           ))}
-          <AddColumnButton onClick={addColumn} label="Agregar Grupo" />
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    </div>
+        </ExamenGroupColumn>
+      ))}
+    </GroupsContainer>
   );
 });
 

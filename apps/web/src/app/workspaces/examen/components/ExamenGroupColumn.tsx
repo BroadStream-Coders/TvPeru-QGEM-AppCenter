@@ -1,12 +1,18 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { BoardColumn } from "@/components/shared/BoardColumn";
+import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
+import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
+import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
+import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
+import { TitleInput } from "@/components/shared/group-column/components/TitleInput";
+
+const MAX_CAPACITY = 30;
 
 interface ExamenGroupColumnProps {
   index: number;
+  title: string;
+  onTitleChange: (value: string) => void;
   itemCount: number;
   onAddRow: () => void;
   onRemoveColumn: () => void;
@@ -16,31 +22,39 @@ interface ExamenGroupColumnProps {
 
 export function ExamenGroupColumn({
   index,
+  title,
+  onTitleChange,
   itemCount,
   onAddRow,
   onRemoveColumn,
   onQuickLoad,
   children,
 }: ExamenGroupColumnProps) {
+  const handleAddRow = () => {
+    if (itemCount >= MAX_CAPACITY) return;
+    onAddRow();
+  };
+
   return (
-    <BoardColumn
+    <GroupColumn
       index={index}
-      title={`Grupo ${index}`}
-      itemCount={itemCount}
       onRemove={onRemoveColumn}
-      footer={<QuickLoad onLoad={onQuickLoad} />}
-      addButton={
-        <Button
-          onClick={onAddRow}
-          variant="outline"
-          className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 text-xs"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Agregar Fila
-        </Button>
-      }
+      currentCapacity={itemCount}
+      maxCapacity={MAX_CAPACITY}
     >
-      {children}
-    </BoardColumn>
+      <TitleInput
+        value={title}
+        onChange={onTitleChange}
+        placeholder="Nombre del grupo..."
+      />
+
+      <RowsContainer>{children}</RowsContainer>
+
+      <AddRowButton onClick={handleAddRow} label="Agregar Fila" />
+
+      <GroupFooter>
+        <QuickLoad onLoad={onQuickLoad} />
+      </GroupFooter>
+    </GroupColumn>
   );
 }

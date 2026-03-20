@@ -2,29 +2,33 @@
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { ExamenGroupColumn } from "./ExamenGroupColumn";
-import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
 import { ExamenLevel2Row, ExamenLevel2RowData } from "./ExamenLevel2Row";
 
-export interface ExamenLevel2ViewRef {
-  getData: () => ExamenLevel2RowData[][];
-  setData: (data: ExamenLevel2RowData[][]) => void;
+export interface ExamenLevel2Column {
+  title: string;
+  rows: ExamenLevel2RowData[];
 }
 
+export interface ExamenLevel2ViewRef {
+  getData: () => ExamenLevel2Column[];
+  setData: (data: ExamenLevel2Column[]) => void;
+}
+
+const createEmptyRow = (): ExamenLevel2RowData => ({
+  id: nanoid(),
+  question: "",
+  answerA: "",
+  answerB: "",
+  answerC: "",
+  answerD: "",
+  correctAnswer: "A",
+});
+
 export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
-  const [columns, setColumns] = useState<ExamenLevel2RowData[][]>([
-    [
-      {
-        id: nanoid(),
-        question: "",
-        answerA: "",
-        answerB: "",
-        answerC: "",
-        answerD: "",
-        correctAnswer: "A",
-      },
-    ],
+  const [columns, setColumns] = useState<ExamenLevel2Column[]>([
+    { title: "", rows: [createEmptyRow()] },
   ]);
 
   useImperativeHandle(ref, () => ({
@@ -33,41 +37,26 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
   }));
 
   const addColumn = () => {
-    setColumns([
-      ...columns,
-      [
-        {
-          id: nanoid(),
-          question: "",
-          answerA: "",
-          answerB: "",
-          answerC: "",
-          answerD: "",
-          correctAnswer: "A",
-        },
-      ],
-    ]);
+    setColumns([...columns, { title: "", rows: [createEmptyRow()] }]);
   };
 
   const removeColumn = (index: number) => {
     setColumns(columns.filter((_, i) => i !== index));
   };
 
+  const updateTitle = (columnIndex: number, title: string) => {
+    const next = [...columns];
+    next[columnIndex] = { ...next[columnIndex], title };
+    setColumns(next);
+  };
+
   const addRow = (columnIndex: number) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex] = [
-      ...newColumns[columnIndex],
-      {
-        id: nanoid(),
-        question: "",
-        answerA: "",
-        answerB: "",
-        answerC: "",
-        answerD: "",
-        correctAnswer: "A",
-      },
-    ];
-    setColumns(newColumns);
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: [...next[columnIndex].rows, createEmptyRow()],
+    };
+    setColumns(next);
   };
 
   const updateRow = (
@@ -75,56 +64,48 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
     rowIndex: number,
     updates: Partial<ExamenLevel2RowData>,
   ) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex][rowIndex] = {
-      ...newColumns[columnIndex][rowIndex],
-      ...updates,
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: next[columnIndex].rows.map((r, i) =>
+        i === rowIndex ? { ...r, ...updates } : r,
+      ),
     };
-    setColumns(newColumns);
+    setColumns(next);
   };
 
   const removeRow = (columnIndex: number, rowIndex: number) => {
-    const newColumns = [...columns];
-    newColumns[columnIndex] = newColumns[columnIndex].filter(
-      (_, i) => i !== rowIndex,
-    );
-    setColumns(newColumns);
+    const next = [...columns];
+    next[columnIndex] = {
+      ...next[columnIndex],
+      rows: next[columnIndex].rows.filter((_, i) => i !== rowIndex),
+    };
+    setColumns(next);
   };
 
   const handleQuickLoad = useCallback(
     (columnIndex: number, matrix: string[][]) => {
-      // Flatten the matrix to a single column array of non-empty string values.
-      // Excel vertical paste often results in matrix having one filled column per row.
       const rawLines = matrix
         .map((row) => row[0]?.trim() ?? "")
         .filter((line) => line !== "");
 
       const newRows: ExamenLevel2RowData[] = [];
 
-      // Process in chunks of 5 lines:
-      // Line 1: Question
-      // Line 2: Correct answer
-      // Line 3: Distractor
-      // Line 4: Distractor
-      // Line 5: Distractor
       for (let i = 0; i < rawLines.length; i += 5) {
         const chunk = rawLines.slice(i, i + 5);
-        if (chunk.length < 2) continue; // Skip incomplete chunks that don't even have an answer
+        if (chunk.length < 2) continue;
 
         const question = chunk[0];
         const correctAnswerText = chunk[1];
         const distractors = chunk.slice(2);
 
-        // We have up to 4 answers total.
         const allAnswers = [correctAnswerText, ...distractors];
 
-        // Shuffle answers
         for (let j = allAnswers.length - 1; j > 0; j--) {
           const k = Math.floor(Math.random() * (j + 1));
           [allAnswers[j], allAnswers[k]] = [allAnswers[k], allAnswers[j]];
         }
 
-        // Find where the correct answer landed
         const correctIndex = allAnswers.indexOf(correctAnswerText);
         const correctLetter = ["A", "B", "C", "D"][correctIndex] as
           | "A"
@@ -146,7 +127,7 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
       if (newRows.length > 0) {
         setColumns((prev) => {
           const next = [...prev];
-          next[columnIndex] = newRows;
+          next[columnIndex] = { ...next[columnIndex], rows: newRows };
           return next;
         });
       }
@@ -155,41 +136,30 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
   );
 
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 w-full bg-muted/5">
-        <div
-          className="flex min-w-max gap-4 px-6 py-6"
-          style={{ height: "calc(100vh - 48px - 36px - 48px)" }}
+    <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
+      {columns.map((col, colIndex) => (
+        <ExamenGroupColumn
+          key={colIndex}
+          index={colIndex + 1}
+          title={col.title}
+          onTitleChange={(val) => updateTitle(colIndex, val)}
+          itemCount={col.rows.length}
+          onRemoveColumn={() => removeColumn(colIndex)}
+          onAddRow={() => addRow(colIndex)}
+          onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
-          {columns.map((rows, colIndex) => (
-            <ExamenGroupColumn
-              key={colIndex}
-              index={colIndex + 1}
-              itemCount={rows.length}
-              onRemoveColumn={() => removeColumn(colIndex)}
-              onAddRow={() => addRow(colIndex)}
-              onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
-            >
-              <div className="flex flex-col gap-2">
-                {rows.map((row, rowIndex) => (
-                  <ExamenLevel2Row
-                    key={row.id}
-                    index={rowIndex}
-                    data={row}
-                    onChange={(updates) =>
-                      updateRow(colIndex, rowIndex, updates)
-                    }
-                    onRemove={() => removeRow(colIndex, rowIndex)}
-                  />
-                ))}
-              </div>
-            </ExamenGroupColumn>
+          {col.rows.map((row, rowIndex) => (
+            <ExamenLevel2Row
+              key={row.id}
+              index={rowIndex}
+              data={row}
+              onChange={(updates) => updateRow(colIndex, rowIndex, updates)}
+              onRemove={() => removeRow(colIndex, rowIndex)}
+            />
           ))}
-          <AddColumnButton onClick={addColumn} label="Agregar Grupo" />
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    </div>
+        </ExamenGroupColumn>
+      ))}
+    </GroupsContainer>
   );
 });
 
