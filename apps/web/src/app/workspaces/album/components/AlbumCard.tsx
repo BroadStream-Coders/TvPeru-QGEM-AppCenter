@@ -41,7 +41,7 @@ export function AlbumCard({
             }}
             className={`h-6 px-2 text-3xs font-bold uppercase transition-all shadow-sm w-full ${
               isCroma
-                ? "bg-brand text-brand-foreground hover:brightness-110 border-transparent"
+                ? "bg-brand text-brand-foreground hover:bg-destructive/80 hover:text-destructive-foreground border-transparent"
                 : "bg-background/95 text-muted-foreground hover:bg-brand/10 hover:text-brand border-border"
             }`}
           >
@@ -51,11 +51,12 @@ export function AlbumCard({
       </div>
 
       <div className="px-0.5 pb-0.5">
-        <textarea
+        <input
+          type="text"
           value={name || ""}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder="Pregunta o descripción..."
-          className="w-full h-14 resize-none rounded-md border border-border bg-background px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all leading-relaxed"
+          placeholder="Pregunta..."
+          className="w-full h-8 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-1 focus:ring-brand/40 transition-all"
           onClick={(e) => e.stopPropagation()}
         />
       </div>

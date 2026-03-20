@@ -5,8 +5,7 @@ import { Image as ImageIcon } from "lucide-react";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
-import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
 import { ImageSlot } from "@/types";
 import { AlbumColumn } from "./components/AlbumColumn";
@@ -52,9 +51,8 @@ const createEmptyAlbumRound = (): AlbumRound => {
 export default function AlbumPage() {
   const [rounds, setRounds] = useState<AlbumRound[]>([createEmptyAlbumRound()]);
 
-  const addRound = (count: number = 1) => {
-    const newRounds = Array(count).fill(null).map(createEmptyAlbumRound);
-    setRounds((prev) => [...prev, ...newRounds]);
+  const addRound = () => {
+    setRounds((prev) => [...prev, createEmptyAlbumRound()]);
   };
 
   const removeRound = (roundId: string) => {
@@ -64,8 +62,6 @@ export default function AlbumPage() {
     });
     setRounds((prev) => prev.filter((r) => r.id !== roundId));
   };
-
-  // Photos amount are fixed to 5 per round. Removed addPhotoToRound and removePhotoFromRound.
 
   const updatePhotoInRound = (
     roundId: string,
@@ -97,6 +93,29 @@ export default function AlbumPage() {
   ) => {
     setRounds((prev) =>
       prev.map((r) => (r.id === roundId ? { ...r, ...updates } : r)),
+    );
+  };
+
+  const handleQuickLoad = (roundId: string, matrix: string[][]) => {
+    // Each line = a question name, max 5 taken
+    const names = matrix
+      .map((row) => row[0]?.trim() ?? "")
+      .filter((line) => line !== "")
+      .slice(0, 5);
+
+    if (names.length === 0) return;
+
+    setRounds((prev) =>
+      prev.map((r) => {
+        if (r.id !== roundId) return r;
+        return {
+          ...r,
+          photos: r.photos.map((p, i) => ({
+            ...p,
+            name: names[i] ?? p.name,
+          })),
+        };
+      }),
     );
   };
 
@@ -228,32 +247,22 @@ export default function AlbumPage() {
         <FileActions format="zip" onSave={handleSave} onLoad={handleLoad} />
       }
     >
-      <ScrollArea className="w-full h-full">
-        <div
-          className="flex min-w-max gap-4 px-6 py-6"
-          style={{ height: "calc(100vh - 48px - 36px)" }}
-        >
-          {rounds.map((round, roundIndex) => (
-            <AlbumColumn
-              key={round.id}
-              index={roundIndex + 1}
-              photos={round.photos}
-              context={round.context}
-              onUpdatePhoto={(photoId, updates) =>
-                updatePhotoInRound(round.id, photoId, updates)
-              }
-              onUpdateRound={(updates) => updateRound(round.id, updates)}
-              onRemoveColumn={() => removeRound(round.id)}
-            />
-          ))}
-
-          <AddColumnButton
-            label="Agregar columna"
-            onClick={() => addRound(1)}
+      <GroupsContainer onAddGroup={addRound} addLabel="Agregar columna">
+        {rounds.map((round, roundIndex) => (
+          <AlbumColumn
+            key={round.id}
+            index={roundIndex + 1}
+            photos={round.photos}
+            context={round.context}
+            onUpdatePhoto={(photoId, updates) =>
+              updatePhotoInRound(round.id, photoId, updates)
+            }
+            onUpdateRound={(updates) => updateRound(round.id, updates)}
+            onRemoveColumn={() => removeRound(round.id)}
+            onQuickLoad={(matrix) => handleQuickLoad(round.id, matrix)}
           />
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+        ))}
+      </GroupsContainer>
     </WorkspaceShell>
   );
 }
