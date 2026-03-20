@@ -107,65 +107,73 @@ export default function ExamenPage() {
 
       if (sessionData.level1?.groups) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const d1: ExamenLevel1Column[] = sessionData.level1.groups.map((g: any) => ({
-          title: g.title || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          rows: g.questions.map((q: any) => ({
-            id: nanoid(),
-            question: q.question || "",
-            answerL: q.options?.[0] || "",
-            answerR: q.options?.[1] || "",
-            correctAnswer: q.correctIndex === 0 ? "L" : "R",
-          })),
-        }));
+        const d1: ExamenLevel1Column[] = sessionData.level1.groups.map(
+          (g: any) => ({
+            title: g.title || "",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rows: g.questions.map((q: any) => ({
+              id: nanoid(),
+              question: q.question || "",
+              answerL: q.options?.[0] || "",
+              answerR: q.options?.[1] || "",
+              correctAnswer: q.correctIndex === 0 ? "L" : "R",
+            })),
+          }),
+        );
         level1Ref.current?.setData(d1);
       }
 
       if (sessionData.level2?.groups) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const d2: ExamenLevel2Column[] = sessionData.level2.groups.map((g: any) => ({
-          title: g.title || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          rows: g.questions.map((q: any) => ({
-            id: nanoid(),
-            question: q.question || "",
-            answerA: q.options?.[0] || "",
-            answerB: q.options?.[1] || "",
-            answerC: q.options?.[2] || "",
-            answerD: q.options?.[3] || "",
-            correctAnswer: ["A", "B", "C", "D"][q.correctIndex || 0],
-          })),
-        }));
+        const d2: ExamenLevel2Column[] = sessionData.level2.groups.map(
+          (g: any) => ({
+            title: g.title || "",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rows: g.questions.map((q: any) => ({
+              id: nanoid(),
+              question: q.question || "",
+              answerA: q.options?.[0] || "",
+              answerB: q.options?.[1] || "",
+              answerC: q.options?.[2] || "",
+              answerD: q.options?.[3] || "",
+              correctAnswer: ["A", "B", "C", "D"][q.correctIndex || 0],
+            })),
+          }),
+        );
         level2Ref.current?.setData(d2);
       }
 
       if (sessionData.level3?.groups) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const d3: ExamenLevel3Column[] = sessionData.level3.groups.map((g: any) => ({
-          title: g.title || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          rows: g.questions.map((q: any) => ({
-            id: nanoid(),
-            pairs: Array.from({ length: 4 }, (_, idx) => ({
-              leftText: q.pairs?.[idx]?.leftText || "",
-              rightText: q.pairs?.[idx]?.rightText || "",
+        const d3: ExamenLevel3Column[] = sessionData.level3.groups.map(
+          (g: any) => ({
+            title: g.title || "",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rows: g.questions.map((q: any) => ({
+              id: nanoid(),
+              pairs: Array.from({ length: 4 }, (_, idx) => ({
+                leftText: q.pairs?.[idx]?.leftText || "",
+                rightText: q.pairs?.[idx]?.rightText || "",
+              })),
             })),
-          })),
-        }));
+          }),
+        );
         level3Ref.current?.setData(d3);
       }
 
       if (sessionData.level4?.groups) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const d4: ExamenLevel4Column[] = sessionData.level4.groups.map((g: any) => ({
-          title: g.title || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          rows: g.questions.map((q: any) => ({
-            id: nanoid(),
-            question: q.question || "",
-            answer: q.answer || "",
-          })),
-        }));
+        const d4: ExamenLevel4Column[] = sessionData.level4.groups.map(
+          (g: any) => ({
+            title: g.title || "",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rows: g.questions.map((q: any) => ({
+              id: nanoid(),
+              question: q.question || "",
+              answer: q.answer || "",
+            })),
+          }),
+        );
         level4Ref.current?.setData(d4);
       }
     } catch {

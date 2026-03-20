@@ -28,7 +28,11 @@ interface PlayerData {
 }
 
 interface SessionData {
-  players: { playerName: string; pictureFile: string | null; maxHealth: number }[];
+  players: {
+    playerName: string;
+    pictureFile: string | null;
+    maxHealth: number;
+  }[];
   groups: LibroGroup[];
 }
 
