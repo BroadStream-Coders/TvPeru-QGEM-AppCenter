@@ -4,10 +4,9 @@ import { PenTool } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
-import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { RedactorCard } from "./components/RedactorColumn";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const DEFAULT_FILENAME = "Redactor.json";
 
@@ -76,33 +75,25 @@ export default function RedactorPage() {
         <FileActions format="json" onSave={handleSave} onLoad={handleLoad} />
       }
     >
-      <ScrollArea className="w-full h-full">
-        <div
-          className="flex min-w-max gap-4 px-6 py-6"
-          style={{ height: "calc(100vh - 48px - 36px)" }}
-        >
-          {groups.map((rows, groupIndex) => (
-            <RedactorCard
-              key={groupIndex}
-              index={groupIndex + 1}
-              rows={rows}
-              onRowChange={(rowIdx, field, val) =>
-                updateItem(groupIndex, rowIdx, {
-                  ...rows[rowIdx],
-                  [field]: val,
-                })
-              }
-              onAddRow={() => addItem(groupIndex)}
-              onRemoveRow={(rowIdx) => removeItem(groupIndex, rowIdx)}
-              onRemoveCard={() => removeGroup(groupIndex)}
-              onQuickLoad={(matrix) => handleQuickLoad(groupIndex, matrix)}
-            />
-          ))}
-
-          <AddColumnButton label="Agregar ronda" onClick={addGroup} />
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      <GroupsContainer onAddGroup={addGroup} addLabel="Agregar ronda">
+        {groups.map((rows, groupIndex) => (
+          <RedactorCard
+            key={groupIndex}
+            index={groupIndex + 1}
+            rows={rows}
+            onRowChange={(rowIdx, field, val) =>
+              updateItem(groupIndex, rowIdx, {
+                ...rows[rowIdx],
+                [field]: val,
+              })
+            }
+            onAddRow={() => addItem(groupIndex)}
+            onRemoveRow={(rowIdx) => removeItem(groupIndex, rowIdx)}
+            onRemoveCard={() => removeGroup(groupIndex)}
+            onQuickLoad={(matrix) => handleQuickLoad(groupIndex, matrix)}
+          />
+        ))}
+      </GroupsContainer>
     </WorkspaceShell>
   );
 }

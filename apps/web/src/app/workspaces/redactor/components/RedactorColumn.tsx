@@ -1,10 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { BoardColumn } from "@/components/shared/BoardColumn";
+import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
+import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
+import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
+import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
 import { RedactorRow } from "./RedactorRow";
+
+const MAX_CAPACITY = 30;
 
 interface RedactorRowData {
   original: string;
@@ -34,41 +37,41 @@ export function RedactorCard({
   onRemoveCard,
   onQuickLoad,
 }: RedactorCardProps) {
+  const handleAddRow = () => {
+    if (rows.length >= MAX_CAPACITY) return;
+    onAddRow();
+  };
+
   return (
-    <BoardColumn
+    <GroupColumn
       index={index}
-      title={`Ronda ${index}`}
-      itemCount={rows.length}
-      width="w-[650px]"
       onRemove={onRemoveCard}
-      footer={
+      currentCapacity={rows.length}
+      maxCapacity={MAX_CAPACITY}
+      width="w-[650px]"
+    >
+      <RowsContainer>
+        {rows.map((row, rowIndex) => (
+          <RedactorRow
+            key={rowIndex}
+            index={rowIndex}
+            original={row.original}
+            corrected={row.corrected}
+            onOriginalChange={(val) => onRowChange(rowIndex, "original", val)}
+            onCorrectedChange={(val) => onRowChange(rowIndex, "corrected", val)}
+            onRemove={() => onRemoveRow(rowIndex)}
+          />
+        ))}
+      </RowsContainer>
+
+      <AddRowButton onClick={handleAddRow} label="Agregar Fila" />
+
+      <GroupFooter>
         <QuickLoad
           onLoad={onQuickLoad}
           placeholder="Pega frases aquí (original [tab] corregida)..."
         />
-      }
-      addButton={
-        <Button
-          onClick={onAddRow}
-          variant="outline"
-          className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 text-xs"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Agregar Fila
-        </Button>
-      }
-    >
-      {rows.map((row, rowIndex) => (
-        <RedactorRow
-          key={rowIndex}
-          index={rowIndex}
-          original={row.original}
-          corrected={row.corrected}
-          onOriginalChange={(val) => onRowChange(rowIndex, "original", val)}
-          onCorrectedChange={(val) => onRowChange(rowIndex, "corrected", val)}
-          onRemove={() => onRemoveRow(rowIndex)}
-        />
-      ))}
-    </BoardColumn>
+      </GroupFooter>
+    </GroupColumn>
   );
 }
