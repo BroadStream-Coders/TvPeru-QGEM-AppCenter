@@ -4,10 +4,9 @@ import { Calculator } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
 import { FileActions } from "@/components/shared/FileActions";
-import { AddColumnButton } from "@/components/shared/group-column/components/AddColumnButton";
+import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { CalculoMentalColumn } from "./components/CalculoMentalColumn";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const DEFAULT_FILENAME = "CalculoMental.json";
 
@@ -99,40 +98,27 @@ export default function CalculoMentalPage() {
         <FileActions format="json" onSave={handleSave} onLoad={handleLoad} />
       }
     >
-      <ScrollArea className="w-full h-full">
-        <div
-          className="flex min-w-max gap-6 px-8 py-8"
-          style={{ height: "calc(100vh - 48px - 36px)" }}
-        >
-          {groups.map((boards, groupIndex) => (
-            <CalculoMentalColumn
-              key={groupIndex}
-              index={groupIndex + 1}
-              boards={boards}
-              onSlotChange={(boardIdx, slotIdx, field, val) =>
-                updateItem(groupIndex, boardIdx, {
-                  ...boards[boardIdx],
-                  slots: boards[boardIdx].slots.map((s, i) =>
-                    i === slotIdx ? { ...s, [field]: val } : s,
-                  ),
-                })
-              }
-              onAddBoard={() => addItem(groupIndex)}
-              onRemoveBoard={(boardIdx) => removeItem(groupIndex, boardIdx)}
-              onRemoveColumn={() => removeGroup(groupIndex)}
-              onQuickLoad={(matrix) => handleQuickLoad(groupIndex, matrix)}
-            />
-          ))}
-
-          <AddColumnButton
-            label="Añadir Grupo"
-            sublabel="(Nueva Columna)"
-            onClick={addGroup}
-            width="w-[240px]"
+      <GroupsContainer onAddGroup={addGroup} addLabel="Añadir Grupo">
+        {groups.map((boards, groupIndex) => (
+          <CalculoMentalColumn
+            key={groupIndex}
+            index={groupIndex + 1}
+            boards={boards}
+            onSlotChange={(boardIdx, slotIdx, field, val) =>
+              updateItem(groupIndex, boardIdx, {
+                ...boards[boardIdx],
+                slots: boards[boardIdx].slots.map((s, i) =>
+                  i === slotIdx ? { ...s, [field]: val } : s,
+                ),
+              })
+            }
+            onAddBoard={() => addItem(groupIndex)}
+            onRemoveBoard={(boardIdx) => removeItem(groupIndex, boardIdx)}
+            onRemoveColumn={() => removeGroup(groupIndex)}
+            onQuickLoad={(matrix) => handleQuickLoad(groupIndex, matrix)}
           />
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+        ))}
+      </GroupsContainer>
     </WorkspaceShell>
   );
 }

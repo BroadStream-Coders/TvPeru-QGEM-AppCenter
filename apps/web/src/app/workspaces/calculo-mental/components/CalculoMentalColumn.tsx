@@ -1,10 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { BoardColumn } from "@/components/shared/BoardColumn";
+import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
+import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
+import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
+import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
 import { CalculoMentalBoard } from "./CalculoMentalBoard";
+
+const MAX_CAPACITY = 30;
 
 interface SlotData {
   question: string;
@@ -39,41 +42,41 @@ export function CalculoMentalColumn({
   onRemoveColumn,
   onQuickLoad,
 }: CalculoMentalColumnProps) {
+  const handleAddBoard = () => {
+    if (boards.length >= MAX_CAPACITY) return;
+    onAddBoard();
+  };
+
   return (
-    <BoardColumn
+    <GroupColumn
       index={index}
-      title={`Grupo ${index}`}
-      itemCount={boards.length}
-      width="w-[700px]"
       onRemove={onRemoveColumn}
-      footer={
+      currentCapacity={boards.length}
+      maxCapacity={MAX_CAPACITY}
+      width="w-[700px]"
+    >
+      <RowsContainer>
+        {boards.map((board, boardIdx) => (
+          <CalculoMentalBoard
+            key={boardIdx}
+            index={boardIdx}
+            slots={board.slots}
+            onSlotChange={(slotIdx, field, val) =>
+              onSlotChange(boardIdx, slotIdx, field, val)
+            }
+            onRemoveBoard={() => onRemoveBoard(boardIdx)}
+          />
+        ))}
+      </RowsContainer>
+
+      <AddRowButton onClick={handleAddBoard} label="Añadir Tablero" />
+
+      <GroupFooter>
         <QuickLoad
           onLoad={onQuickLoad}
           placeholder="Pegar datos de Excel/Texto para carga rápida..."
         />
-      }
-      addButton={
-        <Button
-          onClick={onAddBoard}
-          variant="outline"
-          className="w-full h-9 gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 text-xs font-semibold uppercase tracking-wide"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Añadir Tablero
-        </Button>
-      }
-    >
-      {boards.map((board, boardIdx) => (
-        <CalculoMentalBoard
-          key={boardIdx}
-          index={boardIdx}
-          slots={board.slots}
-          onSlotChange={(slotIdx, field, val) =>
-            onSlotChange(boardIdx, slotIdx, field, val)
-          }
-          onRemoveBoard={() => onRemoveBoard(boardIdx)}
-        />
-      ))}
-    </BoardColumn>
+      </GroupFooter>
+    </GroupColumn>
   );
 }
