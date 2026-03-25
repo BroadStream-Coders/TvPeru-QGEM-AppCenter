@@ -1,3 +1,5 @@
+import { WorkspaceHeader } from "@/components/shared/WorkspaceHeader";
+
 export default function WorkspaceLayout({
   children,
 }: {
@@ -5,6 +7,7 @@ export default function WorkspaceLayout({
 }) {
   return (
     <div className="flex h-screen flex-col bg-background text-foreground font-sans overflow-hidden">
+      <WorkspaceHeader />
       <div className="flex flex-col flex-1 overflow-hidden">{children}</div>
 
       <footer className="flex h-9 shrink-0 items-center justify-between border-t border-border px-6 bg-background">

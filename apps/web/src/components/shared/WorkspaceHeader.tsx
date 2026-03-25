@@ -4,21 +4,13 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { FileActions } from "./FileActions";
 
-interface WorkspaceHeaderProps {
-  title: string;
-  icon?: React.ReactNode;
-  format?: "json" | "zip";
-  onSave?: () => void;
-  onLoad?: (file: File) => void;
-}
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 
-export function WorkspaceHeader({
-  title,
-  icon,
-  format,
-  onSave,
-  onLoad,
-}: WorkspaceHeaderProps) {
+export function WorkspaceHeader() {
+  const { title, icon, format, onSave, onLoad } = useWorkspaceHeader();
+
+  if (!title) return null;
+
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4 z-10 w-full">
       <div className="flex items-center gap-3">

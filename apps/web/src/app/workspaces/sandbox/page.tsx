@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, PenTool, FileText } from "lucide-react";
 import { LevelTabs } from "@/components/shared/LevelTabs";
-import { WorkspaceHeader } from "@/components/shared/WorkspaceHeader";
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
 import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
@@ -107,6 +107,21 @@ function EmptyLevel({ name }: { name: string }) {
 }
 
 export default function SandboxPage() {
+  const setHeader = useWorkspaceHeader((s) => s.setHeader);
+  const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
+
+  useEffect(() => {
+    setHeader({
+      title: "Sandbox (Layout Header)",
+      icon: <Box className="h-3 w-3" />,
+      format: "json",
+      onSave: () => alert("Guardar: Disparado desde Layout Global"),
+      onLoad: (file) => alert(`Cargar: ${file.name} desde Layout Global`),
+    });
+
+    return () => resetHeader();
+  }, [setHeader, resetHeader]);
+
   const levels = [
     { name: "Columnas", icon: PenTool, component: <ColumnsDemo /> },
     {
@@ -119,14 +134,6 @@ export default function SandboxPage() {
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground font-sans overflow-hidden">
-      <WorkspaceHeader
-        title="Sandbox"
-        icon={<Box className="h-3 w-3" />}
-        format="json"
-        onSave={() => alert("Guardar presionado desde el Header Display")}
-        onLoad={(file) => alert(`Archivo cargado: ${file.name}`)}
-      />
-
       <main className="flex-1 overflow-hidden">
         <LevelTabs levels={levels} />
       </main>
