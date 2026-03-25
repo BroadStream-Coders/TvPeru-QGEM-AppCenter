@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, Box, PenTool, FileText } from "lucide-react";
+import { Box, PenTool, FileText } from "lucide-react";
 import { LevelTabs } from "@/components/shared/LevelTabs";
+import { WorkspaceHeader } from "@/components/shared/WorkspaceHeader";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
 import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
@@ -119,22 +119,13 @@ export default function SandboxPage() {
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground font-sans overflow-hidden">
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-card/50 px-6 backdrop-blur-sm">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="group flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-brand/10 text-brand">
-              <Box className="h-4 w-4" />
-            </span>
-            <span className="text-sm font-bold tracking-tight">Sandbox</span>
-          </div>
-        </div>
-      </header>
+      <WorkspaceHeader
+        title="Sandbox"
+        icon={<Box className="h-3 w-3" />}
+        format="json"
+        onSave={() => alert("Guardar presionado desde el Header Display")}
+        onLoad={(file) => alert(`Archivo cargado: ${file.name}`)}
+      />
 
       <main className="flex-1 overflow-hidden">
         <LevelTabs levels={levels} />
