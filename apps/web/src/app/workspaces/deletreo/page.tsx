@@ -1,11 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { SpellCheck } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { getColumnData } from "@/helpers/data-processing";
-import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
-import { FileActions } from "@/components/shared/FileActions";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { DeletreoColumn } from "./components/DeletreoColumn";
 
@@ -30,6 +31,9 @@ export default function DeletreoPage() {
     replaceGroup,
     setGroups,
   } = useWorkspaceGroups<string>([["", "", ""]], () => "");
+
+  const setHeader = useWorkspaceHeader((s) => s.setHeader);
+  const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
 
   const handleQuickLoad = (groupIndex: number, matrix: string[][]) => {
     replaceGroup(groupIndex, getColumnData(matrix, 0));
@@ -56,15 +60,22 @@ export default function DeletreoPage() {
     }
   };
 
+  useEffect(() => {
+    return () => resetHeader();
+  }, [resetHeader]);
+
+  useEffect(() => {
+    setHeader({
+      title: "Deletreo",
+      icon: <SpellCheck className="h-3 w-3" />,
+      format: "json",
+      onSave: handleSave,
+      onLoad: handleLoad,
+    });
+  }, [setHeader]);
+
   return (
-    <WorkspaceShell
-      title="Deletreo"
-      icon={<SpellCheck className="h-3 w-3" />}
-      badge={`${groups.length} ronda${groups.length !== 1 ? "s" : ""}`}
-      actions={
-        <FileActions format="json" onSave={handleSave} onLoad={handleLoad} />
-      }
-    >
+    <main className="flex-1 overflow-hidden">
       <GroupsContainer onAddGroup={addGroup} addLabel="Agregar ronda">
         {groups.map((words, groupIndex) => (
           <DeletreoColumn
@@ -81,6 +92,6 @@ export default function DeletreoPage() {
           />
         ))}
       </GroupsContainer>
-    </WorkspaceShell>
+    </main>
   );
 }

@@ -1,10 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { FileText, Layers } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
-import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
-import { FileActions } from "@/components/shared/FileActions";
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { LevelTabs } from "@/components/shared/LevelTabs";
 import { nanoid } from "nanoid";
 import { ExamenSessionData } from "./types";
@@ -36,6 +35,9 @@ export default function ExamenPage() {
   const level2Ref = useRef<ExamenLevel2ViewRef>(null);
   const level3Ref = useRef<ExamenLevel3ViewRef>(null);
   const level4Ref = useRef<ExamenLevel4ViewRef>(null);
+
+  const setHeader = useWorkspaceHeader((s) => s.setHeader);
+  const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
 
   const handleSave = () => {
     const data1 = level1Ref.current?.getData() || [];
@@ -164,15 +166,22 @@ export default function ExamenPage() {
     }
   };
 
+  useEffect(() => {
+    return () => resetHeader();
+  }, [resetHeader]);
+
+  useEffect(() => {
+    setHeader({
+      title: "Examen",
+      icon: <FileText className="h-3 w-3" />,
+      format: "json",
+      onSave: handleSave,
+      onLoad: handleLoad,
+    });
+  }, [setHeader]);
+
   return (
-    <WorkspaceShell
-      title="Examen"
-      icon={<FileText className="h-3 w-3" />}
-      badge="4 niveles"
-      actions={
-        <FileActions format="json" onSave={handleSave} onLoad={handleLoad} />
-      }
-    >
+    <main className="flex-1 overflow-hidden">
       <LevelTabs
         levels={[
           {
@@ -197,6 +206,6 @@ export default function ExamenPage() {
           },
         ]}
       />
-    </WorkspaceShell>
+    </main>
   );
 }

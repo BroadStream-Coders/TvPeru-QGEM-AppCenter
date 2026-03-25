@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { PenTool } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
-import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
-import { FileActions } from "@/components/shared/FileActions";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { RedactorCard } from "./components/RedactorColumn";
 
@@ -37,6 +38,9 @@ export default function RedactorPage() {
     setGroups,
   } = useWorkspaceGroups<RedactorRowData>([[createEmptyRow()]], createEmptyRow);
 
+  const setHeader = useWorkspaceHeader((s) => s.setHeader);
+  const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
+
   const handleQuickLoad = (groupIndex: number, matrix: string[][]) => {
     const rows = matrix.map((row) => ({
       original: (row[0] || "").trim(),
@@ -66,15 +70,22 @@ export default function RedactorPage() {
     }
   };
 
+  useEffect(() => {
+    return () => resetHeader();
+  }, [resetHeader]);
+
+  useEffect(() => {
+    setHeader({
+      title: "Redactor",
+      icon: <PenTool className="h-3 w-3" />,
+      format: "json",
+      onSave: handleSave,
+      onLoad: handleLoad,
+    });
+  }, [setHeader]);
+
   return (
-    <WorkspaceShell
-      title="Redactor"
-      icon={<PenTool className="h-3 w-3" />}
-      badge={`${groups.length} ronda${groups.length !== 1 ? "s" : ""}`}
-      actions={
-        <FileActions format="json" onSave={handleSave} onLoad={handleLoad} />
-      }
-    >
+    <main className="flex-1 overflow-hidden">
       <GroupsContainer onAddGroup={addGroup} addLabel="Agregar ronda">
         {groups.map((rows, groupIndex) => (
           <RedactorCard
@@ -94,6 +105,6 @@ export default function RedactorPage() {
           />
         ))}
       </GroupsContainer>
-    </WorkspaceShell>
+    </main>
   );
 }

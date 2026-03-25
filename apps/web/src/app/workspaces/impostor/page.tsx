@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VenetianMask, Layers } from "lucide-react";
 import { nanoid } from "nanoid";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
-import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
-import { FileActions } from "@/components/shared/FileActions";
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { LevelTabs } from "@/components/shared/LevelTabs";
 import { ImpostorLevel1View } from "./components/ImpostorLevel1View";
 import { ImpostorLevel2View } from "./components/ImpostorLevel2View";
@@ -90,6 +89,12 @@ export default function ImpostorPage() {
     nivel1: [createEmptyLevel1Round()],
     nivel2: [createEmptyLevel2Round()],
   });
+
+  const setHeader = useWorkspaceHeader((s) => s.setHeader);
+  const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
+
+  const totalRounds =
+    roundsPerLevel.nivel1.length + roundsPerLevel.nivel2.length;
 
   const setRoundsForLevel = (
     level: LevelId,
@@ -454,18 +459,22 @@ export default function ImpostorPage() {
     }
   };
 
-  const totalRounds =
-    roundsPerLevel.nivel1.length + roundsPerLevel.nivel2.length;
+  useEffect(() => {
+    return () => resetHeader();
+  }, [resetHeader]);
+
+  useEffect(() => {
+    setHeader({
+      title: "Impostor",
+      icon: <VenetianMask className="h-3 w-3" />,
+      format: "zip",
+      onSave: handleSave,
+      onLoad: handleLoad,
+    });
+  }, [setHeader]);
 
   return (
-    <WorkspaceShell
-      title="Impostor"
-      icon={<VenetianMask className="h-3 w-3" />}
-      badge={`${totalRounds} ronda${totalRounds !== 1 ? "s" : ""}`}
-      actions={
-        <FileActions format="zip" onSave={handleSave} onLoad={handleLoad} />
-      }
-    >
+    <main className="flex-1 overflow-hidden">
       <LevelTabs
         levels={[
           {
@@ -500,6 +509,6 @@ export default function ImpostorPage() {
           },
         ]}
       />
-    </WorkspaceShell>
+    </main>
   );
 }

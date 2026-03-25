@@ -8,7 +8,7 @@ interface WorkspaceHeaderState {
   onSave?: () => void;
   onLoad?: (file: File) => void;
   setHeader: (
-    header: Omit<WorkspaceHeaderState, "setHeader" | "resetHeader">
+    header: Omit<WorkspaceHeaderState, "setHeader" | "resetHeader">,
   ) => void;
   resetHeader: () => void;
 }

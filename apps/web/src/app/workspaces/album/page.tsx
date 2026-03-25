@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Image as ImageIcon } from "lucide-react";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
-import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
-import { FileActions } from "@/components/shared/FileActions";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { nanoid } from "nanoid";
 import { ImageSlot } from "@/types";
 import { AlbumColumn } from "./components/AlbumColumn";
@@ -50,6 +49,8 @@ const createEmptyAlbumRound = (): AlbumRound => {
 
 export default function AlbumPage() {
   const [rounds, setRounds] = useState<AlbumRound[]>([createEmptyAlbumRound()]);
+  const setHeader = useWorkspaceHeader((s) => s.setHeader);
+  const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
 
   const addRound = () => {
     setRounds((prev) => [...prev, createEmptyAlbumRound()]);
@@ -238,15 +239,22 @@ export default function AlbumPage() {
     }
   };
 
+  useEffect(() => {
+    return () => resetHeader();
+  }, [resetHeader]);
+
+  useEffect(() => {
+    setHeader({
+      title: "Album",
+      icon: <ImageIcon className="h-3 w-3" />,
+      format: "zip",
+      onSave: handleSave,
+      onLoad: handleLoad,
+    });
+  }, [rounds, setHeader]);
+
   return (
-    <WorkspaceShell
-      title="Album"
-      icon={<ImageIcon className="h-3 w-3" />}
-      badge={`${rounds.length} columna${rounds.length !== 1 ? "s" : ""}`}
-      actions={
-        <FileActions format="zip" onSave={handleSave} onLoad={handleLoad} />
-      }
-    >
+    <main className="flex-1 overflow-hidden">
       <GroupsContainer onAddGroup={addRound} addLabel="Agregar columna">
         {rounds.map((round, roundIndex) => (
           <AlbumColumn
@@ -263,6 +271,6 @@ export default function AlbumPage() {
           />
         ))}
       </GroupsContainer>
-    </WorkspaceShell>
+    </main>
   );
 }

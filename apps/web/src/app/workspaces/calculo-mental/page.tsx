@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { Calculator } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
-import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
-import { FileActions } from "@/components/shared/FileActions";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { CalculoMentalColumn } from "./components/CalculoMentalColumn";
 
@@ -43,6 +44,9 @@ export default function CalculoMentalPage() {
     replaceGroup,
     setGroups,
   } = useWorkspaceGroups<BoardData>([[createEmptyBoard()]], createEmptyBoard);
+
+  const setHeader = useWorkspaceHeader((s) => s.setHeader);
+  const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
 
   const handleQuickLoad = (groupIndex: number, matrix: string[][]) => {
     const boards: BoardData[] = [];
@@ -89,15 +93,22 @@ export default function CalculoMentalPage() {
     }
   };
 
+  useEffect(() => {
+    return () => resetHeader();
+  }, [resetHeader]);
+
+  useEffect(() => {
+    setHeader({
+      title: "Cálculo Mental",
+      icon: <Calculator className="h-3 w-3" />,
+      format: "json",
+      onSave: handleSave,
+      onLoad: handleLoad,
+    });
+  }, [setHeader]);
+
   return (
-    <WorkspaceShell
-      title="Cálculo Mental"
-      icon={<Calculator className="h-3 w-3" />}
-      badge={`${groups.length} grupo${groups.length !== 1 ? "s" : ""}`}
-      actions={
-        <FileActions format="json" onSave={handleSave} onLoad={handleLoad} />
-      }
-    >
+    <main className="flex-1 overflow-hidden">
       <GroupsContainer onAddGroup={addGroup} addLabel="Añadir Grupo">
         {groups.map((boards, groupIndex) => (
           <CalculoMentalColumn
@@ -119,6 +130,6 @@ export default function CalculoMentalPage() {
           />
         ))}
       </GroupsContainer>
-    </WorkspaceShell>
+    </main>
   );
 }

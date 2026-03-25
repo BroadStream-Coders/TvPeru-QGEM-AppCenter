@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BookOpen, Users } from "lucide-react";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
-import { WorkspaceShell } from "@/components/shared/WorkspaceShell";
-import { FileActions } from "@/components/shared/FileActions";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
+import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { LibroColumn } from "./components/LibroColumn";
 import { PlayersColumn } from "./components/PlayersColumn";
@@ -48,6 +47,9 @@ export default function MiLibroFavoritoPage() {
     { name: "", imagePreview: null },
     { name: "", imagePreview: null },
   ]);
+
+  const setHeader = useWorkspaceHeader((s) => s.setHeader);
+  const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
 
   const {
     groups,
@@ -151,23 +153,22 @@ export default function MiLibroFavoritoPage() {
     }
   };
 
+  useEffect(() => {
+    return () => resetHeader();
+  }, [resetHeader]);
+
+  useEffect(() => {
+    setHeader({
+      title: "Mi Libro Favorito",
+      icon: <BookOpen className="h-3 w-3" />,
+      format: "zip",
+      onSave: handleSave,
+      onLoad: handleLoad,
+    });
+  }, [setHeader]);
+
   return (
-    <WorkspaceShell
-      title="Mi Libro Favorito"
-      icon={<BookOpen className="h-3 w-3" />}
-      badge={`${groups.length} ronda${groups.length !== 1 ? "s" : ""}`}
-      actions={
-        <>
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-amber-500/20 bg-amber-500/10 text-amber-500">
-            <Users className="h-3 w-3" />
-            <span className="text-2xs font-bold uppercase tracking-wider">
-              Solo 2 Players
-            </span>
-          </div>
-          <FileActions format="zip" onSave={handleSave} onLoad={handleLoad} />
-        </>
-      }
-    >
+    <main className="flex-1 overflow-hidden">
       <div className="flex h-full overflow-hidden">
         {/* Player info column — se mantiene fuera del sistema de grupos */}
         <div className="shrink-0 overflow-y-auto py-6 px-6">
@@ -203,6 +204,6 @@ export default function MiLibroFavoritoPage() {
           </GroupsContainer>
         </div>
       </div>
-    </WorkspaceShell>
+    </main>
   );
 }
