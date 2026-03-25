@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Image as ImageIcon } from "lucide-react";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
@@ -120,7 +120,7 @@ export default function AlbumPage() {
     );
   };
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     const prepareMetadata = (albumRounds: AlbumRound[]): AlbumExportRound[] =>
       albumRounds.map((round) => ({
         title: round.context,
@@ -162,9 +162,9 @@ export default function AlbumPage() {
     } catch {
       alert("Error al exportar los datos.");
     }
-  };
+  }, [rounds]);
 
-  const handleLoad = async (file: File) => {
+  const handleLoad = useCallback(async (file: File) => {
     try {
       const zip = await loadZipFile(file);
       const dataFile = zip.file(SESSION_DATA_FILENAME) || zip.file("data.json");
@@ -237,7 +237,7 @@ export default function AlbumPage() {
     } catch {
       alert("Error al importar los datos.");
     }
-  };
+  }, []);
 
   useEffect(() => {
     return () => resetHeader();
@@ -251,7 +251,7 @@ export default function AlbumPage() {
       onSave: handleSave,
       onLoad: handleLoad,
     });
-  }, [rounds, setHeader]);
+  }, [setHeader, handleSave, handleLoad]);
 
   return (
     <main className="flex-1 overflow-hidden">

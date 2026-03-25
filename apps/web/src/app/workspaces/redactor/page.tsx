@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
 import { PenTool } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
@@ -49,26 +49,29 @@ export default function RedactorPage() {
     if (rows.length > 0) replaceGroup(groupIndex, rows);
   };
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     const data: RedactorData = { groups: groups.map((rows) => ({ rows })) };
     saveAsJson(DEFAULT_FILENAME, data);
-  };
+  }, [groups]);
 
-  const handleLoad = async (file: File) => {
-    try {
-      const isValid = (data: unknown): data is RedactorData =>
-        typeof data === "object" &&
-        data !== null &&
-        "groups" in data &&
-        Array.isArray((data as RedactorData).groups) &&
-        (data as RedactorData).groups.every((g) => Array.isArray(g.rows));
+  const handleLoad = useCallback(
+    async (file: File) => {
+      try {
+        const isValid = (data: unknown): data is RedactorData =>
+          typeof data === "object" &&
+          data !== null &&
+          "groups" in data &&
+          Array.isArray((data as RedactorData).groups) &&
+          (data as RedactorData).groups.every((g) => Array.isArray(g.rows));
 
-      const data = await loadJsonFile<RedactorData>(file, isValid);
-      if (data?.groups) setGroups(data.groups.map((g) => g.rows));
-    } catch {
-      alert("Error al cargar el archivo JSON.");
-    }
-  };
+        const data = await loadJsonFile<RedactorData>(file, isValid);
+        if (data?.groups) setGroups(data.groups.map((g) => g.rows));
+      } catch {
+        alert("Error al cargar el archivo JSON.");
+      }
+    },
+    [setGroups],
+  );
 
   useEffect(() => {
     return () => resetHeader();
@@ -82,7 +85,7 @@ export default function RedactorPage() {
       onSave: handleSave,
       onLoad: handleLoad,
     });
-  }, [setHeader]);
+  }, [setHeader, handleSave, handleLoad]);
 
   return (
     <main className="flex-1 overflow-hidden">

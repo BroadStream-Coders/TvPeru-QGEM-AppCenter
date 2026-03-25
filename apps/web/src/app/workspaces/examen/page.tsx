@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { FileText, Layers } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
@@ -39,7 +39,7 @@ export default function ExamenPage() {
   const setHeader = useWorkspaceHeader((s) => s.setHeader);
   const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     const data1 = level1Ref.current?.getData() || [];
     const data2 = level2Ref.current?.getData() || [];
     const data3 = level3Ref.current?.getData() || [];
@@ -96,9 +96,9 @@ export default function ExamenPage() {
     };
 
     saveAsJson(DEFAULT_FILENAME, exportData);
-  };
+  }, []);
 
-  const handleLoad = async (file: File) => {
+  const handleLoad = useCallback(async (file: File) => {
     try {
       const isValid = (data: unknown): data is ExamenSessionData =>
         typeof data === "object" && data !== null;
@@ -164,7 +164,7 @@ export default function ExamenPage() {
     } catch {
       alert("Error al cargar el archivo JSON.");
     }
-  };
+  }, []);
 
   useEffect(() => {
     return () => resetHeader();
@@ -178,7 +178,7 @@ export default function ExamenPage() {
       onSave: handleSave,
       onLoad: handleLoad,
     });
-  }, [setHeader]);
+  }, [setHeader, handleSave, handleLoad]);
 
   return (
     <main className="flex-1 overflow-hidden">

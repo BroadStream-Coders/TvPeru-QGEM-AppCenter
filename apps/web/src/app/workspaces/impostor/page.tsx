@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { VenetianMask, Layers } from "lucide-react";
 import { nanoid } from "nanoid";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
@@ -92,9 +92,6 @@ export default function ImpostorPage() {
 
   const setHeader = useWorkspaceHeader((s) => s.setHeader);
   const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
-
-  const totalRounds =
-    roundsPerLevel.nivel1.length + roundsPerLevel.nivel2.length;
 
   const setRoundsForLevel = (
     level: LevelId,
@@ -265,7 +262,7 @@ export default function ImpostorPage() {
 
   // ── Save / Load ──
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     const sessionData: SessionData = {
       textRounds: roundsPerLevel.nivel1.map((round) => ({
         description: round.context,
@@ -325,9 +322,9 @@ export default function ImpostorPage() {
     } catch {
       alert("Error al exportar los datos.");
     }
-  };
+  }, [roundsPerLevel]);
 
-  const handleLoad = async (file: File) => {
+  const handleLoad = useCallback(async (file: File) => {
     try {
       const zip = await loadZipFile(file);
       const dataFile = zip.file(SESSION_DATA_FILENAME) || zip.file("data.json");
@@ -457,7 +454,7 @@ export default function ImpostorPage() {
     } catch {
       alert("Error al importar los datos.");
     }
-  };
+  }, []);
 
   useEffect(() => {
     return () => resetHeader();
@@ -471,7 +468,7 @@ export default function ImpostorPage() {
       onSave: handleSave,
       onLoad: handleLoad,
     });
-  }, [setHeader]);
+  }, [setHeader, handleSave, handleLoad]);
 
   return (
     <main className="flex-1 overflow-hidden">

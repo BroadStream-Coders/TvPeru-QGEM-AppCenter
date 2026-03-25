@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
 import { Calculator } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
@@ -66,32 +66,35 @@ export default function CalculoMentalPage() {
     if (boards.length > 0) replaceGroup(groupIndex, boards);
   };
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     const data: CalculoMentalData = {
       groups: groups.map((boards) => ({ boards })),
     };
     saveAsJson(DEFAULT_FILENAME, data);
-  };
+  }, [groups]);
 
-  const handleLoad = async (file: File) => {
-    try {
-      const isValid = (data: unknown): data is CalculoMentalData =>
-        typeof data === "object" &&
-        data !== null &&
-        "groups" in data &&
-        Array.isArray((data as CalculoMentalData).groups) &&
-        (data as CalculoMentalData).groups.every(
-          (g) =>
-            Array.isArray(g.boards) &&
-            g.boards.every((b) => Array.isArray(b.slots)),
-        );
+  const handleLoad = useCallback(
+    async (file: File) => {
+      try {
+        const isValid = (data: unknown): data is CalculoMentalData =>
+          typeof data === "object" &&
+          data !== null &&
+          "groups" in data &&
+          Array.isArray((data as CalculoMentalData).groups) &&
+          (data as CalculoMentalData).groups.every(
+            (g) =>
+              Array.isArray(g.boards) &&
+              g.boards.every((b) => Array.isArray(b.slots)),
+          );
 
-      const data = await loadJsonFile<CalculoMentalData>(file, isValid);
-      if (data?.groups) setGroups(data.groups.map((g) => g.boards));
-    } catch {
-      alert("Error al cargar el archivo JSON.");
-    }
-  };
+        const data = await loadJsonFile<CalculoMentalData>(file, isValid);
+        if (data?.groups) setGroups(data.groups.map((g) => g.boards));
+      } catch {
+        alert("Error al cargar el archivo JSON.");
+      }
+    },
+    [setGroups],
+  );
 
   useEffect(() => {
     return () => resetHeader();
@@ -105,7 +108,7 @@ export default function CalculoMentalPage() {
       onSave: handleSave,
       onLoad: handleLoad,
     });
-  }, [setHeader]);
+  }, [setHeader, handleSave, handleLoad]);
 
   return (
     <main className="flex-1 overflow-hidden">

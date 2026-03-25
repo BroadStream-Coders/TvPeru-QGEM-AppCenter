@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { BookOpen, Users } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { BookOpen } from "lucide-react";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
@@ -83,7 +83,7 @@ export default function MiLibroFavoritoPage() {
     );
   };
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     const playersMetadata = players.map((p, i) => ({
       playerName: p.name,
       pictureFile: p.imageFile
@@ -106,52 +106,55 @@ export default function MiLibroFavoritoPage() {
       .filter((item): item is { name: string; file: File } => item !== null);
 
     await saveAsZip(DEFAULT_FILENAME, sessionData, filesToInclude);
-  };
+  }, [players, groups]);
 
-  const handleLoad = async (file: File) => {
-    try {
-      const zip = await loadZipFile(file);
-      const dataFile = zip.file("sessionData.json");
-      if (!dataFile) {
-        alert("El ZIP no contiene un archivo sessionData.json válido.");
-        return;
-      }
+  const handleLoad = useCallback(
+    async (file: File) => {
+      try {
+        const zip = await loadZipFile(file);
+        const dataFile = zip.file("sessionData.json");
+        if (!dataFile) {
+          alert("El ZIP no contiene un archivo sessionData.json válido.");
+          return;
+        }
 
-      const content = await dataFile.async("string");
-      const sessionData = JSON.parse(content) as SessionData;
+        const content = await dataFile.async("string");
+        const sessionData = JSON.parse(content) as SessionData;
 
-      if (Array.isArray(sessionData.players)) {
-        const loadedPlayers = await Promise.all(
-          sessionData.players.map(async (p) => {
-            let imageFile = null;
-            let imagePreview = null;
-            if (p.pictureFile) {
-              const entry = zip.file(p.pictureFile);
-              if (entry) {
-                const blob = await entry.async("blob");
-                imageFile = new File(
-                  [blob],
-                  p.pictureFile.split("/").pop() || "image",
-                  {
-                    type: blob.type,
-                  },
-                );
-                imagePreview = URL.createObjectURL(blob);
+        if (Array.isArray(sessionData.players)) {
+          const loadedPlayers = await Promise.all(
+            sessionData.players.map(async (p) => {
+              let imageFile = null;
+              let imagePreview = null;
+              if (p.pictureFile) {
+                const entry = zip.file(p.pictureFile);
+                if (entry) {
+                  const blob = await entry.async("blob");
+                  imageFile = new File(
+                    [blob],
+                    p.pictureFile.split("/").pop() || "image",
+                    {
+                      type: blob.type,
+                    },
+                  );
+                  imagePreview = URL.createObjectURL(blob);
+                }
               }
-            }
-            return { name: p.playerName || "", imageFile, imagePreview };
-          }),
-        );
-        setPlayers(loadedPlayers);
-      }
+              return { name: p.playerName || "", imageFile, imagePreview };
+            }),
+          );
+          setPlayers(loadedPlayers);
+        }
 
-      if (Array.isArray(sessionData.groups)) {
-        setGroups(sessionData.groups.map((g) => g.slots));
+        if (Array.isArray(sessionData.groups)) {
+          setGroups(sessionData.groups.map((g) => g.slots));
+        }
+      } catch {
+        alert("Error al procesar el archivo ZIP.");
       }
-    } catch {
-      alert("Error al procesar el archivo ZIP.");
-    }
-  };
+    },
+    [setPlayers, setGroups],
+  );
 
   useEffect(() => {
     return () => resetHeader();
@@ -165,7 +168,7 @@ export default function MiLibroFavoritoPage() {
       onSave: handleSave,
       onLoad: handleLoad,
     });
-  }, [setHeader]);
+  }, [setHeader, handleSave, handleLoad]);
 
   return (
     <main className="flex-1 overflow-hidden">
