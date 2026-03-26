@@ -21,6 +21,10 @@ export interface ExamenQuestionL4 {
   answer: string;
 }
 
+export interface ExamenQuestionL5 {
+  imagePath: string;
+}
+
 export interface ExamenGroup<T> {
   title: string;
   questions: T[];
@@ -31,4 +35,5 @@ export interface ExamenSessionData {
   level2: { groups: ExamenGroup<ExamenQuestionL2>[] };
   level3: { groups: ExamenGroup<ExamenQuestionL3>[] };
   level4: { groups: ExamenGroup<ExamenQuestionL4>[] };
+  level5?: { groups: ExamenGroup<ExamenQuestionL5>[] };
 }
