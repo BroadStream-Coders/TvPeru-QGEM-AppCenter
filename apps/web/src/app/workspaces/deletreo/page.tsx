@@ -9,7 +9,7 @@ import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { DeletreoColumn } from "./components/DeletreoColumn";
 
-const DEFAULT_FILENAME = "DeletreoData.json";
+const DEFAULT_FILENAME = "Deletreo.json";
 
 interface DeletreoGroup {
   words: string[];
