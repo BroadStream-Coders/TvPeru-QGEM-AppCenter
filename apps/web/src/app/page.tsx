@@ -9,6 +9,7 @@ import {
   Image as ImageIcon,
   Trophy,
   FileText,
+  Grid2x2,
   // Box,
 } from "lucide-react";
 
@@ -54,6 +55,12 @@ const workspaces = [
     description: "Evaluación de conocimientos",
     href: "/workspaces/examen",
     icon: FileText,
+  },
+  {
+    name: "De par en par",
+    description: "Juego de memoria",
+    href: "/workspaces/de-par-en-par",
+    icon: Grid2x2,
   },
   // {
   //   name: "Sandbox",
