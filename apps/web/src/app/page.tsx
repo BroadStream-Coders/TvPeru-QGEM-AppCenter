@@ -10,6 +10,7 @@ import {
   Trophy,
   FileText,
   Grid2x2,
+  Sigma,
   // Box,
 } from "lucide-react";
 
@@ -61,6 +62,12 @@ const workspaces = [
     description: "Juego de memoria",
     href: "/workspaces/de-par-en-par",
     icon: Grid2x2,
+  },
+  {
+    name: "Operaciones Combinadas",
+    description: "Resolución de operaciones matemáticas",
+    href: "/workspaces/operaciones-combinadas",
+    icon: Sigma,
   },
   // {
   //   name: "Sandbox",
