@@ -19,7 +19,7 @@ export interface ExamenLevel3ViewRef {
 export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
   const createEmptyRow = (): ExamenLevel3RowData => ({
     id: nanoid(),
-    pairs: Array.from({ length: 4 }, () => ({ leftText: "", rightText: "" })),
+    pairs: Array.from({ length: 3 }, () => ({ leftText: "", rightText: "" })),
   });
 
   const [columns, setColumns] = useState<ExamenLevel3Column[]>([
@@ -87,9 +87,9 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
 
       const newRows: ExamenLevel3RowData[] = [];
 
-      for (let i = 0; i < validRows.length; i += 4) {
-        const chunk = validRows.slice(i, i + 4);
-        const pairs = Array.from({ length: 4 }, (_, idx) => {
+      for (let i = 0; i < validRows.length; i += 3) {
+        const chunk = validRows.slice(i, i + 3);
+        const pairs = Array.from({ length: 3 }, (_, idx) => {
           const rowData = chunk[idx];
           return {
             leftText: rowData ? rowData[0] || "" : "",

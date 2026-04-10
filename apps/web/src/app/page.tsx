@@ -23,7 +23,7 @@ const workspaces = [
   },
   {
     name: "Cálculo Mental",
-    description: "Operaciones matemáticas por rondas",
+    description: "Preguntas rápidas de cálculo",
     href: "/workspaces/calculo-mental",
     icon: Calculator,
   },
@@ -59,13 +59,13 @@ const workspaces = [
   },
   {
     name: "De par en par",
-    description: "Juego de memoria",
+    description: "Juego de memoria clásico",
     href: "/workspaces/de-par-en-par",
     icon: Grid2x2,
   },
   {
     name: "Operaciones Combinadas",
-    description: "Resolución de operaciones matemáticas",
+    description: "Tableros de operaciones cruzadas",
     href: "/workspaces/operaciones-combinadas",
     icon: Sigma,
   },

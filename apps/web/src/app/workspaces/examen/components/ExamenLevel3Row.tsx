@@ -40,12 +40,12 @@ export function ExamenLevel3Row({
     onChange({ pairs: newPairs });
   };
 
-  // Ensure we always render exactly 4 pairs
+  // Ensure we always render exactly 3 pairs
   const pairsToRender =
-    data.pairs?.length === 4
+    data.pairs?.length === 3
       ? data.pairs
       : Array.from(
-          { length: 4 },
+          { length: 3 },
           (_, i) => data.pairs?.[i] || { leftText: "", rightText: "" },
         );
 
