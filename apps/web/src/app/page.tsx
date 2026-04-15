@@ -11,6 +11,7 @@ import {
   FileText,
   Grid2x2,
   Sigma,
+  HelpCircle,
   // Box,
 } from "lucide-react";
 
@@ -68,6 +69,12 @@ const workspaces = [
     description: "Tableros de operaciones cruzadas",
     href: "/workspaces/operaciones-combinadas",
     icon: Sigma,
+  },
+  {
+    name: "La Sabes o No",
+    description: "Preguntas de verdadero o falso",
+    href: "/workspaces/la-sabes-o-no",
+    icon: HelpCircle,
   },
   // {
   //   name: "Sandbox",
