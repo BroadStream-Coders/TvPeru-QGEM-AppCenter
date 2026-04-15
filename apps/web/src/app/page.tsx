@@ -5,7 +5,7 @@ import {
   VenetianMask,
   BookOpen,
   ArrowRight,
-  PenTool,
+  Search,
   Image as ImageIcon,
   Trophy,
   FileText,
@@ -40,10 +40,10 @@ const workspaces = [
     icon: VenetianMask,
   },
   {
-    name: "Redactor",
-    description: "Corrección de errores ortográficos",
-    href: "/workspaces/redactor",
-    icon: PenTool,
+    name: "Detective Literario",
+    description: "Encuentra los errores ocultos",
+    href: "/workspaces/detective-literario",
+    icon: Search,
   },
   {
     name: "Album",

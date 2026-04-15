@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
-interface RedactorRowProps {
+interface DetectiveRowProps {
   index: number;
   original: string;
   corrected: string;
@@ -13,14 +13,14 @@ interface RedactorRowProps {
   onRemove: () => void;
 }
 
-export function RedactorRow({
+export function DetectiveRow({
   index,
   original,
   corrected,
   onOriginalChange,
   onCorrectedChange,
   onRemove,
-}: RedactorRowProps) {
+}: DetectiveRowProps) {
   return (
     <div className="flex items-start gap-2 group min-h-[40px]">
       <div className="flex h-9 w-6 shrink-0 items-center justify-center rounded text-2xs font-mono text-muted-foreground/50 select-none pt-2.5">

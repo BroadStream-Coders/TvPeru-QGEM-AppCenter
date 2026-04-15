@@ -5,21 +5,21 @@ import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter
 import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
 import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
-import { RedactorRow } from "./RedactorRow";
+import { DetectiveRow } from "./Row";
 
 const MAX_CAPACITY = 30;
 
-interface RedactorRowData {
+interface DetectiveRowData {
   original: string;
   corrected: string;
 }
 
-interface RedactorCardProps {
+interface DetectiveColumnProps {
   index: number;
-  rows: RedactorRowData[];
+  rows: DetectiveRowData[];
   onRowChange: (
     rowIndex: number,
-    field: keyof RedactorRowData,
+    field: keyof DetectiveRowData,
     value: string,
   ) => void;
   onAddRow: () => void;
@@ -28,7 +28,7 @@ interface RedactorCardProps {
   onQuickLoad: (data: string[][]) => void;
 }
 
-export function RedactorCard({
+export function DetectiveColumn({
   index,
   rows,
   onRowChange,
@@ -36,7 +36,7 @@ export function RedactorCard({
   onRemoveRow,
   onRemoveCard,
   onQuickLoad,
-}: RedactorCardProps) {
+}: DetectiveColumnProps) {
   const handleAddRow = () => {
     if (rows.length >= MAX_CAPACITY) return;
     onAddRow();
@@ -52,7 +52,7 @@ export function RedactorCard({
     >
       <RowsContainer>
         {rows.map((row, rowIndex) => (
-          <RedactorRow
+          <DetectiveRow
             key={rowIndex}
             index={rowIndex}
             original={row.original}

@@ -2,31 +2,34 @@
 
 import { useEffect, useCallback } from "react";
 
-import { PenTool } from "lucide-react";
+import { Search } from "lucide-react";
 import { saveAsJson, loadJsonFile } from "@/helpers/persistence";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
-import { RedactorCard } from "./components/RedactorColumn";
+import { DetectiveColumn } from "./components/Column";
 
-const DEFAULT_FILENAME = "Redactor.json";
+const DEFAULT_FILENAME = "DetectiveLiterario.json";
 
-interface RedactorRowData {
+interface RowData {
   original: string;
   corrected: string;
 }
 
-interface RedactorGroup {
-  rows: RedactorRowData[];
+interface GroupData {
+  rows: RowData[];
 }
 
-interface RedactorData {
-  groups: RedactorGroup[];
+interface SessionData {
+  groups: GroupData[];
 }
 
-const createEmptyRow = (): RedactorRowData => ({ original: "", corrected: "" });
+const createEmptyRow = (): RowData => ({
+  original: "",
+  corrected: "",
+});
 
-export default function RedactorPage() {
+export default function DetectiveLiterarioPage() {
   const {
     groups,
     addGroup,
@@ -36,7 +39,7 @@ export default function RedactorPage() {
     updateItem,
     replaceGroup,
     setGroups,
-  } = useWorkspaceGroups<RedactorRowData>([[createEmptyRow()]], createEmptyRow);
+  } = useWorkspaceGroups<RowData>([[createEmptyRow()]], createEmptyRow);
 
   const setHeader = useWorkspaceHeader((s) => s.setHeader);
   const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
@@ -50,21 +53,21 @@ export default function RedactorPage() {
   };
 
   const handleSave = useCallback(() => {
-    const data: RedactorData = { groups: groups.map((rows) => ({ rows })) };
+    const data: SessionData = { groups: groups.map((rows) => ({ rows })) };
     saveAsJson(DEFAULT_FILENAME, data);
   }, [groups]);
 
   const handleLoad = useCallback(
     async (file: File) => {
       try {
-        const isValid = (data: unknown): data is RedactorData =>
+        const isValid = (data: unknown): data is SessionData =>
           typeof data === "object" &&
           data !== null &&
           "groups" in data &&
-          Array.isArray((data as RedactorData).groups) &&
-          (data as RedactorData).groups.every((g) => Array.isArray(g.rows));
+          Array.isArray((data as SessionData).groups) &&
+          (data as SessionData).groups.every((g) => Array.isArray(g.rows));
 
-        const data = await loadJsonFile<RedactorData>(file, isValid);
+        const data = await loadJsonFile<SessionData>(file, isValid);
         if (data?.groups) setGroups(data.groups.map((g) => g.rows));
       } catch {
         alert("Error al cargar el archivo JSON.");
@@ -79,8 +82,8 @@ export default function RedactorPage() {
 
   useEffect(() => {
     setHeader({
-      title: "Redactor",
-      icon: <PenTool className="h-3 w-3" />,
+      title: "Detective Literario",
+      icon: <Search className="h-3 w-3" />,
       format: "json",
       onSave: handleSave,
       onLoad: handleLoad,
@@ -91,7 +94,7 @@ export default function RedactorPage() {
     <main className="flex-1 overflow-hidden">
       <GroupsContainer onAddGroup={addGroup} addLabel="Agregar ronda">
         {groups.map((rows, groupIndex) => (
-          <RedactorCard
+          <DetectiveColumn
             key={groupIndex}
             index={groupIndex + 1}
             rows={rows}
