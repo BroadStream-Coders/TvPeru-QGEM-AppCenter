@@ -61,7 +61,7 @@ export function ImpostorCard({
                   : "bg-background/95 text-muted-foreground hover:bg-brand/10 hover:text-brand border-border"
               }`}
             >
-              {isImpostor ? "🎯 Es el Impostor" : "Marcar Impostor"}
+              {isImpostor ? "🎯 Es el Intruso" : "Marcar Intruso"}
             </Button>
           </div>
         )}

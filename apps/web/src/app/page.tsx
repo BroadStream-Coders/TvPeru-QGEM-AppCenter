@@ -34,9 +34,9 @@ const workspaces = [
     icon: BookOpen,
   },
   {
-    name: "Impostor",
+    name: "Intruso",
     description: "Colector de fotos y selección",
-    href: "/workspaces/impostor",
+    href: "/workspaces/intruso",
     icon: VenetianMask,
   },
   {

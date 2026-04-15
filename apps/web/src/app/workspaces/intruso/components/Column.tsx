@@ -6,7 +6,7 @@ import { RowsContainer } from "@/components/shared/group-column/components/RowsC
 import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { DescriptionInput } from "@/components/shared/group-column/components/DescriptionInput";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
-import { ImpostorCard } from "./ImpostorCard";
+import { ImpostorCard } from "./Card";
 
 interface Photo {
   id: string;

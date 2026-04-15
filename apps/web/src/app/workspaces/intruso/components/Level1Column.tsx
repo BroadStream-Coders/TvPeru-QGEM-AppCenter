@@ -7,7 +7,7 @@ import { AddRowButton } from "@/components/shared/group-column/components/AddRow
 import { DescriptionInput } from "@/components/shared/group-column/components/DescriptionInput";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
 import { X, AlertCircle } from "lucide-react";
-import { ImpostorCard } from "./ImpostorCard";
+import { ImpostorCard } from "./Card";
 
 interface Photo {
   id: string;

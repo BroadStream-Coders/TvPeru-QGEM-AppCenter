@@ -1,7 +1,7 @@
 "use client";
 
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
-import { ImpostorColumn } from "./ImpostorColumn";
+import { ImpostorLevel1Column } from "./Level1Column";
 
 interface Photo {
   id: string;
@@ -11,18 +11,22 @@ interface Photo {
   isImpostor: boolean;
 }
 
+interface Option {
+  text: string;
+  isImpostor: boolean;
+}
+
 interface ImpostorRound {
   id: string;
   context: string;
   photos: Photo[];
+  options?: Option[];
 }
 
-interface ImpostorLevel2ViewProps {
+interface ImpostorLevel1ViewProps {
   rounds: ImpostorRound[];
   onAddRound: () => void;
   onRemoveRound: (id: string) => void;
-  onAddPhotoToRound: (roundId: string) => void;
-  onRemovePhotoFromRound: (roundId: string, photoId: string) => void;
   onUpdatePhotoInRound: (
     roundId: string,
     photoId: string,
@@ -32,28 +36,35 @@ interface ImpostorLevel2ViewProps {
   onQuickLoad: (roundId: string, data: string[][]) => void;
 }
 
-export function ImpostorLevel2View({
+const DEFAULT_OPTION: Option = { text: "", isImpostor: false };
+
+function normalizeOptions(options: Option[] | string[] | undefined): Option[] {
+  if (!options || options.length === 0) return [{ ...DEFAULT_OPTION }];
+  if (typeof options[0] === "string") {
+    return (options as string[]).map((text) => ({ text, isImpostor: false }));
+  }
+  return options as Option[];
+}
+
+export function ImpostorLevel1View({
   rounds,
   onAddRound,
   onRemoveRound,
-  onAddPhotoToRound,
-  onRemovePhotoFromRound,
   onUpdatePhotoInRound,
   onUpdateRound,
   onQuickLoad,
-}: ImpostorLevel2ViewProps) {
+}: ImpostorLevel1ViewProps) {
   return (
     <GroupsContainer onAddGroup={onAddRound} addLabel="Añadir Ronda">
       {rounds.map((round, roundIndex) => (
-        <ImpostorColumn
+        <ImpostorLevel1Column
           key={round.id}
           index={roundIndex + 1}
-          photos={round.photos}
+          photo={round.photos[0]}
           context={round.context}
-          onAddPhoto={() => onAddPhotoToRound(round.id)}
-          onRemovePhoto={(photoId) => onRemovePhotoFromRound(round.id, photoId)}
-          onUpdatePhoto={(photoId, updates) =>
-            onUpdatePhotoInRound(round.id, photoId, updates)
+          options={normalizeOptions(round.options)}
+          onUpdatePhoto={(updates) =>
+            onUpdatePhotoInRound(round.id, round.photos[0].id, updates)
           }
           onUpdateRound={(updates) => onUpdateRound(round.id, updates)}
           onRemoveColumn={() => onRemoveRound(round.id)}

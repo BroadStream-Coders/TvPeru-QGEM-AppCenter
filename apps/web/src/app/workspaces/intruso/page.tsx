@@ -6,10 +6,10 @@ import { nanoid } from "nanoid";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { LevelTabs } from "@/components/shared/LevelTabs";
-import { ImpostorLevel1View } from "./components/ImpostorLevel1View";
-import { ImpostorLevel2View } from "./components/ImpostorLevel2View";
+import { ImpostorLevel1View } from "./components/Level1View";
+import { ImpostorLevel2View } from "./components/Level2View";
 
-const DEFAULT_FILENAME = "Impostor.zip";
+const DEFAULT_FILENAME = "Intruso.zip";
 const SESSION_DATA_FILENAME = "sessionData.json";
 
 interface Photo {
@@ -331,7 +331,7 @@ export default function ImpostorPage() {
 
       if (!dataFile) {
         alert(
-          "El archivo no es un paquete válido de Impostor (falta sessionData.json).",
+          "El archivo no es un paquete válido de Intruso (falta sessionData.json).",
         );
         return;
       }
@@ -462,7 +462,7 @@ export default function ImpostorPage() {
 
   useEffect(() => {
     setHeader({
-      title: "Impostor",
+      title: "Intruso",
       icon: <VenetianMask className="h-3 w-3" />,
       format: "zip",
       onSave: handleSave,
