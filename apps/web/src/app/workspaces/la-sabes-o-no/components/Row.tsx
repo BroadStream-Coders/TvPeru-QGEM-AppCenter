@@ -20,12 +20,7 @@ interface RowProps {
   onRemove: () => void;
 }
 
-export function Row({
-  index,
-  data,
-  onChange,
-  onRemove,
-}: RowProps) {
+export function Row({ index, data, onChange, onRemove }: RowProps) {
   return (
     <div className="flex flex-col rounded-lg border border-border bg-card p-3 shadow-sm transition-all hover:border-brand/30">
       <div className="grid grid-cols-[2rem_1fr] items-start gap-2 w-full">

@@ -12,6 +12,7 @@ import {
   Grid2x2,
   Sigma,
   HelpCircle,
+  Swords,
   // Box,
 } from "lucide-react";
 
@@ -75,6 +76,12 @@ const workspaces = [
     description: "Preguntas de verdadero o falso",
     href: "/workspaces/la-sabes-o-no",
     icon: HelpCircle,
+  },
+  {
+    name: "Duelo Cruzado",
+    description: "Lista dinámica de llenado rápido",
+    href: "/workspaces/duelo-cruzado",
+    icon: Swords,
   },
   // {
   //   name: "Sandbox",
