@@ -40,7 +40,6 @@ export function ImpostorCard({
         <ImagePicker
           value={imageUrl}
           onChange={onImageChange}
-          aspectRatio="square"
           placeholder="Foto"
         />
 

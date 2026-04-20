@@ -32,7 +32,6 @@ export function ExamenLevel5Row({
       <div className="flex-1 space-y-4">
         <div className="w-full">
           <ImagePicker
-            aspectRatio="landscape"
             value={data.url}
             onChange={(file, url) => onChange({ file, url })}
             placeholder="Subir Imagen"

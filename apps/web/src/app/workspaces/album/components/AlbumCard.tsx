@@ -27,7 +27,6 @@ export function AlbumCard({
         <ImagePicker
           value={imageUrl}
           onChange={onImageChange}
-          aspectRatio="square"
           placeholder="Foto"
         />
 

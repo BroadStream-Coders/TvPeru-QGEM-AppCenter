@@ -40,7 +40,6 @@ function PlayerSlot({
           <ImagePicker
             value={data.imagePreview ?? undefined}
             onChange={onImageChange}
-            aspectRatio="square"
           />
         </div>
 

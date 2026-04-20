@@ -6,6 +6,8 @@ interface UseImagePickerOptions {
   onImageSelect?: (file: File, previewUrl: string) => void;
   initialPreview?: string | null;
   skipCleanupOnUnmount?: boolean;
+  enableCrop?: boolean;
+  onCropTrigger?: () => void;
 }
 
 export function useImagePicker(options: UseImagePickerOptions = {}) {
@@ -13,6 +15,8 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
     onImageSelect,
     initialPreview,
     skipCleanupOnUnmount = false,
+    enableCrop = false,
+    onCropTrigger,
   } = options;
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     initialPreview || null,
@@ -20,6 +24,12 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const ownedUrls = useRef<Set<string>>(new Set());
+  const [uncroppedUrl, setUncroppedUrl] = useState<string | null>(null);
+  const [uncroppedFile, setUncroppedFile] = useState<File | null>(null);
+
+  const registerOwnedUrl = useCallback((url: string) => {
+    ownedUrls.current.add(url);
+  }, []);
 
   const triggerUpload = useCallback(() => {
     fileInputRef.current?.click();
@@ -41,14 +51,31 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
       ownedUrls.current.add(url);
       console.log(`[useImagePicker] Created new owned URL: ${url}`);
 
-      setPreviewUrl(url);
-      setSelectedFile(file);
-      onImageSelect?.(file, url);
+      setUncroppedUrl(url);
+      setUncroppedFile(file);
+
+      if (!enableCrop) {
+        setPreviewUrl(url);
+        setSelectedFile(file);
+        onImageSelect?.(file, url);
+      } else {
+        onCropTrigger?.();
+      }
 
       // Reset input value to allow selecting same file again
       if (e.target) e.target.value = "";
     },
-    [previewUrl, onImageSelect],
+    [previewUrl, onImageSelect, enableCrop, onCropTrigger],
+  );
+
+  const commitCrop = useCallback(
+    (file: File, url: string) => {
+      registerOwnedUrl(url);
+      setPreviewUrl(url);
+      setSelectedFile(file);
+      onImageSelect?.(file, url);
+    },
+    [onImageSelect, registerOwnedUrl],
   );
 
   const clearImage = useCallback(() => {
@@ -87,5 +114,10 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
     handleFileChange,
     clearImage,
     setPreviewUrl, // For manual updates when loading external data
+    uncroppedUrl,
+    uncroppedFile,
+    setUncroppedUrl,
+    commitCrop,
+    registerOwnedUrl,
   };
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Box, PenTool, FileText } from "lucide-react";
+import { Box, PenTool, Image as ImageIcon } from "lucide-react";
 import { LevelTabs } from "@/components/shared/LevelTabs";
 import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
+import { ImagePicker } from "@/components/shared/ImagePicker";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { GroupColumn } from "@/components/shared/group-column/layout/GroupColumn";
 import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter";
@@ -93,6 +94,54 @@ function ColumnsDemo() {
   );
 }
 
+function CropperDemo() {
+  return (
+    <div className="p-8 h-full overflow-auto space-y-8 max-w-4xl mx-auto">
+      <div className="space-y-2">
+        <h2 className="text-xl font-bold tracking-tight">Sistema de Recorte</h2>
+        <p className="text-muted-foreground text-sm">
+          Sube imágenes para probar el recorte con diferentes proporciones.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        <div className="space-y-4">
+          <h3 className="font-semibold text-sm">Proporción 1:1 (Square)</h3>
+          <div className="max-w-[250px]">
+            <ImagePicker
+              onChange={() => {}}
+              crop={{ x: 1, y: 1 }}
+              placeholder="1:1"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="font-semibold text-sm">Proporción 3:4 (Portrait)</h3>
+          <div className="max-w-[250px]">
+            <ImagePicker
+              onChange={() => {}}
+              crop={{ x: 3, y: 4 }}
+              placeholder="3:4"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="font-semibold text-sm">Proporción 16:9 (Landscape)</h3>
+          <div className="w-full">
+            <ImagePicker
+              onChange={() => {}}
+              crop={{ x: 16, y: 9 }}
+              placeholder="16:9"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EmptyLevel({ name }: { name: string }) {
   return (
     <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -125,9 +174,9 @@ export default function SandboxPage() {
   const levels = [
     { name: "Columnas", icon: PenTool, component: <ColumnsDemo /> },
     {
-      name: "Nivel 2",
-      icon: FileText,
-      component: <EmptyLevel name="Vista del Nivel 2" />,
+      name: "Recorte",
+      icon: ImageIcon,
+      component: <CropperDemo />,
     },
     { name: "Nivel 3", component: <EmptyLevel name="Vista del Nivel 3" /> },
   ];
