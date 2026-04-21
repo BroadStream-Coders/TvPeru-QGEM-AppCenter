@@ -1,29 +1,28 @@
 "use client";
 
-import { useState, forwardRef, useImperativeHandle } from "react";
-import { ExamenGroupColumn } from "./ExamenGroupColumn";
+import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
+import { ExamenGroupColumn } from "./GroupColumn";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
-import { ExamenLevel4Row, ExamenLevel4RowData } from "./ExamenLevel4Row";
+import { ExamenLevel3Row, ExamenLevel3RowData } from "./Level3Row";
 
-export interface ExamenLevel4Column {
+export interface ExamenLevel3Column {
   title: string;
-  rows: ExamenLevel4RowData[];
+  rows: ExamenLevel3RowData[];
 }
 
-export interface ExamenLevel4ViewRef {
-  getData: () => ExamenLevel4Column[];
-  setData: (data: ExamenLevel4Column[]) => void;
+export interface ExamenLevel3ViewRef {
+  getData: () => ExamenLevel3Column[];
+  setData: (data: ExamenLevel3Column[]) => void;
 }
 
-const createEmptyRow = (): ExamenLevel4RowData => ({
-  id: nanoid(),
-  question: "",
-  answer: "",
-});
+export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
+  const createEmptyRow = (): ExamenLevel3RowData => ({
+    id: nanoid(),
+    pairs: Array.from({ length: 3 }, () => ({ leftText: "", rightText: "" })),
+  });
 
-export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
-  const [columns, setColumns] = useState<ExamenLevel4Column[]>([
+  const [columns, setColumns] = useState<ExamenLevel3Column[]>([
     { title: "", rows: [createEmptyRow()] },
   ]);
 
@@ -58,7 +57,7 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
   const updateRow = (
     columnIndex: number,
     rowIndex: number,
-    updates: Partial<ExamenLevel4RowData>,
+    updates: Partial<ExamenLevel3RowData>,
   ) => {
     const next = [...columns];
     next[columnIndex] = {
@@ -79,21 +78,41 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
     setColumns(next);
   };
 
-  const handleQuickLoad = (columnIndex: number, matrix: string[][]) => {
-    const newRows: ExamenLevel4RowData[] = matrix
-      .filter((row) => row.length > 0 && row.some((cell) => cell.trim() !== ""))
-      .map((row) => ({
-        id: nanoid(),
-        question: row[0] || "",
-        answer: row[1] || "",
-      }));
+  const handleQuickLoad = useCallback(
+    (columnIndex: number, matrix: string[][]) => {
+      const validRows = matrix.filter(
+        (row) =>
+          row.length >= 2 && (row[0].trim() !== "" || row[1].trim() !== ""),
+      );
 
-    if (newRows.length > 0) {
-      const next = [...columns];
-      next[columnIndex] = { ...next[columnIndex], rows: newRows };
-      setColumns(next);
-    }
-  };
+      const newRows: ExamenLevel3RowData[] = [];
+
+      for (let i = 0; i < validRows.length; i += 3) {
+        const chunk = validRows.slice(i, i + 3);
+        const pairs = Array.from({ length: 3 }, (_, idx) => {
+          const rowData = chunk[idx];
+          return {
+            leftText: rowData ? rowData[0] || "" : "",
+            rightText: rowData ? rowData[1] || "" : "",
+          };
+        });
+
+        newRows.push({
+          id: nanoid(),
+          pairs,
+        });
+      }
+
+      if (newRows.length > 0) {
+        setColumns((prev) => {
+          const next = [...prev];
+          next[columnIndex] = { ...next[columnIndex], rows: newRows };
+          return next;
+        });
+      }
+    },
+    [],
+  );
 
   return (
     <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
@@ -109,7 +128,7 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
           onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
           {col.rows.map((row, rowIndex) => (
-            <ExamenLevel4Row
+            <ExamenLevel3Row
               key={row.id}
               index={rowIndex}
               data={row}
@@ -123,4 +142,4 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
   );
 });
 
-ExamenLevel4View.displayName = "ExamenLevel4View";
+ExamenLevel3View.displayName = "ExamenLevel3View";

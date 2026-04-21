@@ -1,40 +1,40 @@
 // ── Tipos del JSON de exportación/importación ──
 
-export interface ExamenQuestionL1 {
+export interface QuestionLevel1 {
   question: string;
   options: string[];
   correctIndex: number;
 }
 
-export interface ExamenQuestionL2 {
+export interface QuestionLevel2 {
   question: string;
   options: string[];
   correctIndex: number;
 }
 
-export interface ExamenQuestionL3 {
+export interface QuestionLevel3 {
   pairs: { leftText: string; rightText: string }[];
 }
 
-export interface ExamenQuestionL4 {
+export interface QuestionLevel4 {
   question: string;
   answer: string;
 }
 
-export interface ExamenQuestionL5 {
+export interface QuestionLevel5 {
   imagePath: string;
 }
 
-export interface ExamenGroup<T> {
+export interface GroupLevel<T> {
   title: string;
   questions: T[];
 }
 
-export interface ExamenSessionData {
+export interface SessionData {
   level0: { courses: string[] };
-  level1: { groups: ExamenGroup<ExamenQuestionL1>[] };
-  level2: { groups: ExamenGroup<ExamenQuestionL2>[] };
-  level3: { groups: ExamenGroup<ExamenQuestionL3>[] };
-  level4: { groups: ExamenGroup<ExamenQuestionL4>[] };
-  level5?: { groups: ExamenGroup<ExamenQuestionL5>[] };
+  level1: { groups: GroupLevel<QuestionLevel1>[] };
+  level2: { groups: GroupLevel<QuestionLevel2>[] };
+  level3: { groups: GroupLevel<QuestionLevel3>[] };
+  level4: { groups: GroupLevel<QuestionLevel4>[] };
+  level5?: { groups: GroupLevel<QuestionLevel5>[] };
 }

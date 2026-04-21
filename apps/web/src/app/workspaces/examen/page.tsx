@@ -6,36 +6,33 @@ import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { LevelTabs } from "@/components/shared/LevelTabs";
 import { nanoid } from "nanoid";
-import { ExamenSessionData } from "./types";
-import {
-  ExamenLevel0View,
-  ExamenLevel0ViewRef,
-} from "./components/ExamenLevel0View";
+import { SessionData } from "./types";
+import { ExamenLevel0View, ExamenLevel0ViewRef } from "./components/Level0View";
 import {
   ExamenLevel1View,
   ExamenLevel1ViewRef,
   ExamenLevel1Column,
-} from "./components/ExamenLevel1View";
+} from "./components/Level1View";
 import {
   ExamenLevel2View,
   ExamenLevel2ViewRef,
   ExamenLevel2Column,
-} from "./components/ExamenLevel2View";
+} from "./components/Level2View";
 import {
   ExamenLevel3View,
   ExamenLevel3ViewRef,
   ExamenLevel3Column,
-} from "./components/ExamenLevel3View";
+} from "./components/Level3View";
 import {
   ExamenLevel4View,
   ExamenLevel4ViewRef,
   ExamenLevel4Column,
-} from "./components/ExamenLevel4View";
+} from "./components/Level4View";
 import {
   ExamenLevel5View,
   ExamenLevel5ViewRef,
   ExamenLevel5Column,
-} from "./components/ExamenLevel5View";
+} from "./components/Level5View";
 
 const DEFAULT_FILENAME = "Examen.zip";
 
@@ -149,7 +146,7 @@ export default function ExamenPage() {
       }
 
       const content = await dataFile.async("string");
-      const sessionData = JSON.parse(content) as ExamenSessionData;
+      const sessionData = JSON.parse(content) as SessionData;
 
       if (sessionData.level0?.courses) {
         level0Ref.current?.setData(sessionData.level0.courses);

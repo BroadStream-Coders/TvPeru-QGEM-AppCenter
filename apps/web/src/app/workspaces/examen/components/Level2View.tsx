@@ -1,28 +1,33 @@
 "use client";
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
-import { ExamenGroupColumn } from "./ExamenGroupColumn";
+import { ExamenGroupColumn } from "./GroupColumn";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
-import { ExamenLevel3Row, ExamenLevel3RowData } from "./ExamenLevel3Row";
+import { ExamenLevel2Row, ExamenLevel2RowData } from "./Level2Row";
 
-export interface ExamenLevel3Column {
+export interface ExamenLevel2Column {
   title: string;
-  rows: ExamenLevel3RowData[];
+  rows: ExamenLevel2RowData[];
 }
 
-export interface ExamenLevel3ViewRef {
-  getData: () => ExamenLevel3Column[];
-  setData: (data: ExamenLevel3Column[]) => void;
+export interface ExamenLevel2ViewRef {
+  getData: () => ExamenLevel2Column[];
+  setData: (data: ExamenLevel2Column[]) => void;
 }
 
-export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
-  const createEmptyRow = (): ExamenLevel3RowData => ({
-    id: nanoid(),
-    pairs: Array.from({ length: 3 }, () => ({ leftText: "", rightText: "" })),
-  });
+const createEmptyRow = (): ExamenLevel2RowData => ({
+  id: nanoid(),
+  question: "",
+  answerA: "",
+  answerB: "",
+  answerC: "",
+  answerD: "",
+  correctAnswer: "A",
+});
 
-  const [columns, setColumns] = useState<ExamenLevel3Column[]>([
+export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
+  const [columns, setColumns] = useState<ExamenLevel2Column[]>([
     { title: "", rows: [createEmptyRow()] },
   ]);
 
@@ -57,7 +62,7 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
   const updateRow = (
     columnIndex: number,
     rowIndex: number,
-    updates: Partial<ExamenLevel3RowData>,
+    updates: Partial<ExamenLevel2RowData>,
   ) => {
     const next = [...columns];
     next[columnIndex] = {
@@ -80,26 +85,42 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
 
   const handleQuickLoad = useCallback(
     (columnIndex: number, matrix: string[][]) => {
-      const validRows = matrix.filter(
-        (row) =>
-          row.length >= 2 && (row[0].trim() !== "" || row[1].trim() !== ""),
-      );
+      const rawLines = matrix
+        .map((row) => row[0]?.trim() ?? "")
+        .filter((line) => line !== "");
 
-      const newRows: ExamenLevel3RowData[] = [];
+      const newRows: ExamenLevel2RowData[] = [];
 
-      for (let i = 0; i < validRows.length; i += 3) {
-        const chunk = validRows.slice(i, i + 3);
-        const pairs = Array.from({ length: 3 }, (_, idx) => {
-          const rowData = chunk[idx];
-          return {
-            leftText: rowData ? rowData[0] || "" : "",
-            rightText: rowData ? rowData[1] || "" : "",
-          };
-        });
+      for (let i = 0; i < rawLines.length; i += 5) {
+        const chunk = rawLines.slice(i, i + 5);
+        if (chunk.length < 2) continue;
+
+        const question = chunk[0];
+        const correctAnswerText = chunk[1];
+        const distractors = chunk.slice(2);
+
+        const allAnswers = [correctAnswerText, ...distractors];
+
+        for (let j = allAnswers.length - 1; j > 0; j--) {
+          const k = Math.floor(Math.random() * (j + 1));
+          [allAnswers[j], allAnswers[k]] = [allAnswers[k], allAnswers[j]];
+        }
+
+        const correctIndex = allAnswers.indexOf(correctAnswerText);
+        const correctLetter = ["A", "B", "C", "D"][correctIndex] as
+          | "A"
+          | "B"
+          | "C"
+          | "D";
 
         newRows.push({
           id: nanoid(),
-          pairs,
+          question,
+          answerA: allAnswers[0] || "",
+          answerB: allAnswers[1] || "",
+          answerC: allAnswers[2] || "",
+          answerD: allAnswers[3] || "",
+          correctAnswer: correctLetter,
         });
       }
 
@@ -128,7 +149,7 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
           onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
           {col.rows.map((row, rowIndex) => (
-            <ExamenLevel3Row
+            <ExamenLevel2Row
               key={row.id}
               index={rowIndex}
               data={row}
@@ -142,4 +163,4 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
   );
 });
 
-ExamenLevel3View.displayName = "ExamenLevel3View";
+ExamenLevel2View.displayName = "ExamenLevel2View";

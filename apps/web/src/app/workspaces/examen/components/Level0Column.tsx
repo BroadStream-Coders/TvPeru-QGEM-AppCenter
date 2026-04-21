@@ -5,7 +5,7 @@ import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter
 import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
 import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
-import { ExamenLevel0Row } from "./ExamenLevel0Row";
+import { ExamenLevel0Row } from "./Level0Row";
 
 const MAX_CAPACITY = 20;
 

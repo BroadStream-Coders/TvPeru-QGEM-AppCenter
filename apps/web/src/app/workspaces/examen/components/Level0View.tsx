@@ -3,7 +3,7 @@
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 import { useWorkspaceGroups } from "@/hooks/use-workspace-groups";
 import { getColumnData } from "@/helpers/data-processing";
-import { ExamenLevel0Column } from "./ExamenLevel0Column";
+import { ExamenLevel0Column } from "./Level0Column";
 
 export interface ExamenLevel0ViewRef {
   getData: () => string[];

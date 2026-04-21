@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
-import { ExamenGroupColumn } from "./ExamenGroupColumn";
+import { ExamenGroupColumn } from "./GroupColumn";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
-import { ExamenLevel5Row, ExamenLevel5RowData } from "./ExamenLevel5Row";
+import { ExamenLevel5Row, ExamenLevel5RowData } from "./Level5Row";
 
 export interface ExamenLevel5Column {
   title: string;
