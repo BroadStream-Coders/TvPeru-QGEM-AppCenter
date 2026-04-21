@@ -4,29 +4,24 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
-export interface ExamenLevel3Pair {
+export interface Level3Pair {
   leftText: string;
   rightText: string;
 }
 
-export interface ExamenLevel3RowData {
+export interface Level3RowData {
   id: string;
-  pairs: ExamenLevel3Pair[];
+  pairs: Level3Pair[];
 }
 
-interface ExamenLevel3RowProps {
+interface Level3RowProps {
   index: number;
-  data: ExamenLevel3RowData;
-  onChange: (updates: Partial<ExamenLevel3RowData>) => void;
+  data: Level3RowData;
+  onChange: (updates: Partial<Level3RowData>) => void;
   onRemove: () => void;
 }
 
-export function ExamenLevel3Row({
-  index,
-  data,
-  onChange,
-  onRemove,
-}: ExamenLevel3RowProps) {
+export function Level3Row({ index, data, onChange, onRemove }: Level3RowProps) {
   const handlePairChange = (
     pairIndex: number,
     field: "leftText" | "rightText",

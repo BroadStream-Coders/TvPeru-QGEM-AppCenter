@@ -1,23 +1,23 @@
 "use client";
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
-import { ExamenGroupColumn } from "./GroupColumn";
+import { SharedColumn } from "./GroupColumn";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
-import { ExamenLevel1Row, ExamenLevel1RowData } from "./Level1Row";
+import { Level1Row, Level1RowData } from "./Level1Row";
 
-export interface ExamenLevel1Column {
+export interface Level1Column {
   title: string;
-  rows: ExamenLevel1RowData[];
+  rows: Level1RowData[];
 }
 
-export interface ExamenLevel1ViewRef {
-  getData: () => ExamenLevel1Column[];
-  setData: (data: ExamenLevel1Column[]) => void;
+export interface Level1ViewRef {
+  getData: () => Level1Column[];
+  setData: (data: Level1Column[]) => void;
 }
 
-export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
-  const [columns, setColumns] = useState<ExamenLevel1Column[]>([
+export const Level1View = forwardRef<Level1ViewRef>((_, ref) => {
+  const [columns, setColumns] = useState<Level1Column[]>([
     {
       title: "",
       rows: [
@@ -47,7 +47,7 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
           answerL: isLCorrect ? row[1] || "" : row[2] || "",
           answerR: isLCorrect ? row[2] || "" : row[1] || "",
           correctAnswer: isLCorrect ? "L" : "R",
-        } as ExamenLevel1RowData;
+        } as Level1RowData;
       });
 
       if (newRows.length > 0) {
@@ -110,7 +110,7 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
   const updateRow = (
     columnIndex: number,
     rowIndex: number,
-    updates: Partial<ExamenLevel1RowData>,
+    updates: Partial<Level1RowData>,
   ) => {
     const next = [...columns];
     next[columnIndex] = {
@@ -134,7 +134,7 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
   return (
     <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
       {columns.map((col, colIndex) => (
-        <ExamenGroupColumn
+        <SharedColumn
           key={colIndex}
           index={colIndex + 1}
           title={col.title}
@@ -145,7 +145,7 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
           onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
           {col.rows.map((row, rowIndex) => (
-            <ExamenLevel1Row
+            <Level1Row
               key={row.id}
               index={rowIndex}
               data={row}
@@ -153,10 +153,10 @@ export const ExamenLevel1View = forwardRef<ExamenLevel1ViewRef>((_, ref) => {
               onRemove={() => removeRow(colIndex, rowIndex)}
             />
           ))}
-        </ExamenGroupColumn>
+        </SharedColumn>
       ))}
     </GroupsContainer>
   );
 });
 
-ExamenLevel1View.displayName = "ExamenLevel1View";
+Level1View.displayName = "Level1View";

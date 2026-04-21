@@ -4,25 +4,20 @@ import { ImagePicker } from "@/components/shared/ImagePicker";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
-export interface ExamenLevel5RowData {
+export interface Level5RowData {
   id: string;
   file?: File;
   url?: string;
 }
 
-interface ExamenLevel5RowProps {
+interface Level5RowProps {
   index: number;
-  data: ExamenLevel5RowData;
-  onChange: (updates: Partial<ExamenLevel5RowData>) => void;
+  data: Level5RowData;
+  onChange: (updates: Partial<Level5RowData>) => void;
   onRemove: () => void;
 }
 
-export function ExamenLevel5Row({
-  index,
-  data,
-  onChange,
-  onRemove,
-}: ExamenLevel5RowProps) {
+export function Level5Row({ index, data, onChange, onRemove }: Level5RowProps) {
   return (
     <div className="group/row flex items-start gap-3 rounded-lg border border-border/50 bg-muted/10 p-3 transition-colors hover:border-border/80">
       <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand/10 text-2xs font-bold text-brand">

@@ -1,28 +1,28 @@
 "use client";
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
-import { ExamenGroupColumn } from "./GroupColumn";
+import { SharedColumn } from "./GroupColumn";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
-import { ExamenLevel3Row, ExamenLevel3RowData } from "./Level3Row";
+import { Level3Row, Level3RowData } from "./Level3Row";
 
-export interface ExamenLevel3Column {
+export interface Level3Column {
   title: string;
-  rows: ExamenLevel3RowData[];
+  rows: Level3RowData[];
 }
 
-export interface ExamenLevel3ViewRef {
-  getData: () => ExamenLevel3Column[];
-  setData: (data: ExamenLevel3Column[]) => void;
+export interface Level3ViewRef {
+  getData: () => Level3Column[];
+  setData: (data: Level3Column[]) => void;
 }
 
-export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
-  const createEmptyRow = (): ExamenLevel3RowData => ({
+export const Level3View = forwardRef<Level3ViewRef>((_, ref) => {
+  const createEmptyRow = (): Level3RowData => ({
     id: nanoid(),
     pairs: Array.from({ length: 3 }, () => ({ leftText: "", rightText: "" })),
   });
 
-  const [columns, setColumns] = useState<ExamenLevel3Column[]>([
+  const [columns, setColumns] = useState<Level3Column[]>([
     { title: "", rows: [createEmptyRow()] },
   ]);
 
@@ -57,7 +57,7 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
   const updateRow = (
     columnIndex: number,
     rowIndex: number,
-    updates: Partial<ExamenLevel3RowData>,
+    updates: Partial<Level3RowData>,
   ) => {
     const next = [...columns];
     next[columnIndex] = {
@@ -85,7 +85,7 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
           row.length >= 2 && (row[0].trim() !== "" || row[1].trim() !== ""),
       );
 
-      const newRows: ExamenLevel3RowData[] = [];
+      const newRows: Level3RowData[] = [];
 
       for (let i = 0; i < validRows.length; i += 3) {
         const chunk = validRows.slice(i, i + 3);
@@ -117,7 +117,7 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
   return (
     <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
       {columns.map((col, colIndex) => (
-        <ExamenGroupColumn
+        <SharedColumn
           key={colIndex}
           index={colIndex + 1}
           title={col.title}
@@ -128,7 +128,7 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
           onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
           {col.rows.map((row, rowIndex) => (
-            <ExamenLevel3Row
+            <Level3Row
               key={row.id}
               index={rowIndex}
               data={row}
@@ -136,10 +136,10 @@ export const ExamenLevel3View = forwardRef<ExamenLevel3ViewRef>((_, ref) => {
               onRemove={() => removeRow(colIndex, rowIndex)}
             />
           ))}
-        </ExamenGroupColumn>
+        </SharedColumn>
       ))}
     </GroupsContainer>
   );
 });
 
-ExamenLevel3View.displayName = "ExamenLevel3View";
+Level3View.displayName = "Level3View";

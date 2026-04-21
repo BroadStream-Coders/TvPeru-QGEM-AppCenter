@@ -9,7 +9,7 @@ import { TitleInput } from "@/components/shared/group-column/components/TitleInp
 
 const MAX_CAPACITY = 30;
 
-interface ExamenGroupColumnProps {
+interface SharedColumnProps {
   index: number;
   title: string;
   onTitleChange: (value: string) => void;
@@ -20,7 +20,7 @@ interface ExamenGroupColumnProps {
   children: React.ReactNode;
 }
 
-export function ExamenGroupColumn({
+export function SharedColumn({
   index,
   title,
   onTitleChange,
@@ -29,7 +29,7 @@ export function ExamenGroupColumn({
   onRemoveColumn,
   onQuickLoad,
   children,
-}: ExamenGroupColumnProps) {
+}: SharedColumnProps) {
   const handleAddRow = () => {
     if (itemCount >= MAX_CAPACITY) return;
     onAddRow();

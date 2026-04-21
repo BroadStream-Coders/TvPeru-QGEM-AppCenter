@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
-export interface ExamenLevel1RowData {
+export interface Level1RowData {
   id: string;
   question: string;
   answerL: string;
@@ -13,19 +13,14 @@ export interface ExamenLevel1RowData {
   correctAnswer: "L" | "R" | null;
 }
 
-interface ExamenLevel1RowProps {
+interface Level1RowProps {
   index: number;
-  data: ExamenLevel1RowData;
-  onChange: (updates: Partial<ExamenLevel1RowData>) => void;
+  data: Level1RowData;
+  onChange: (updates: Partial<Level1RowData>) => void;
   onRemove: () => void;
 }
 
-export function ExamenLevel1Row({
-  index,
-  data,
-  onChange,
-  onRemove,
-}: ExamenLevel1RowProps) {
+export function Level1Row({ index, data, onChange, onRemove }: Level1RowProps) {
   return (
     <div className="flex flex-col rounded-lg border border-border bg-card p-3 shadow-sm transition-all hover:border-brand/30">
       <div className="grid grid-cols-[2rem_1fr] items-start gap-2 w-full">

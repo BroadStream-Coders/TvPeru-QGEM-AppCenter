@@ -1,25 +1,25 @@
 "use client";
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
-import { ExamenGroupColumn } from "./GroupColumn";
+import { SharedColumn } from "./GroupColumn";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
-import { ExamenLevel5Row, ExamenLevel5RowData } from "./Level5Row";
+import { Level5Row, Level5RowData } from "./Level5Row";
 
-export interface ExamenLevel5Column {
+export interface Level5Column {
   title: string;
-  rows: ExamenLevel5RowData[];
+  rows: Level5RowData[];
 }
 
-export interface ExamenLevel5ViewRef {
-  getData: () => ExamenLevel5Column[];
-  setData: (data: ExamenLevel5Column[]) => void;
+export interface Level5ViewRef {
+  getData: () => Level5Column[];
+  setData: (data: Level5Column[]) => void;
 }
 
-const createEmptyLevel5Row = (): ExamenLevel5RowData => ({ id: nanoid() });
+const createEmptyLevel5Row = (): Level5RowData => ({ id: nanoid() });
 
-export const ExamenLevel5View = forwardRef<ExamenLevel5ViewRef>((_, ref) => {
-  const [columns, setColumns] = useState<ExamenLevel5Column[]>([
+export const Level5View = forwardRef<Level5ViewRef>((_, ref) => {
+  const [columns, setColumns] = useState<Level5Column[]>([
     {
       title: "",
       rows: [createEmptyLevel5Row()],
@@ -70,7 +70,7 @@ export const ExamenLevel5View = forwardRef<ExamenLevel5ViewRef>((_, ref) => {
   const updateRow = (
     columnIndex: number,
     rowIndex: number,
-    updates: Partial<ExamenLevel5RowData>,
+    updates: Partial<Level5RowData>,
   ) => {
     setColumns((prev) => {
       const next = [...prev];
@@ -107,7 +107,7 @@ export const ExamenLevel5View = forwardRef<ExamenLevel5ViewRef>((_, ref) => {
   return (
     <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
       {columns.map((col, colIndex) => (
-        <ExamenGroupColumn
+        <SharedColumn
           key={colIndex}
           index={colIndex + 1}
           title={col.title}
@@ -118,7 +118,7 @@ export const ExamenLevel5View = forwardRef<ExamenLevel5ViewRef>((_, ref) => {
           onQuickLoad={() => handleQuickLoad()}
         >
           {col.rows.map((row, rowIndex) => (
-            <ExamenLevel5Row
+            <Level5Row
               key={row.id}
               index={rowIndex}
               data={row}
@@ -126,10 +126,10 @@ export const ExamenLevel5View = forwardRef<ExamenLevel5ViewRef>((_, ref) => {
               onRemove={() => removeRow(colIndex, rowIndex)}
             />
           ))}
-        </ExamenGroupColumn>
+        </SharedColumn>
       ))}
     </GroupsContainer>
   );
 });
 
-ExamenLevel5View.displayName = "ExamenLevel5View";
+Level5View.displayName = "Level5View";

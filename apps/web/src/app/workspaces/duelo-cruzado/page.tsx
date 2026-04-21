@@ -7,42 +7,42 @@ import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { LevelTabs } from "@/components/shared/LevelTabs";
 import { nanoid } from "nanoid";
 import { SessionData } from "./types";
-import { ExamenLevel0View, ExamenLevel0ViewRef } from "./components/Level0View";
+import { Level0View, Level0ViewRef } from "./components/Level0View";
 import {
-  ExamenLevel1View,
-  ExamenLevel1ViewRef,
-  ExamenLevel1Column,
+  Level1View,
+  Level1ViewRef,
+  Level1Column,
 } from "./components/Level1View";
 import {
-  ExamenLevel2View,
-  ExamenLevel2ViewRef,
-  ExamenLevel2Column,
+  Level2View,
+  Level2ViewRef,
+  Level2Column,
 } from "./components/Level2View";
 import {
-  ExamenLevel3View,
-  ExamenLevel3ViewRef,
-  ExamenLevel3Column,
+  Level3View,
+  Level3ViewRef,
+  Level3Column,
 } from "./components/Level3View";
 import {
-  ExamenLevel4View,
-  ExamenLevel4ViewRef,
-  ExamenLevel4Column,
+  Level4View,
+  Level4ViewRef,
+  Level4Column,
 } from "./components/Level4View";
 import {
-  ExamenLevel5View,
-  ExamenLevel5ViewRef,
-  ExamenLevel5Column,
+  Level5View,
+  Level5ViewRef,
+  Level5Column,
 } from "./components/Level5View";
 
 const DEFAULT_FILENAME = "DueloCruzado.zip";
 
 export default function DueloCruzadoPage() {
-  const level0Ref = useRef<ExamenLevel0ViewRef>(null);
-  const level1Ref = useRef<ExamenLevel1ViewRef>(null);
-  const level2Ref = useRef<ExamenLevel2ViewRef>(null);
-  const level3Ref = useRef<ExamenLevel3ViewRef>(null);
-  const level4Ref = useRef<ExamenLevel4ViewRef>(null);
-  const level5Ref = useRef<ExamenLevel5ViewRef>(null);
+  const level0Ref = useRef<Level0ViewRef>(null);
+  const level1Ref = useRef<Level1ViewRef>(null);
+  const level2Ref = useRef<Level2ViewRef>(null);
+  const level3Ref = useRef<Level3ViewRef>(null);
+  const level4Ref = useRef<Level4ViewRef>(null);
+  const level5Ref = useRef<Level5ViewRef>(null);
 
   const setHeader = useWorkspaceHeader((s) => s.setHeader);
   const resetHeader = useWorkspaceHeader((s) => s.resetHeader);
@@ -153,7 +153,7 @@ export default function DueloCruzadoPage() {
       }
 
       if (sessionData.level1?.groups) {
-        const d1: ExamenLevel1Column[] = sessionData.level1.groups.map((g) => ({
+        const d1: Level1Column[] = sessionData.level1.groups.map((g) => ({
           title: g.title || "",
           rows: g.questions.map((q) => ({
             id: nanoid(),
@@ -167,7 +167,7 @@ export default function DueloCruzadoPage() {
       }
 
       if (sessionData.level2?.groups) {
-        const d2: ExamenLevel2Column[] = sessionData.level2.groups.map((g) => ({
+        const d2: Level2Column[] = sessionData.level2.groups.map((g) => ({
           title: g.title || "",
           rows: g.questions.map((q) => ({
             id: nanoid(),
@@ -183,7 +183,7 @@ export default function DueloCruzadoPage() {
       }
 
       if (sessionData.level3?.groups) {
-        const d3: ExamenLevel3Column[] = sessionData.level3.groups.map((g) => ({
+        const d3: Level3Column[] = sessionData.level3.groups.map((g) => ({
           title: g.title || "",
           rows: g.questions.map((q) => ({
             id: nanoid(),
@@ -197,7 +197,7 @@ export default function DueloCruzadoPage() {
       }
 
       if (sessionData.level4?.groups) {
-        const d4: ExamenLevel4Column[] = sessionData.level4.groups.map((g) => ({
+        const d4: Level4Column[] = sessionData.level4.groups.map((g) => ({
           title: g.title || "",
           rows: g.questions.map((q) => ({
             id: nanoid(),
@@ -209,7 +209,7 @@ export default function DueloCruzadoPage() {
       }
 
       if (sessionData.level5?.groups) {
-        const d5: ExamenLevel5Column[] = await Promise.all(
+        const d5: Level5Column[] = await Promise.all(
           sessionData.level5.groups.map(async (g) => {
             const rows = await Promise.all(
               g.questions.map(async (q) => {
@@ -273,32 +273,32 @@ export default function DueloCruzadoPage() {
           {
             name: "Nivel 0",
             icon: Layers,
-            component: <ExamenLevel0View ref={level0Ref} />,
+            component: <Level0View ref={level0Ref} />,
           },
           {
             name: "Nivel 1",
             icon: Layers,
-            component: <ExamenLevel1View ref={level1Ref} />,
+            component: <Level1View ref={level1Ref} />,
           },
           {
             name: "Nivel 2",
             icon: Layers,
-            component: <ExamenLevel2View ref={level2Ref} />,
+            component: <Level2View ref={level2Ref} />,
           },
           {
             name: "Nivel 3",
             icon: Layers,
-            component: <ExamenLevel3View ref={level3Ref} />,
+            component: <Level3View ref={level3Ref} />,
           },
           {
             name: "Nivel 4",
             icon: Layers,
-            component: <ExamenLevel4View ref={level4Ref} />,
+            component: <Level4View ref={level4Ref} />,
           },
           {
             name: "Nivel 5",
             icon: Layers,
-            component: <ExamenLevel5View ref={level5Ref} />,
+            component: <Level5View ref={level5Ref} />,
           },
         ]}
       />

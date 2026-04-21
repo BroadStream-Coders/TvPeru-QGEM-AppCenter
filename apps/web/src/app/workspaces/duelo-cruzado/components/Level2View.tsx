@@ -1,22 +1,22 @@
 "use client";
 
 import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
-import { ExamenGroupColumn } from "./GroupColumn";
+import { SharedColumn } from "./GroupColumn";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
-import { ExamenLevel2Row, ExamenLevel2RowData } from "./Level2Row";
+import { Level2Row, Level2RowData } from "./Level2Row";
 
-export interface ExamenLevel2Column {
+export interface Level2Column {
   title: string;
-  rows: ExamenLevel2RowData[];
+  rows: Level2RowData[];
 }
 
-export interface ExamenLevel2ViewRef {
-  getData: () => ExamenLevel2Column[];
-  setData: (data: ExamenLevel2Column[]) => void;
+export interface Level2ViewRef {
+  getData: () => Level2Column[];
+  setData: (data: Level2Column[]) => void;
 }
 
-const createEmptyRow = (): ExamenLevel2RowData => ({
+const createEmptyRow = (): Level2RowData => ({
   id: nanoid(),
   question: "",
   answerA: "",
@@ -26,8 +26,8 @@ const createEmptyRow = (): ExamenLevel2RowData => ({
   correctAnswer: "A",
 });
 
-export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
-  const [columns, setColumns] = useState<ExamenLevel2Column[]>([
+export const Level2View = forwardRef<Level2ViewRef>((_, ref) => {
+  const [columns, setColumns] = useState<Level2Column[]>([
     { title: "", rows: [createEmptyRow()] },
   ]);
 
@@ -62,7 +62,7 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
   const updateRow = (
     columnIndex: number,
     rowIndex: number,
-    updates: Partial<ExamenLevel2RowData>,
+    updates: Partial<Level2RowData>,
   ) => {
     const next = [...columns];
     next[columnIndex] = {
@@ -89,7 +89,7 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
         .map((row) => row[0]?.trim() ?? "")
         .filter((line) => line !== "");
 
-      const newRows: ExamenLevel2RowData[] = [];
+      const newRows: Level2RowData[] = [];
 
       for (let i = 0; i < rawLines.length; i += 5) {
         const chunk = rawLines.slice(i, i + 5);
@@ -138,7 +138,7 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
   return (
     <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
       {columns.map((col, colIndex) => (
-        <ExamenGroupColumn
+        <SharedColumn
           key={colIndex}
           index={colIndex + 1}
           title={col.title}
@@ -149,7 +149,7 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
           onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
           {col.rows.map((row, rowIndex) => (
-            <ExamenLevel2Row
+            <Level2Row
               key={row.id}
               index={rowIndex}
               data={row}
@@ -157,10 +157,10 @@ export const ExamenLevel2View = forwardRef<ExamenLevel2ViewRef>((_, ref) => {
               onRemove={() => removeRow(colIndex, rowIndex)}
             />
           ))}
-        </ExamenGroupColumn>
+        </SharedColumn>
       ))}
     </GroupsContainer>
   );
 });
 
-ExamenLevel2View.displayName = "ExamenLevel2View";
+Level2View.displayName = "Level2View";

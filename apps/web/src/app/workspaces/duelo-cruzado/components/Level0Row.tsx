@@ -4,19 +4,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
-interface ExamenLevel0RowProps {
+interface Level0RowProps {
   index: number;
   value: string;
   onChange: (value: string) => void;
   onRemove: () => void;
 }
 
-export function ExamenLevel0Row({
+export function Level0Row({
   index,
   value,
   onChange,
   onRemove,
-}: ExamenLevel0RowProps) {
+}: Level0RowProps) {
   return (
     <div className="flex items-center gap-2 group">
       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-2xs font-mono text-muted-foreground/50 select-none">

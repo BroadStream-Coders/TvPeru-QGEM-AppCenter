@@ -1,29 +1,29 @@
 "use client";
 
 import { useState, forwardRef, useImperativeHandle } from "react";
-import { ExamenGroupColumn } from "./GroupColumn";
+import { SharedColumn } from "./GroupColumn";
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
 import { nanoid } from "nanoid";
-import { ExamenLevel4Row, ExamenLevel4RowData } from "./Level4Row";
+import { Level4Row, Level4RowData } from "./Level4Row";
 
-export interface ExamenLevel4Column {
+export interface Level4Column {
   title: string;
-  rows: ExamenLevel4RowData[];
+  rows: Level4RowData[];
 }
 
-export interface ExamenLevel4ViewRef {
-  getData: () => ExamenLevel4Column[];
-  setData: (data: ExamenLevel4Column[]) => void;
+export interface Level4ViewRef {
+  getData: () => Level4Column[];
+  setData: (data: Level4Column[]) => void;
 }
 
-const createEmptyRow = (): ExamenLevel4RowData => ({
+const createEmptyRow = (): Level4RowData => ({
   id: nanoid(),
   question: "",
   answer: "",
 });
 
-export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
-  const [columns, setColumns] = useState<ExamenLevel4Column[]>([
+export const Level4View = forwardRef<Level4ViewRef>((_, ref) => {
+  const [columns, setColumns] = useState<Level4Column[]>([
     { title: "", rows: [createEmptyRow()] },
   ]);
 
@@ -58,7 +58,7 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
   const updateRow = (
     columnIndex: number,
     rowIndex: number,
-    updates: Partial<ExamenLevel4RowData>,
+    updates: Partial<Level4RowData>,
   ) => {
     const next = [...columns];
     next[columnIndex] = {
@@ -80,7 +80,7 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
   };
 
   const handleQuickLoad = (columnIndex: number, matrix: string[][]) => {
-    const newRows: ExamenLevel4RowData[] = matrix
+    const newRows: Level4RowData[] = matrix
       .filter((row) => row.length > 0 && row.some((cell) => cell.trim() !== ""))
       .map((row) => ({
         id: nanoid(),
@@ -98,7 +98,7 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
   return (
     <GroupsContainer onAddGroup={addColumn} addLabel="Agregar Grupo">
       {columns.map((col, colIndex) => (
-        <ExamenGroupColumn
+        <SharedColumn
           key={colIndex}
           index={colIndex + 1}
           title={col.title}
@@ -109,7 +109,7 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
           onQuickLoad={(matrix) => handleQuickLoad(colIndex, matrix)}
         >
           {col.rows.map((row, rowIndex) => (
-            <ExamenLevel4Row
+            <Level4Row
               key={row.id}
               index={rowIndex}
               data={row}
@@ -117,10 +117,10 @@ export const ExamenLevel4View = forwardRef<ExamenLevel4ViewRef>((_, ref) => {
               onRemove={() => removeRow(colIndex, rowIndex)}
             />
           ))}
-        </ExamenGroupColumn>
+        </SharedColumn>
       ))}
     </GroupsContainer>
   );
 });
 
-ExamenLevel4View.displayName = "ExamenLevel4View";
+Level4View.displayName = "Level4View";

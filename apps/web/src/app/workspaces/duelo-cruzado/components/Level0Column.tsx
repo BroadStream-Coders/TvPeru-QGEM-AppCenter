@@ -5,11 +5,11 @@ import { GroupFooter } from "@/components/shared/group-column/layout/GroupFooter
 import { RowsContainer } from "@/components/shared/group-column/components/RowsContainer";
 import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
-import { ExamenLevel0Row } from "./Level0Row";
+import { Level0Row } from "./Level0Row";
 
 const MAX_CAPACITY = 20;
 
-interface ExamenLevel0ColumnProps {
+interface Level0ColumnProps {
   index: number;
   courses: string[];
   onCourseChange: (courseIndex: number, value: string) => void;
@@ -19,7 +19,7 @@ interface ExamenLevel0ColumnProps {
   onQuickLoad: (data: string[][]) => void;
 }
 
-export function ExamenLevel0Column({
+export function Level0Column({
   index,
   courses,
   onCourseChange,
@@ -27,7 +27,7 @@ export function ExamenLevel0Column({
   onRemoveCourse,
   onRemoveColumn,
   onQuickLoad,
-}: ExamenLevel0ColumnProps) {
+}: Level0ColumnProps) {
   const handleAddCourse = () => {
     if (courses.length >= MAX_CAPACITY) return;
     onAddCourse();
@@ -42,7 +42,7 @@ export function ExamenLevel0Column({
     >
       <RowsContainer>
         {courses.map((course, courseIndex) => (
-          <ExamenLevel0Row
+          <Level0Row
             key={courseIndex}
             index={courseIndex}
             value={course}
