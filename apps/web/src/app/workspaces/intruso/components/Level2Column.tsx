@@ -6,17 +6,17 @@ import { RowsContainer } from "@/components/shared/group-column/components/RowsC
 import { AddRowButton } from "@/components/shared/group-column/components/AddRowButton";
 import { DescriptionInput } from "@/components/shared/group-column/components/DescriptionInput";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
-import { ImpostorCard } from "./Card";
+import { Card } from "./Card";
 
 interface Photo {
   id: string;
   name?: string;
   file?: File;
   url?: string;
-  isImpostor: boolean;
+  isIntruso: boolean;
 }
 
-interface ImpostorColumnProps {
+interface Level2ColumnProps {
   index: number;
   photos: Photo[];
   context: string;
@@ -28,7 +28,7 @@ interface ImpostorColumnProps {
   onQuickLoad: (data: string[][]) => void;
 }
 
-export function ImpostorColumn({
+export function Level2Column({
   index,
   photos,
   context,
@@ -38,7 +38,7 @@ export function ImpostorColumn({
   onUpdateRound,
   onRemoveColumn,
   onQuickLoad,
-}: ImpostorColumnProps) {
+}: Level2ColumnProps) {
   const handleAddPhoto = () => {
     if (photos.length >= 4) return;
     onAddPhoto();
@@ -60,20 +60,21 @@ export function ImpostorColumn({
       <RowsContainer>
         <div className="grid grid-cols-2 gap-3">
           {photos.map((photo) => (
-            <ImpostorCard
+            <Card
               key={photo.id}
               id={photo.id}
               name={photo.name}
               imageUrl={photo.url}
-              isImpostor={photo.isImpostor}
+              isIntruso={photo.isIntruso}
               onImageChange={(file, url) =>
                 onUpdatePhoto(photo.id, { file, url })
               }
               onNameChange={(name) => onUpdatePhoto(photo.id, { name })}
-              onToggleImpostor={() =>
-                onUpdatePhoto(photo.id, { isImpostor: !photo.isImpostor })
+              onToggleIntruso={() =>
+                onUpdatePhoto(photo.id, { isIntruso: !photo.isIntruso })
               }
               onRemove={() => onRemovePhoto(photo.id)}
+              crop={{ x: 3, y: 4 }}
             />
           ))}
         </div>

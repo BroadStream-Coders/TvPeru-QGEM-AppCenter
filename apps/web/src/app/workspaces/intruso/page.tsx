@@ -6,8 +6,8 @@ import { nanoid } from "nanoid";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { LevelTabs } from "@/components/shared/LevelTabs";
-import { ImpostorLevel1View } from "./components/Level1View";
-import { ImpostorLevel2View } from "./components/Level2View";
+import { Level1View } from "./components/Level1View";
+import { Level2View } from "./components/Level2View";
 
 const DEFAULT_FILENAME = "Intruso.zip";
 const SESSION_DATA_FILENAME = "sessionData.json";
@@ -17,15 +17,15 @@ interface Photo {
   name?: string;
   file?: File;
   url?: string;
-  isImpostor: boolean;
+  isIntruso: boolean;
 }
 
 interface Option {
   text: string;
-  isImpostor: boolean;
+  isIntruso: boolean;
 }
 
-interface ImpostorRound {
+interface Round {
   id: string;
   context: string;
   photos: Photo[];
@@ -60,20 +60,20 @@ type LevelId = "nivel1" | "nivel2";
 const createEmptyPhoto = (): Photo => ({
   id: nanoid(),
   name: "",
-  isImpostor: false,
+  isIntruso: false,
 });
 
-const createEmptyLevel1Round = (): ImpostorRound => ({
+const createEmptyLevel1Round = (): Round => ({
   id: nanoid(),
   context: "",
   photos: [createEmptyPhoto()],
-  options: [{ text: "", isImpostor: false }],
+  options: [{ text: "", isIntruso: false }],
 });
 
-const createEmptyLevel2Round = (): ImpostorRound => {
+const createEmptyLevel2Round = (): Round => {
   const photos = Array(4).fill(null).map(createEmptyPhoto);
   if (photos.length > 0) {
-    photos[0].isImpostor = true;
+    photos[0].isIntruso = true;
   }
   return {
     id: nanoid(),
@@ -82,9 +82,9 @@ const createEmptyLevel2Round = (): ImpostorRound => {
   };
 };
 
-export default function ImpostorPage() {
+export default function Page() {
   const [roundsPerLevel, setRoundsPerLevel] = useState<
-    Record<LevelId, ImpostorRound[]>
+    Record<LevelId, Round[]>
   >({
     nivel1: [createEmptyLevel1Round()],
     nivel2: [createEmptyLevel2Round()],
@@ -95,7 +95,7 @@ export default function ImpostorPage() {
 
   const setRoundsForLevel = (
     level: LevelId,
-    newRounds: ImpostorRound[] | ((prev: ImpostorRound[]) => ImpostorRound[]),
+    newRounds: Round[] | ((prev: Round[]) => Round[]),
   ) => {
     setRoundsPerLevel((prev) => ({
       ...prev,
@@ -141,10 +141,7 @@ export default function ImpostorPage() {
     );
   };
 
-  const updateLevel1Round = (
-    roundId: string,
-    updates: Partial<ImpostorRound>,
-  ) => {
+  const updateLevel1Round = (roundId: string, updates: Partial<Round>) => {
     setRoundsForLevel("nivel1", (prev) =>
       prev.map((r) => (r.id === roundId ? { ...r, ...updates } : r)),
     );
@@ -160,7 +157,7 @@ export default function ImpostorPage() {
 
     const options: Option[] = lines.map((text) => ({
       text,
-      isImpostor: false,
+      isIntruso: false,
     }));
 
     setRoundsForLevel("nivel1", (prev) =>
@@ -219,8 +216,8 @@ export default function ImpostorPage() {
                 URL.revokeObjectURL(p.url);
               return { ...p, ...updates };
             }
-            if (updates.isImpostor === true) {
-              return { ...p, isImpostor: false };
+            if (updates.isIntruso === true) {
+              return { ...p, isIntruso: false };
             }
             return p;
           }),
@@ -229,10 +226,7 @@ export default function ImpostorPage() {
     );
   };
 
-  const updateLevel2Round = (
-    roundId: string,
-    updates: Partial<ImpostorRound>,
-  ) => {
+  const updateLevel2Round = (roundId: string, updates: Partial<Round>) => {
     setRoundsForLevel("nivel2", (prev) =>
       prev.map((r) => (r.id === roundId ? { ...r, ...updates } : r)),
     );
@@ -271,7 +265,7 @@ export default function ImpostorPage() {
           : "",
         answerIndex: Math.max(
           0,
-          round.options?.findIndex((o) => o.isImpostor) ?? 0,
+          round.options?.findIndex((o) => o.isIntruso) ?? 0,
         ),
         choices: round.options?.map((o) => o.text) ?? [],
       })),
@@ -279,7 +273,7 @@ export default function ImpostorPage() {
         description: round.context,
         answerIndex: Math.max(
           0,
-          round.photos.findIndex((p) => p.isImpostor),
+          round.photos.findIndex((p) => p.isIntruso),
         ),
         choices: round.photos.map((photo) => ({
           label: photo.name || "",
@@ -327,7 +321,7 @@ export default function ImpostorPage() {
   const handleLoad = useCallback(async (file: File) => {
     try {
       const zip = await loadZipFile(file);
-      const dataFile = zip.file(SESSION_DATA_FILENAME) || zip.file("data.json");
+      const dataFile = zip.file(SESSION_DATA_FILENAME);
 
       if (!dataFile) {
         alert(
@@ -348,7 +342,7 @@ export default function ImpostorPage() {
 
       const processLevel1 = async (
         levelMeta: TextRound[],
-      ): Promise<ImpostorRound[]> => {
+      ): Promise<Round[]> => {
         if (!Array.isArray(levelMeta)) return [];
         return Promise.all(
           levelMeta.map(async (roundMeta) => {
@@ -377,9 +371,9 @@ export default function ImpostorPage() {
               Array.isArray(roundMeta.choices) && roundMeta.choices.length > 0
                 ? roundMeta.choices.map((text, idx) => ({
                     text,
-                    isImpostor: idx === roundMeta.answerIndex,
+                    isIntruso: idx === roundMeta.answerIndex,
                   }))
-                : [{ text: "", isImpostor: false }];
+                : [{ text: "", isIntruso: false }];
 
             return {
               id: nanoid(),
@@ -388,7 +382,7 @@ export default function ImpostorPage() {
                 {
                   id: nanoid(),
                   name: "",
-                  isImpostor: false,
+                  isIntruso: false,
                   file: imageFile,
                   url: imageUrl,
                 },
@@ -401,7 +395,7 @@ export default function ImpostorPage() {
 
       const processLevel2 = async (
         levelMeta: PhotoRound[],
-      ): Promise<ImpostorRound[]> => {
+      ): Promise<Round[]> => {
         if (!Array.isArray(levelMeta)) return [];
         return Promise.all(
           levelMeta.map(async (roundMeta) => {
@@ -426,7 +420,7 @@ export default function ImpostorPage() {
                 return {
                   id: nanoid(),
                   name: pMeta.label || "",
-                  isImpostor: idx === roundMeta.answerIndex,
+                  isIntruso: idx === roundMeta.answerIndex,
                   file: imageFile,
                   url: imageUrl,
                 };
@@ -478,7 +472,7 @@ export default function ImpostorPage() {
             name: "Nivel 1",
             icon: Layers,
             component: (
-              <ImpostorLevel1View
+              <Level1View
                 rounds={roundsPerLevel.nivel1}
                 onAddRound={addLevel1Round}
                 onRemoveRound={removeLevel1Round}
@@ -492,7 +486,7 @@ export default function ImpostorPage() {
             name: "Nivel 2",
             icon: Layers,
             component: (
-              <ImpostorLevel2View
+              <Level2View
                 rounds={roundsPerLevel.nivel2}
                 onAddRound={addLevel2Round}
                 onRemoveRound={removeLevel2Round}

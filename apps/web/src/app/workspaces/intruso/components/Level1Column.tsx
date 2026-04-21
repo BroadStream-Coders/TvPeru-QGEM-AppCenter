@@ -7,22 +7,22 @@ import { AddRowButton } from "@/components/shared/group-column/components/AddRow
 import { DescriptionInput } from "@/components/shared/group-column/components/DescriptionInput";
 import { QuickLoad } from "@/components/shared/group-column/components/QuickLoad";
 import { X, AlertCircle } from "lucide-react";
-import { ImpostorCard } from "./Card";
+import { Card } from "./Card";
 
 interface Photo {
   id: string;
   name?: string;
   file?: File;
   url?: string;
-  isImpostor: boolean;
+  isIntruso: boolean;
 }
 
 interface Option {
   text: string;
-  isImpostor: boolean;
+  isIntruso: boolean;
 }
 
-interface ImpostorLevel1ColumnProps {
+interface Level1ColumnProps {
   index: number;
   photo: Photo;
   context: string;
@@ -33,7 +33,7 @@ interface ImpostorLevel1ColumnProps {
   onQuickLoad: (data: string[][]) => void;
 }
 
-export function ImpostorLevel1Column({
+export function Level1Column({
   index,
   photo,
   context,
@@ -42,10 +42,10 @@ export function ImpostorLevel1Column({
   onUpdateRound,
   onRemoveColumn,
   onQuickLoad,
-}: ImpostorLevel1ColumnProps) {
+}: Level1ColumnProps) {
   const addOption = () => {
     if (options.length < 4) {
-      onUpdateRound({ options: [...options, { text: "", isImpostor: false }] });
+      onUpdateRound({ options: [...options, { text: "", isIntruso: false }] });
     }
   };
 
@@ -62,10 +62,10 @@ export function ImpostorLevel1Column({
     onUpdateRound({ options: newOptions });
   };
 
-  const toggleOptionImpostor = (idx: number) => {
+  const toggleOptionIntruso = (idx: number) => {
     const newOptions = options.map((opt, i) => ({
       ...opt,
-      isImpostor: i === idx ? !opt.isImpostor : false,
+      isIntruso: i === idx ? !opt.isIntruso : false,
     }));
     onUpdateRound({ options: newOptions });
   };
@@ -90,17 +90,18 @@ export function ImpostorLevel1Column({
             Imagen única
           </label>
           <div className="px-2">
-            <ImpostorCard
+            <Card
               id={photo.id}
               name={photo.name}
               imageUrl={photo.url}
-              isImpostor={false}
+              isIntruso={false}
               onImageChange={(file, url) => onUpdatePhoto({ file, url })}
               onNameChange={() => {}}
-              onToggleImpostor={() => {}}
+              onToggleIntruso={() => {}}
               onRemove={() => {}}
               variant="simple"
               hideName={true}
+              crop={{ x: 21, y: 9 }}
             />
           </div>
         </div>
@@ -118,21 +119,21 @@ export function ImpostorLevel1Column({
               <div key={idx} className="group relative">
                 <div
                   className={`flex items-center gap-2 rounded-md border transition-all ${
-                    option.isImpostor
+                    option.isIntruso
                       ? "border-brand bg-brand/5 ring-1 ring-brand/20 shadow-sm"
                       : "border-border bg-background/50"
                   }`}
                 >
                   <button
-                    onClick={() => toggleOptionImpostor(idx)}
+                    onClick={() => toggleOptionIntruso(idx)}
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-l-md border-r transition-colors ${
-                      option.isImpostor
+                      option.isIntruso
                         ? "bg-brand text-brand-foreground border-brand/20"
                         : "bg-muted/30 text-muted-foreground/30 hover:text-brand hover:bg-brand/10"
                     }`}
                   >
                     <AlertCircle
-                      className={`h-4 w-4 ${option.isImpostor ? "animate-pulse" : ""}`}
+                      className={`h-4 w-4 ${option.isIntruso ? "animate-pulse" : ""}`}
                     />
                   </button>
                   <input

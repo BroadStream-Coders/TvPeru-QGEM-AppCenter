@@ -23,7 +23,7 @@
 
 **Bloques 0 y 1 completados.** La base está lista — cada nuevo colector se construye sobre los componentes compartidos sin repetir código estructural.
 
-Colectores activos: `deletreo`, `calculo-mental`, `mi-libro-favorito`, `impostor`, `redactor`.
+Colectores activos: `deletreo`, `calculo-mental`, `mi-libro-favorito`, `Intruso`, `redactor`.
 Colector eliminado: `personajes` (juego cancelado por producción).
 
 ---
@@ -94,7 +94,7 @@ src/
 - [x] **1.2** Migrar `redactor`
 - [x] **1.3** Migrar `mi-libro-favorito`
 - [x] **1.4** Migrar `calculo-mental`
-- [x] **1.5** Migrar `impostor` + fix imágenes al cambiar de tab + fix error tipos `Option[]`
+- [x] **1.5** Migrar `Intruso` + fix imágenes al cambiar de tab + fix error tipos `Option[]`
 - [x] **1.6** Eliminar `personajes` (juego cancelado)
 
 ---
@@ -258,5 +258,5 @@ export default function [Nombre]Page() {
 3. **Bloques 0 y 1 completados**: todos los componentes base existen y todos los colectores anteriores están migrados. Arrancar directo en Bloque 2.
 4. **Los schemas JSON son distintos por colector**: no unificarlos. Solo unificar la UI.
 5. **El template del Bloque 2** es el punto de partida para cualquier colector nuevo.
-6. **`use-image-picker.ts`** tiene la opción `skipCleanupOnUnmount` — activarla en `ImagePicker` para evitar que las URLs se invaliden al cambiar de tab (necesario en Impostor).
-7. **Impostor es especial**: tiene dos niveles con tabs, maneja su propio estado por nivel en `roundsPerLevel`, y NO usa `use-workspace-groups` porque su estructura es más compleja.
+6. **`use-image-picker.ts`** tiene la opción `skipCleanupOnUnmount` — activarla en `ImagePicker` para evitar que las URLs se invaliden al cambiar de tab (necesario en Intruso).
+7. **Intruso es especial**: tiene dos niveles con tabs, maneja su propio estado por nivel en `roundsPerLevel`, y NO usa `use-workspace-groups` porque su estructura es más compleja.

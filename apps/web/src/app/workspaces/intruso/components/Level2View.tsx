@@ -1,24 +1,24 @@
 "use client";
 
 import { GroupsContainer } from "@/components/shared/group-column/layout/GroupsContainer";
-import { ImpostorColumn } from "./Column";
+import { Level2Column } from "./Level2Column";
 
 interface Photo {
   id: string;
   name?: string;
   file?: File;
   url?: string;
-  isImpostor: boolean;
+  isIntruso: boolean;
 }
 
-interface ImpostorRound {
+interface Round {
   id: string;
   context: string;
   photos: Photo[];
 }
 
-interface ImpostorLevel2ViewProps {
-  rounds: ImpostorRound[];
+interface Level2ViewProps {
+  rounds: Round[];
   onAddRound: () => void;
   onRemoveRound: (id: string) => void;
   onAddPhotoToRound: (roundId: string) => void;
@@ -28,11 +28,11 @@ interface ImpostorLevel2ViewProps {
     photoId: string,
     updates: Partial<Photo>,
   ) => void;
-  onUpdateRound: (roundId: string, updates: Partial<ImpostorRound>) => void;
+  onUpdateRound: (roundId: string, updates: Partial<Round>) => void;
   onQuickLoad: (roundId: string, data: string[][]) => void;
 }
 
-export function ImpostorLevel2View({
+export function Level2View({
   rounds,
   onAddRound,
   onRemoveRound,
@@ -41,11 +41,11 @@ export function ImpostorLevel2View({
   onUpdatePhotoInRound,
   onUpdateRound,
   onQuickLoad,
-}: ImpostorLevel2ViewProps) {
+}: Level2ViewProps) {
   return (
     <GroupsContainer onAddGroup={onAddRound} addLabel="Añadir Ronda">
       {rounds.map((round, roundIndex) => (
-        <ImpostorColumn
+        <Level2Column
           key={round.id}
           index={roundIndex + 1}
           photos={round.photos}
