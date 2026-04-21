@@ -10,38 +10,44 @@ export interface ExamenLevel0ViewRef {
   setData: (data: string[]) => void;
 }
 
-export const ExamenLevel0View = forwardRef<ExamenLevel0ViewRef>((props, ref) => {
-  const { groups, addItem, removeItem, updateItem, replaceGroup, setGroups } =
-    useWorkspaceGroups<string>([[""]], () => "");
+export const ExamenLevel0View = forwardRef<ExamenLevel0ViewRef>(
+  (props, ref) => {
+    const { groups, addItem, removeItem, updateItem, replaceGroup, setGroups } =
+      useWorkspaceGroups<string>([[""]], () => "");
 
-  const courses = useMemo(() => groups[0] || [], [groups]);
+    const courses = useMemo(() => groups[0] || [], [groups]);
 
-  useImperativeHandle(ref, () => ({
-    getData: () => courses.map((c) => c.trim()).filter((c) => c !== "").slice(0, 20),
-    setData: (data) => setGroups([data.length > 0 ? data : [""]]),
-  }));
+    useImperativeHandle(ref, () => ({
+      getData: () =>
+        courses
+          .map((c) => c.trim())
+          .filter((c) => c !== "")
+          .slice(0, 20),
+      setData: (data) => setGroups([data.length > 0 ? data : [""]]),
+    }));
 
-  const handleQuickLoad = (matrix: string[][]) => {
-    replaceGroup(0, getColumnData(matrix, 0));
-  };
+    const handleQuickLoad = (matrix: string[][]) => {
+      replaceGroup(0, getColumnData(matrix, 0));
+    };
 
-  const handleClearAll = () => {
-    setGroups([[""]]);
-  };
+    const handleClearAll = () => {
+      setGroups([[""]]);
+    };
 
-  return (
-    <div className="flex min-w-max gap-4 px-6 py-6 h-full justify-center">
-      <ExamenLevel0Column
-        index={1}
-        courses={courses}
-        onCourseChange={(idx, val) => updateItem(0, idx, val)}
-        onAddCourse={() => addItem(0)}
-        onRemoveCourse={(idx) => removeItem(0, idx)}
-        onRemoveColumn={handleClearAll}
-        onQuickLoad={handleQuickLoad}
-      />
-    </div>
-  );
-});
+    return (
+      <div className="flex min-w-max gap-4 px-6 py-6 h-full justify-center">
+        <ExamenLevel0Column
+          index={1}
+          courses={courses}
+          onCourseChange={(idx, val) => updateItem(0, idx, val)}
+          onAddCourse={() => addItem(0)}
+          onRemoveCourse={(idx) => removeItem(0, idx)}
+          onRemoveColumn={handleClearAll}
+          onQuickLoad={handleQuickLoad}
+        />
+      </div>
+    );
+  },
+);
 
 ExamenLevel0View.displayName = "ExamenLevel0View";
