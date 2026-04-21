@@ -31,6 +31,7 @@ export interface ExamenGroup<T> {
 }
 
 export interface ExamenSessionData {
+  level0: { courses: string[] };
   level1: { groups: ExamenGroup<ExamenQuestionL1>[] };
   level2: { groups: ExamenGroup<ExamenQuestionL2>[] };
   level3: { groups: ExamenGroup<ExamenQuestionL3>[] };
