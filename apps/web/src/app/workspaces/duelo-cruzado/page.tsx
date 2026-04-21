@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback } from "react";
-import { FileText, Layers } from "lucide-react";
+import { Layers, Swords } from "lucide-react";
 import { saveAsZip, loadZipFile } from "@/helpers/persistence";
 import { useWorkspaceHeader } from "@/hooks/use-workspace-header";
 import { LevelTabs } from "@/components/shared/LevelTabs";
@@ -34,9 +34,9 @@ import {
   ExamenLevel5Column,
 } from "./components/Level5View";
 
-const DEFAULT_FILENAME = "Examen.zip";
+const DEFAULT_FILENAME = "DueloCruzado.zip";
 
-export default function ExamenPage() {
+export default function DueloCruzadoPage() {
   const level0Ref = useRef<ExamenLevel0ViewRef>(null);
   const level1Ref = useRef<ExamenLevel1ViewRef>(null);
   const level2Ref = useRef<ExamenLevel2ViewRef>(null);
@@ -141,7 +141,7 @@ export default function ExamenPage() {
       const zip = await loadZipFile(file);
       const dataFile = zip.file("sessionData.json") || zip.file("data.json");
       if (!dataFile) {
-        alert("El archivo no es un paquete válido de Examen.");
+        alert("El archivo no es un paquete válido de Duelo Cruzado.");
         return;
       }
 
@@ -258,8 +258,8 @@ export default function ExamenPage() {
 
   useEffect(() => {
     setHeader({
-      title: "Examen",
-      icon: <FileText className="h-3 w-3" />,
+      title: "Duelo Cruzado",
+      icon: <Swords className="h-3 w-3" />,
       format: "zip",
       onSave: handleSave,
       onLoad: handleLoad,

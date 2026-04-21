@@ -8,10 +8,10 @@ import {
   Search,
   Image as ImageIcon,
   Trophy,
-  FileText,
   Grid2x2,
   Sigma,
   HelpCircle,
+  Swords,
 } from "lucide-react";
 
 const workspaces = [
@@ -52,10 +52,10 @@ const workspaces = [
     icon: ImageIcon,
   },
   {
-    name: "Examen",
-    description: "Evaluación de conocimientos",
-    href: "/workspaces/examen",
-    icon: FileText,
+    name: "Duelo Cruzado",
+    description: "Evaluación y listas dinámicas",
+    href: "/workspaces/duelo-cruzado",
+    icon: Swords,
   },
   {
     name: "De par en par",
